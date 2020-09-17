@@ -1,8 +1,10 @@
-// 16.1 harder farther
+// 16.2+ harder farther
 package com.mactso.harderfarther;
 
 
 
+
+import com.mactso.harderfarther.events.SpawnerSpawnEvent;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,7 +22,7 @@ public class Main {
 	    
 	    public Main()
 	    {
-  			System.out.println("harderfarther: Registering Mod.");
+  			System.out.println(MODID + ": Registering Mod.");
 	  		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 //	      ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON,MyConfig.COMMON_SPEC );
 	    }
@@ -28,9 +30,9 @@ public class Main {
 
 		@SubscribeEvent 
 		public void preInit (final FMLCommonSetupEvent event) {
-				System.out.println("harderfarther: Registering Handlers");
+				System.out.println(MODID + ": Registering Handlers");
 //				MinecraftForge.EVENT_BUS.register(new SpawnerBreakEvent ());
-//				MinecraftForge.EVENT_BUS.register(new SpawnerSpawnEvent());
+				MinecraftForge.EVENT_BUS.register(new SpawnerSpawnEvent());
 //				MinecraftForge.EVENT_BUS.register(new MyEntityPlaceEvent());
 		}   
 		
