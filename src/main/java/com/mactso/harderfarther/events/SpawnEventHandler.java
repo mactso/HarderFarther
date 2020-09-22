@@ -3,6 +3,7 @@ package com.mactso.harderfarther.events;
 import java.beans.EventSetDescriptor;
 
 import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.config.MyConfig;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -12,6 +13,11 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.monster.CaveSpiderEntity;
+import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.monster.SkeletonEntity;
+import net.minecraft.entity.monster.SpiderEntity;
+import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
@@ -22,7 +28,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 
-public class SpawnerSpawnEvent {
+public class SpawnEventHandler {
 	private static int debugThreadIdentifier = 0;
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
@@ -47,6 +53,13 @@ public class SpawnerSpawnEvent {
  
     	System.out.println(Main.MODID + " : Hostile Spawn Event.  " + entity.getType().toString());
 
+    	// no spawns closer to worldspawn than safe distance
+    	if (Math.abs(event.getX()) < MyConfig.getSafeDistance()) {
+    		if (Math.abs(event.getZ()) < MyConfig.getSafeDistance()) {
+    			event.setCanceled(true);
+    			return;
+    		}
+    	}
     	
     	Vector3d spawnVec = new Vector3d (serverWorld.getWorldInfo().getSpawnX(),serverWorld.getWorldInfo().getSpawnY(),serverWorld.getWorldInfo().getSpawnZ());
     	Vector3d eventVec = new Vector3d (event.getX(),event.getY(),event.getZ());
@@ -56,6 +69,22 @@ public class SpawnerSpawnEvent {
     	float healthModifier = distanceModifier;
     	float maxHealth = entity.getMaxHealth();
         float totalMaxHealth = maxHealth + healthModifier;
+        
+        // give some mobs a few more bonus hit points.
+        if (entity instanceof ZombieEntity) {
+        	totalMaxHealth = totalMaxHealth + healthModifier;
+        } else if (entity instanceof CaveSpiderEntity) {
+        	// no mod
+        } else if (entity instanceof SpiderEntity) {
+        	totalMaxHealth = totalMaxHealth + healthModifier;
+        } else if (entity instanceof CreeperEntity) {
+        	// no mod
+        } else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
+        	// no mod
+        } else if (entity instanceof SkeletonEntity) {
+        	totalMaxHealth = totalMaxHealth + healthModifier;
+        }
+        
         float maxHealthModifier = healthModifier/maxHealth;
 		entity.getAttribute(Attributes.MAX_HEALTH).func_233767_b_(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
         entity.setHealth(entity.getMaxHealth());
