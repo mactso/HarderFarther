@@ -18,7 +18,7 @@ public class ModItems {
 	
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
-		forgeRegistry.registerAll(BLESSED_APPLE);
+		//forgeRegistry.registerAll(BLESSED_APPLE);
 	}
 
 }
