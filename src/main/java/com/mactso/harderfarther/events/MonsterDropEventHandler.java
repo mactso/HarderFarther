@@ -16,6 +16,8 @@ import net.minecraft.entity.monster.CaveSpiderEntity;
 import net.minecraft.entity.monster.SlimeEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.BatEntity;
+import net.minecraft.entity.passive.fish.CodEntity;
+import net.minecraft.entity.passive.fish.SalmonEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Food;
 import net.minecraft.item.Item;
@@ -56,6 +58,19 @@ public class MonsterDropEventHandler {
 			return;
 		}
 		
+		if (!(eventEntity instanceof MobEntity)) {
+			return;
+		}
+		
+		if (eventEntity instanceof BatEntity) {
+			return;
+		}
+		if (eventEntity instanceof CodEntity) {
+			return;
+		}
+		if (eventEntity instanceof SalmonEntity) {
+			return;
+		}
 
 		ServerWorld serverWorld = (ServerWorld) eventEntity.world;
 		DamageSource dS = event.getSource();
@@ -65,7 +80,7 @@ public class MonsterDropEventHandler {
 		IChunk ichunk = serverWorld.getChunk(pos);
 		IChunkLastMobDeathTime cap;
 
-
+	
 
 		// in this section prevent ALL drops if players are killing mobs too quickly.
 		
@@ -98,9 +113,6 @@ public class MonsterDropEventHandler {
 
 		// In this section, give bonus loot
 		if (!(MyConfig.isMakeMonstersHarderFarther())) {
-			return;
-		}
-		if (!(eventEntity instanceof MobEntity)) {
 			return;
 		}
 
@@ -154,6 +166,15 @@ public class MonsterDropEventHandler {
 				return;
 			}
 		}
+
+		if (randomLootRoll > 666) {
+			ItemStack itemStackToDrop;		
+			itemStackToDrop = new ItemStack(Items.EXPERIENCE_BOTTLE, (int) 1);			
+			ItemEntity myItemEntity = new ItemEntity(eventEntity.world, eventEntity.getPosX(), eventEntity.getPosY(),
+					eventEntity.getPosZ(), itemStackToDrop);
+			eventItems.add(myItemEntity);
+		}
+		randomLootRoll = (int) (Math.ceil(eventEntity.world.rand.nextDouble() * 1000));
 
 		if (randomLootRoll >  odds) {
 			return;

@@ -19,7 +19,7 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 public class SpawnEventHandler {
 	private static int debugThreadIdentifier = 0;
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -42,7 +42,7 @@ public class SpawnEventHandler {
  
 		MyConfig.setaDebugLevel(2);
 		if (MyConfig.getaDebugLevel() > 0) {
-			System.out.println(Main.MODID + " : Hostile Spawn Event.("+event.getX()+" "+event.getY()+ " "+event.getZ()+ ")  " + entity.getType().toString());
+			System.out.println(Main.MODID + "-" + entity.getName().getString() + " : Hostile Spawn Event.("+event.getX()+" "+event.getY()+ " "+event.getZ()+ ")  " + entity.getType().toString());
 		}
     	// no spawns closer to worldspawn than safe distance
     	if (Math.abs(event.getX()) < MyConfig.getSafeDistance()) {
@@ -59,51 +59,76 @@ public class SpawnEventHandler {
 
     	
     	if (MyConfig.isHpMaxModified()) {
-        	float baseMaxHealth = entity.getMaxHealth();
-        	float totalMaxHealth = entity.getMaxHealth();
-        	float healthModifier = (totalMaxHealth * distanceModifier) / 100.0f;
-        	float maxHealthMultiplier = calcMaxHealthMultiplier(entity);
-            totalMaxHealth = baseMaxHealth + (maxHealthMultiplier * healthModifier);    
-            float maxHealthModifier = (((totalMaxHealth/baseMaxHealth) - 1.0f));
-    		entity.getAttribute(Attributes.MAX_HEALTH).func_233767_b_(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
-    		float maxHealth = entity.getMaxHealth();
-            entity.setHealth(entity.getMaxHealth());
-    		if (MyConfig.getaDebugLevel() > 1) {
-    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost HP from "+baseMaxHealth+" to "+ totalMaxHealth + ".");
-    		}
-
+            if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
+	        	float baseMaxHealth = entity.getMaxHealth();
+	        	float totalMaxHealth = entity.getMaxHealth();
+	        	float healthModifier = (totalMaxHealth * distanceModifier) / 100.0f;
+	        	float maxHealthMultiplier = calcMaxHealthMultiplier(entity);
+	            totalMaxHealth = baseMaxHealth + (maxHealthMultiplier * healthModifier);    
+	            float maxHealthModifier = (((totalMaxHealth/baseMaxHealth) - 1.0f));
+	            entity.getAttribute(Attributes.MAX_HEALTH);
+	            entity.getAttribute(Attributes.MAX_HEALTH).func_233767_b_(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
+	    		float maxHealth = entity.getMaxHealth();
+	            entity.setHealth(entity.getMaxHealth());
+	    		if (MyConfig.getaDebugLevel() > 1) {
+	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost HP from "+baseMaxHealth+" to "+ totalMaxHealth + ".");
+	    		}
+            } else {
+	    		if (MyConfig.getaDebugLevel() > 1) {
+	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Max Hit Point Value Null .");
+	    		}
+            }
     	}
     	
 
     	if (MyConfig.isSpeedModified()) {
-            float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
-            float newSpeed = baseSpeed * pctModifier;
-            int debug7 = 3;
-            entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);    		
-    		if (MyConfig.getaDebugLevel() > 1) {
-    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost speed from "+baseSpeed+" to "+ newSpeed+ ".");
+            if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
+                float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
+                float newSpeed = baseSpeed * pctModifier;
+                int debug7 = 3;
+                entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);    		
+        		if (MyConfig.getaDebugLevel() > 1) {
+        			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost speed from "+baseSpeed+" to "+ newSpeed+ ".");
+        		} 
+        		
+            }else {
+	    		if (MyConfig.getaDebugLevel() > 1) {
+	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Speed Value Null .");
+	    		}        			
     		}
-
     	}
 
         if (MyConfig.isAtkDmgModified()) {
-            float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-            float newAttackDamage = baseAttackDamage * pctModifier;
-            entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);        	
- 
-            if (MyConfig.getaDebugLevel() > 1) {
-    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost attack damage from "+baseAttackDamage+" to "+ newAttackDamage+ ".");
+            if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
+            	float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+            	
+                float newAttackDamage = baseAttackDamage * pctModifier;
+                entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);        	
+     
+                if (MyConfig.getaDebugLevel() > 1) {
+        			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost attack damage from "+baseAttackDamage+" to "+ newAttackDamage+ ".");
+        		} 
+            } else {
+	    		if (MyConfig.getaDebugLevel() > 1) {
+	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Attack Damage Null .");
+	    		}        			
     		}
-
         }
 
 
         if(MyConfig.isKnockBackModified()) {
-            float baseKnockBackResistance = (float) entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
-            float newKnockBackResistance = ((1.0f + baseKnockBackResistance) * pctModifier) - 1.0f;
-            entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
-            if (MyConfig.getaDebugLevel() > 1) {
-    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost KB Resist from "+baseKnockBackResistance+" to "+ newKnockBackResistance+ ".");
+            if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
+            	float baseKnockBackResistance = (float) entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
+                float newKnockBackResistance = ((1.0f + baseKnockBackResistance) * pctModifier) - 1.0f;
+                entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
+                if (MyConfig.getaDebugLevel() > 1) {
+        			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost KB Resist from "+baseKnockBackResistance+" to "+ newKnockBackResistance+ ".");
+        		}
+            	
+            }else {
+	    		if (MyConfig.getaDebugLevel() > 1) {
+	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " KB Resist Null .");
+	    		}        			
     		}
         }
 

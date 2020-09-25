@@ -12,6 +12,7 @@ import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.item.ModItems;
+import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,6 +48,7 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
+				CapabilityChunkLastMobDeathTime.register();
 				//				MinecraftForge.EVENT_BUS.register(new MyEntityPlaceEvent());
 		}   
 		
