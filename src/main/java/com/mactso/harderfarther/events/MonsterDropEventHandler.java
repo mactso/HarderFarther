@@ -149,7 +149,7 @@ public class MonsterDropEventHandler {
 		if (distanceModifier < 1.0) {
 			return;
 		}
-
+		int xxzzy=3;
 		if (distanceModifier > MyConfig.getModifierValue())
 			distanceModifier = MyConfig.getModifierValue();
 		if (eventEntity.getPosY() > MyConfig.getMaximumSafeAltitude()) {
@@ -176,7 +176,7 @@ public class MonsterDropEventHandler {
 			eventItems.add(myItemEntity);
 		}
 		randomLootRolld1000 = (int) (Math.ceil(eventEntity.world.rand.nextDouble() * 1000));
-        int debug9 = 3;
+        int debug9 = 4;
 		if (randomLootRolld1000 >  odds) {
 			return;
 		}
