@@ -127,6 +127,9 @@ public class MyConfig {
 	public static int getModifierValue() {
 		return modifierValue;
 	}
+	public static int getOddsDropExperienceBottle() {
+		return oddsDropExperienceBottle;
+	}
 	
 	private static int      aDebugLevel;
 	private static int 	    limitMobFarmsTimer;
@@ -134,6 +137,7 @@ public class MyConfig {
 	private static int 	    modifierMaxDistance;
 	private static int 		modifierValue;
 	private static int      safeDistance;
+	private static int      oddsDropExperienceBottle;
 	private static String 	itemCommonConfigValue;
 	private static String 	itemUncommonConfigValue;
 	private static String 	itemRareConfigValue;
@@ -171,6 +175,7 @@ public class MyConfig {
 		COMMON.modifierMaxDistance.set(modifierMaxDistance);
 		COMMON.modifierValue.set(modifierValue);
 		COMMON.safeDistance.set(safeDistance);
+		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
 		Common.itemCommon.set(itemCommonConfigValue);
@@ -192,6 +197,7 @@ public class MyConfig {
 		modifierMaxDistance = COMMON.modifierMaxDistance.get();
 		modifierValue = COMMON.modifierValue.get();
 		safeDistance =COMMON.safeDistance.get();
+		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
 		hpMaxMod=COMMON.hpMaxMod.get();
 		speedMod=COMMON.speedMod.get();
 		atkDmgMod=COMMON.atkDmgMod.get();
@@ -217,6 +223,7 @@ public class MyConfig {
 		public final BooleanValue makeMonstersHarderFarther;
 		public final IntValue modifierMaxDistance;
 		public final IntValue modifierValue;
+		public final IntValue oddsDropExperienceBottle;
 		public final IntValue safeDistance;
 		public final IntValue minimumSafeAltitude;
 		public final IntValue maximumSafeAltitude;
@@ -273,6 +280,11 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "maximumSafeAltitude")
 					.defineInRange("maximumSafeAltitude", () -> 99, 76, 160);			
 
+			oddsDropExperienceBottle = builder
+					.comment("oddsDropExperienceBottle: Chance to drop 1 experience bottle.")
+					.translation(Main.MODID + ".config." + "oddsDropExperienceBottle")
+					.defineInRange("oddsDropExperienceBottle", () -> 33, 0, 100);
+			
 			itemCommon = builder
 					.comment("Common Loot Item: ")
 					.translation(Main.MODID + ".config" + "itemCommon")
