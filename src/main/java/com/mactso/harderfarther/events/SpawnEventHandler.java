@@ -40,7 +40,7 @@ public class SpawnEventHandler {
 			return;
 		}
  
-		MyConfig.setaDebugLevel(2);
+
 		if (MyConfig.getaDebugLevel() > 0) {
 			System.out.println(Main.MODID + "-" + entity.getName().getString() + " : Hostile Spawn Event.("+event.getX()+" "+event.getY()+ " "+event.getZ()+ ")  " + entity.getType().toString());
 		}
