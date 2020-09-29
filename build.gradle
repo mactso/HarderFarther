@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.21.0.4'
+version = '1.21.0.5'
 group = 'com.mactso.harderfarther' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'HarderFarther-1.16.3'
 
