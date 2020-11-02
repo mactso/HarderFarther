@@ -67,7 +67,7 @@ public class SpawnEventHandler {
 	            totalMaxHealth = baseMaxHealth + (maxHealthMultiplier * healthModifier);    
 	            float maxHealthModifier = (((totalMaxHealth/baseMaxHealth) - 1.0f));
 	            entity.getAttribute(Attributes.MAX_HEALTH);
-	            entity.getAttribute(Attributes.MAX_HEALTH).func_233767_b_(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
+	            entity.getAttribute(Attributes.MAX_HEALTH).applyPersistentModifier(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
 	    		float maxHealth = entity.getMaxHealth();
 	            entity.setHealth(entity.getMaxHealth());
 	    		if (MyConfig.getaDebugLevel() > 1) {
