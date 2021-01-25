@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.Main;
+
 import com.mactso.harderfarther.config.MyConfig;
 
 import net.minecraft.entity.EntityType;
@@ -19,13 +20,14 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 public class SpawnEventHandler {
 	private static int debugThreadIdentifier = 0;
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
     	
- 
+    	// note may need to put this in "EntityJoinWorld" instead.  But be careful to restrict
+    	// to mobs since that method includes all entities like xp orbs and so on.
+    	
     	if (!(MyConfig.isMakeMonstersHarderFarther())) return;
     	
     	if (!(event.getWorld() instanceof ServerWorld)) {
@@ -85,7 +87,6 @@ public class SpawnEventHandler {
             if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
                 float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
                 float newSpeed = baseSpeed * pctModifier;
-                int debug7 = 3;
                 entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);    		
         		if (MyConfig.getaDebugLevel() > 1) {
         			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost speed from "+baseSpeed+" to "+ newSpeed+ ".");

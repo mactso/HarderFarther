@@ -1,12 +1,9 @@
 package com.mactso.harderfarther.events;
 
 import java.util.ArrayList;
-import net.minecraft.nbt.CompoundNBT;
 import java.util.Collection;
 
-import com.ibm.icu.util.IslamicCalendar.CalculationType;
 import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 import com.mactso.harderfarther.timer.IChunkLastMobDeathTime;
 
@@ -20,27 +17,20 @@ import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.fish.CodEntity;
 import net.minecraft.entity.passive.fish.SalmonEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Food;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class MonsterDropEventHandler {

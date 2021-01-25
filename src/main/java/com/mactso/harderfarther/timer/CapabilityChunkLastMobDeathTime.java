@@ -4,9 +4,9 @@ import net.minecraft.nbt.IntNBT;
 import net.minecraft.nbt.LongNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
 
 public class CapabilityChunkLastMobDeathTime {
 

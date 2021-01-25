@@ -3,6 +3,7 @@ package com.mactso.harderfarther.config;
 //16.2 - 1.0.0.0 HarderFarther
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.Main;
@@ -16,16 +17,11 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.LogManager;
 
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class MyConfig {
@@ -40,8 +36,6 @@ public class MyConfig {
 		COMMON_SPEC = specPair.getRight();
 		COMMON = specPair.getLeft();
 	}
-	
-
 
 	public static int getaDebugLevel() {
 		return aDebugLevel;
@@ -75,12 +69,9 @@ public class MyConfig {
 		return speedMod;
 	}
 
-
-
 	public static boolean isAtkDmgModified() {
 		return atkDmgMod;
 	}
-
 
 	public static boolean isKnockBackModified() {
 		return knockbackMod;
@@ -149,8 +140,6 @@ public class MyConfig {
 	private static boolean  atkDmgMod;
 	private static boolean  knockbackMod;
 
-
-
 	private static int      minimumSafeAltitude;
 	private static int      maximumSafeAltitude;
 	public static final int KILLER_ANY   = 0;
@@ -167,7 +156,6 @@ public class MyConfig {
 	}	
 
 
-	
 	public static void pushValues() {
 		COMMON.debugLevel.set(aDebugLevel);
 		COMMON.limitMobFarmsTimer.set(limitMobFarmsTimer);
@@ -178,9 +166,9 @@ public class MyConfig {
 		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
-		Common.itemCommon.set(itemCommonConfigValue);
-		Common.itemUncommon.set(itemUncommonConfigValue);
-		Common.itemRare.set(itemRareConfigValue);
+		COMMON.itemCommon.set(itemCommonConfigValue);
+		COMMON.itemUncommon.set(itemUncommonConfigValue);
+		COMMON.itemRare.set(itemRareConfigValue);
 		COMMON.hpMaxMod.set(hpMaxMod);
 		COMMON.speedMod.set(speedMod);
 		COMMON.atkDmgMod.set(atkDmgMod);
@@ -227,9 +215,9 @@ public class MyConfig {
 		public final IntValue safeDistance;
 		public final IntValue minimumSafeAltitude;
 		public final IntValue maximumSafeAltitude;
-		private static ConfigValue<String> 	itemCommon;
-		private static ConfigValue<String> 	itemUncommon;
-		private static ConfigValue<String> 	itemRare;
+		public final ConfigValue<String> 	itemCommon;
+		public final ConfigValue<String> 	itemUncommon;
+		public final ConfigValue<String> 	itemRare;
 		public final BooleanValue hpMaxMod;
 		public final BooleanValue speedMod;
 		public final BooleanValue atkDmgMod;

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[33,)"
+loaderVersion="[33,36)"
 license="MIT License"
 [[mods]]
 modId="harderfarther"
@@ -9,17 +9,17 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/harderfarther"
 updateJSONURL="https://github.com/mactso/harderfarther/raw/master/update.json"
 logoFile="Logo.png"
 authors="MacTso, Lupicus"
-description='Harder farther Mod.'
+description='Harder Farther Mod.'
 [[dependencies.harderfarther]]
     modId="forge"
     mandatory=true
-    versionRange="[33,)"
+    versionRange="[33,36)"
     ordering="NONE"
     side="SERVER"
 
 [[dependencies.harderfarther]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2,1.16.3]"
+    versionRange="[1.16.2,1.17.0)"
     ordering="NONE"
     side="SERVER"
