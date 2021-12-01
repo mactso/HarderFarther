@@ -2,13 +2,8 @@ package com.mactso.harderfarther.timer;
 
 public class ChunkLastMobDeathTime implements IChunkLastMobDeathTime
 {
-	Object object;
+
 	private long lastKillTime;
-
-	public ChunkLastMobDeathTime(Object object) {
-		this.object = object;
-	}
-
 
 	@Override
 	public long getLastKillTime() {
@@ -21,8 +16,5 @@ public class ChunkLastMobDeathTime implements IChunkLastMobDeathTime
 		lastKillTime = gametime;
 		
 	}
-
-
-
 
 }

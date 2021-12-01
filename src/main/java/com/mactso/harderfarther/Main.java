@@ -4,27 +4,25 @@ package com.mactso.harderfarther;
 
 
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.ChunkEvent;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.item.ModItems;
-import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.FMLNetworkConstants;
+import net.minecraftforge.fmllegacy.network.FMLNetworkConstants;
+
 
 @Mod("harderfarther")
 public class Main {
@@ -36,7 +34,10 @@ public class Main {
 	    	System.out.println(MODID + ": Registering Mod.");
 	  		FMLJavaModLoadingContext.get().getModEventBus().register(this);
  	        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON,MyConfig.COMMON_SPEC );
-   	        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+	    	System.out.println(MODID + ": Registering Mod.");
+	        ModLoadingContext.get().registerExtensionPoint(DisplayTest.class,
+	        		() -> new DisplayTest(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+
 	    }
 
 
@@ -48,8 +49,6 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
-				CapabilityChunkLastMobDeathTime.register();
-				//				MinecraftForge.EVENT_BUS.register(new MyEntityPlaceEvent());
 		}   
 		
 		@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
@@ -62,6 +61,7 @@ public class Main {
 		        ModItems.register(event.getRegistry());
 		    }
 
-	    }		
+	    }	
+	
 
 }

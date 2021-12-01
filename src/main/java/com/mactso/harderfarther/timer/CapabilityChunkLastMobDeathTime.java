@@ -1,40 +1,22 @@
 package com.mactso.harderfarther.timer;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.LongNBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CapabilityChunkLastMobDeathTime {
 
+	public static final Capability<IChunkLastMobDeathTime> LASTMOBDEATHTIME = CapabilityManager
+			.get(new CapabilityToken<>() {
+			});;
 
-
-
-	    @CapabilityInject(IChunkLastMobDeathTime.class)
-	    public static Capability<IChunkLastMobDeathTime> LASTMOBDEATHTIME = null;
-
-	    public static void register()
-	    {
-	        CapabilityManager.INSTANCE.register(IChunkLastMobDeathTime.class, new IStorage<IChunkLastMobDeathTime>()
-	        {
-	            @Override
-	            public INBT writeNBT(Capability<IChunkLastMobDeathTime> capability, IChunkLastMobDeathTime instance, Direction side)
-	            {
-	                return LongNBT.valueOf(instance.getLastKillTime());
-	            }
-
-	            @Override
-	            public void readNBT(Capability<IChunkLastMobDeathTime> capability, IChunkLastMobDeathTime instance, Direction side, INBT nbt)
-	            {
-	                if (!(instance instanceof ChunkLastMobDeathTime))
-	                    throw new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation");
-	                ((ChunkLastMobDeathTime)instance).setLastKillTime(((IntNBT)nbt).getInt());
-	            }
-	        },
-	        () -> new ChunkLastMobDeathTime(null));
-	    }
+	@SubscribeEvent
+	public static void register(RegisterCapabilitiesEvent event) {
+		event.register(IChunkLastMobDeathTime.class);
 	}
 
+}

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[33,36)"
+loaderVersion="[37,)"
 license="MIT License"
 [[mods]]
 modId="harderfarther"
@@ -13,13 +13,13 @@ description='Harder Farther Mod.'
 [[dependencies.harderfarther]]
     modId="forge"
     mandatory=true
-    versionRange="[33,36)"
+    versionRange="[37,)"
     ordering="NONE"
     side="SERVER"
 
 [[dependencies.harderfarther]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2,1.17.0)"
+    versionRange="[1.17.1,1.18)"
     ordering="NONE"
     side="SERVER"

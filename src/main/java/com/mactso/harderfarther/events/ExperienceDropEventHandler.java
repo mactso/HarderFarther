@@ -2,11 +2,12 @@ package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.config.MyConfig;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -18,39 +19,39 @@ public class ExperienceDropEventHandler {
 	public void handleMonsterDropsEvent(LivingExperienceDropEvent event) {
 
 		Entity eventEntity = event.getEntityLiving();
-
+	
 		if (event.getEntity() == null) {
 			return;
 		}
 
-		if (!(eventEntity.world instanceof ServerWorld)) {
+		if (!(eventEntity.level instanceof ServerLevel)) {
 			return;
 		}
-		ServerWorld serverWorld = (ServerWorld) eventEntity.world;
+		ServerLevel serverWorld = (ServerLevel) eventEntity.level;
 
-		long worldTime = eventEntity.world.getGameTime();
+		long worldTime = eventEntity.level.getGameTime();
 		if (tickTimer > worldTime) {
 			if (MyConfig.getaDebugLevel() > 0) {
-				System.out.println("Mob Died: " + (int) eventEntity.getPosX() + ", " + (int) eventEntity.getPosY()
-						+ ", " + (int) eventEntity.getPosZ() + ", " + " inside no bonus loot frame.");
+				System.out.println("Mob Died: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
+						+ ", " + (int) eventEntity.getZ() + ", " + " inside no bonus loot frame.");
 			}
 			return;
 		}
 
-		if (!(eventEntity instanceof MobEntity)) {
+		if (!(eventEntity instanceof Mob)) {
 			return;
 		}
 
-		MobEntity me = (MobEntity) eventEntity;
-		if (me instanceof AnimalEntity) {
+		Mob me = (Mob) eventEntity;
+		if (me instanceof Animal) {
 			return;
 		}
 
 		tickTimer = worldTime + (long) 20; // no boosted XP for 1 seconds after a kill.
 
-		Vector3d spawnVec = new Vector3d(serverWorld.getWorldInfo().getSpawnX(), serverWorld.getWorldInfo().getSpawnY(),
-				serverWorld.getWorldInfo().getSpawnZ());
-		Vector3d eventVec = new Vector3d(eventEntity.getPosX(), eventEntity.getPosY(), eventEntity.getPosZ());
+		Vec3 spawnVec = new Vec3(serverWorld.getLevelData().getXSpawn(), serverWorld.getLevelData().getYSpawn(),
+				serverWorld.getLevelData().getZSpawn());
+		Vec3 eventVec = new Vec3(eventEntity.getX(), eventEntity.getY(), eventEntity.getZ());
 		float distanceModifier = (float) (eventVec.distanceTo(spawnVec) / 1000.0);
 
 		if (distanceModifier < 1.0) {
@@ -74,12 +75,11 @@ public class ExperienceDropEventHandler {
 			if (MyConfig.getaDebugLevel() > 0) {
 				System.out.println("Harder Farther: A " + eventEntity.getName().getString() + " Died at: "
 
-						+ (int) eventEntity.getPosX() + ", " + (int) eventEntity.getPosY() + ", "
-						+ (int) eventEntity.getPosZ() + ", " + "and xp increased from " + originalExperience + ": ("
+						+ (int) eventEntity.getX() + ", " + (int) eventEntity.getY() + ", "
+						+ (int) eventEntity.getZ() + ", " + "and xp increased from " + originalExperience + ": ("
 						+ newDroppedExperience + ").");
 			}
 
-			int debugline = 3;
 		}
 	}
 }
