@@ -3,6 +3,7 @@ package com.mactso.harderfarther.events;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.mactso.harderfarther.config.LootManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 import com.mactso.harderfarther.timer.IChunkLastMobDeathTime;
@@ -182,8 +183,7 @@ public class MonsterDropEventHandler {
 			itemStackToDrop = new ItemStack(Items.LEATHER, (int) 1);
 		} else {
 			if (randomLootItemRoll < 690) {
-				itemStackToDrop = new ItemStack(MyConfig.getLootItemCommon(), (int) 1);
-
+				itemStackToDrop = LootManager.getLootItem("c",eventEntity.level.getRandom());
 			} else if (randomLootItemRoll < 750) {
 				itemStackToDrop = makeLifeSavingPotion(itemPowerModifier);
 			} else if (randomLootItemRoll < 830) {
@@ -192,13 +192,15 @@ public class MonsterDropEventHandler {
 				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
-					itemStackToDrop = new ItemStack(MyConfig.getLootItemUncommon(), (int) 1);
+					itemStackToDrop = LootManager.getLootItem("u",eventEntity.level.getRandom());
+
 				}
 			} else {
 				if (itemPowerModifier > 0.95) {
-					itemStackToDrop = new ItemStack(MyConfig.getLootItemRare(), (int) 1);
+					itemStackToDrop = LootManager.getLootItem("r",eventEntity.level.getRandom());
 				} else {
-					itemStackToDrop = new ItemStack(MyConfig.getLootItemUncommon(), (int) 1);
+					itemStackToDrop = LootManager.getLootItem("u",eventEntity.level.getRandom());
+
 				}
 			}
 		}

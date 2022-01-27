@@ -27,7 +27,18 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class SpawnEventHandler {
 	private static final Logger LOGGER = LogManager.getLogger();
+	private static Field fieldXpReward = null;
 	
+	static {
+		//FD: net/minecraft/world/entity/Mob/f_21364_ net/minecraft/world/entity/Mob/xpReward
+		try {
+			String name = ASMAPI.mapField("f_21364_");
+			fieldXpReward = Mob.class.getDeclaredField(name);
+			fieldXpReward.setAccessible(true);
+		} catch (Exception e) {
+			LOGGER.error("XXX Unexpected Reflection Failure xpReward in Mob");
+		}
+	}
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
     	
@@ -40,6 +51,9 @@ public class SpawnEventHandler {
     		return;
     	}
     	
+    	if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed this field.
+    		return;
+    	}
     	ServerLevel serverWorld = (ServerLevel) event.getWorld();
     	LivingEntity entity = event.getEntityLiving();
         
@@ -48,16 +62,7 @@ public class SpawnEventHandler {
 			return;
 		}
  
-		Field field = null;  // TODO Put this at top and then use static.
-		//FD: net/minecraft/world/entity/Mob/f_21364_ net/minecraft/world/entity/Mob/xpReward
-		try {
-			String name = ASMAPI.mapField("f_21364_");
-			field = Mob.class.getDeclaredField(name);
-			field.setAccessible(true);
-		} catch (Exception e) {
-			LOGGER.error("XXX Unexpected Reflection Failure xpReward in Mob");
-			return;
-		}
+
 
 		
 		if (MyConfig.getaDebugLevel() > 0) {
@@ -76,8 +81,8 @@ public class SpawnEventHandler {
 
 		int xpReward;
 		try {
-			xpReward = (int) (field.getInt(entity) * pctModifier);
-			field.setInt(entity, xpReward);
+			xpReward = (int) (fieldXpReward.getInt(entity) * pctModifier);
+			fieldXpReward.setInt(entity, xpReward);
 		} catch (Exception e) {
 			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
 			return;

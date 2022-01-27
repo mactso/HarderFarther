@@ -1,5 +1,8 @@
 package com.mactso.harderfarther.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 //16.2 - 1.0.0.0 HarderFarther
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -83,19 +86,8 @@ public class MyConfig {
 
 	public static boolean isMakeMonstersHarderFarther() {
 		return makeMonstersHarderFarther;
-	}
+}
 
-	public static String getItemCommon() {
-		return itemCommonConfigValue;
-	}
-
-	public static String getItemUncommon() {
-		return itemUncommonConfigValue;
-	}
-
-	public static String getItemRare() {
-		return itemRareConfigValue;
-	}
 
 	public static int getMinimumSafeAltitude() {
 		return minimumSafeAltitude;
@@ -104,17 +96,7 @@ public class MyConfig {
 	public static int getMaximumSafeAltitude() {
 		return maximumSafeAltitude;
 	}
-	public static Item getLootItemCommon() {
-		return lootItemCommon;
-	}
 
-	public static Item getLootItemUncommon() {
-		return lootItemUncommon;
-	}
-
-	public static Item getLootItemRare() {
-		return lootItemRare;
-	}
 	public static int getModifierValue() {
 		return modifierValue;
 	}
@@ -129,12 +111,7 @@ public class MyConfig {
 	private static int 		modifierValue;
 	private static int      safeDistance;
 	private static int      oddsDropExperienceBottle;
-	private static String 	itemCommonConfigValue;
-	private static String 	itemUncommonConfigValue;
-	private static String 	itemRareConfigValue;
-	private static Item     lootItemCommon;
-	private static Item     lootItemUncommon;
-	private static Item     lootItemRare;
+
 	private static boolean  hpMaxMod;
 	private static boolean  speedMod;
 	private static boolean  atkDmgMod;
@@ -166,9 +143,6 @@ public class MyConfig {
 		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
-		COMMON.itemCommon.set(itemCommonConfigValue);
-		COMMON.itemUncommon.set(itemUncommonConfigValue);
-		COMMON.itemRare.set(itemRareConfigValue);
 		COMMON.hpMaxMod.set(hpMaxMod);
 		COMMON.speedMod.set(speedMod);
 		COMMON.atkDmgMod.set(atkDmgMod);
@@ -192,16 +166,15 @@ public class MyConfig {
 		knockbackMod=COMMON.knockbackMod.get();
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
-		itemCommonConfigValue = COMMON.itemCommon.get();
-		itemUncommonConfigValue = COMMON.itemUncommon.get();
-		itemRareConfigValue = COMMON.itemRare.get();
-		lootItemCommon = getItemFromString(itemCommonConfigValue);
-		lootItemUncommon = getItemFromString(itemUncommonConfigValue);
-		lootItemRare = getItemFromString(itemRareConfigValue);
-		
+		LootManager.initLootItems(extract(COMMON.lootItemsList.get()));
 		if (aDebugLevel > 0) {
 			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
 		}
+	}
+	
+	private static String[] extract(List<? extends String> value)
+	{
+		return value.toArray(new String[value.size()]);
 	}
 	
 	public static class Common {
@@ -215,9 +188,7 @@ public class MyConfig {
 		public final IntValue safeDistance;
 		public final IntValue minimumSafeAltitude;
 		public final IntValue maximumSafeAltitude;
-		public final ConfigValue<String> 	itemCommon;
-		public final ConfigValue<String> 	itemUncommon;
-		public final ConfigValue<String> 	itemRare;
+		public final ConfigValue<List<? extends String>> lootItemsList;
 		public final BooleanValue hpMaxMod;
 		public final BooleanValue speedMod;
 		public final BooleanValue atkDmgMod;
@@ -226,6 +197,12 @@ public class MyConfig {
 		
 		
 		public Common(ForgeConfigSpec.Builder builder) {
+			List<String> defLootItemsList = Arrays.asList(
+					"r,20,minecraft:netherite_scrap,1,1", 
+					"u,20,minecraft:diamond,1,1", "u,5,minecraft:emerald,1,3", 
+					"c,20,minecraft:glowstone,1,2", "c,3,minecraft:leather_boots,1,1", 
+					"c,3,minecraft:emerald,1,1",	"c,3,minecraft:book,1,2");
+
 			builder.push("Harder Farther Control Values");
 			
 			debugLevel = builder
@@ -273,20 +250,11 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "oddsDropExperienceBottle")
 					.defineInRange("oddsDropExperienceBottle", () -> 33, 0, 100);
 			
-			itemCommon = builder
-					.comment("Common Loot Item: ")
-					.translation(Main.MODID + ".config" + "itemCommon")
-					.define("itemCommon", "minecraft:emerald");
-
-			itemUncommon = builder
-					.comment("Uncommon Loot Item")
-					.translation(Main.MODID + ".config" + "itemUncommon")
-					.define("itemUncommon", "minecraft:diamond");
-
-			itemRare = builder
-					.comment("Rare Loot Item")
-					.translation(Main.MODID + ".config" + "itemRare")
-					.define("itemRare", "minecraft:netherite_scrap");
+			
+			lootItemsList = builder
+					.comment("Loot Items List")
+					.translation(Main.MODID + ".config" + "lootItemsList")
+					.defineList("lootItemsList", defLootItemsList, Common::isString);
 
 			hpMaxMod = builder
 					.comment("Modify Max Hit Points (true) ")
@@ -311,26 +279,14 @@ public class MyConfig {
 			builder.pop();
 			
 		}
+		
+		public static boolean isString(Object o)
+		{
+			return (o instanceof String);
+		}
 	}
 	
-	private static Item getItemFromString (String name)
-	{
-		Item ret = Items.PAPER;
-		try {
-			ResourceLocation key = new ResourceLocation(name);
-			if (ForgeRegistries.ITEMS.containsKey(key))
-			{
-				ret = ForgeRegistries.ITEMS.getValue(key);
-			}
-			else
-				LOGGER.warn("Unknown item: " + name);
-		}
-		catch (Exception e)
-		{
-			LOGGER.warn("Bad item: " + name);
-		}
-		return ret;
-	}
+
 	
 	// support for any color chattext
 	public static void sendChat(Player p, String chatMessage, TextColor color) {
