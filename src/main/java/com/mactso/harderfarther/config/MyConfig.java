@@ -117,6 +117,8 @@ public class MyConfig {
 	private static boolean  atkDmgMod;
 	private static boolean  knockbackMod;
 
+	private static boolean  grimCitadels;
+	
 	private static int      minimumSafeAltitude;
 	private static int      maximumSafeAltitude;
 	public static final int KILLER_ANY   = 0;
@@ -166,6 +168,7 @@ public class MyConfig {
 		knockbackMod=COMMON.knockbackMod.get();
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
+		grimCitadels = COMMON.grimCitadels.get();
 		LootManager.initLootItems(extract(COMMON.lootItemsList.get()));
 		if (aDebugLevel > 0) {
 			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
@@ -193,8 +196,9 @@ public class MyConfig {
 		public final BooleanValue speedMod;
 		public final BooleanValue atkDmgMod;
 		public final BooleanValue knockbackMod;
-
 		
+		public final BooleanValue grimCitadels;
+		public final ConfigValue<List<? extends String>> grimCitadelsList;		
 		
 		public Common(ForgeConfigSpec.Builder builder) {
 			List<String> defLootItemsList = Arrays.asList(
@@ -202,6 +206,11 @@ public class MyConfig {
 					"u,20,minecraft:diamond,1,1", "u,5,minecraft:emerald,1,3", 
 					"c,20,minecraft:glowstone,1,2", "c,3,minecraft:leather_boots,1,1", 
 					"c,3,minecraft:emerald,1,1",	"c,3,minecraft:book,1,2");
+			
+			List<String> defGrimCitadelsList = Arrays.asList(
+					"3100,3000","3000,-100", "3000,-3050",
+					"0,3096",             "128,-3000",
+					"-2970,3016", "-3017,80", "-3128,-3256");
 
 			builder.push("Harder Farther Control Values");
 			
@@ -275,6 +284,19 @@ public class MyConfig {
 					.comment("Modify Knockback Resistance (true) ")
 					.translation(Main.MODID + ".config." + "knockbackMod")
 					.define ("knockbackMod", () -> true);
+			
+			builder.push("Grim Citadel Settings");
+			
+			grimCitadels = builder
+					.comment("Use Grim Citadels (true) ")
+					.translation(Main.MODID + ".config." + "grimCitadels")
+					.define ("grimCitadels", () -> true);
+			
+			grimCitadelsList = builder
+					.comment("Loot Items List")
+					.translation(Main.MODID + ".config" + "grimCitadelsList")
+					.defineList("grimCitadelsList", defGrimCitadelsList, Common::isString);
+			builder.pop();
 
 			builder.pop();
 			

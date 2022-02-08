@@ -39,7 +39,7 @@ public class LootManager {
 		if (worksides == 0) return new ItemStack(Items.PAPER);
 
 		workroll = rand.nextInt(worksides);
-		//		rolldice
+		// rolldice
 		
 		int worktotal = 0;
 		for (LootItem hi : lootHashtable.values()) {

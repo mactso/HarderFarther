@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.config.MyConfig;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,11 +15,14 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.CaveSpider;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.coremod.api.ASMAPI;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -44,6 +48,7 @@ public class SpawnEventHandler {
     	
     	// note may need to put this in "EntityJoinWorld" instead.  But be careful to restrict
     	// to mobs since that method includes all entities like xp orbs and so on.
+    	// TODO check nasty mobs and check for non overworld dimension.
     	
     	if (!(MyConfig.isMakeMonstersHarderFarther())) return;
     	
@@ -55,6 +60,7 @@ public class SpawnEventHandler {
     		return;
     	}
     	ServerLevel serverWorld = (ServerLevel) event.getWorld();
+
     	LivingEntity entity = event.getEntityLiving();
         
 		EntityType<?> type = entity.getType();
@@ -62,55 +68,51 @@ public class SpawnEventHandler {
 			return;
 		}
  
-
-
-		
 		if (MyConfig.getaDebugLevel() > 0) {
 			System.out.println(Main.MODID + "-" + entity.getName().getString() + " : Hostile Spawn Event.("+event.getX()+" "+event.getY()+ " "+event.getZ()+ ")  " + entity.getType().toString());
 		}
-    	// no spawns closer to worldspawn than safe distance
-    	if (Math.abs(event.getX()) < MyConfig.getSafeDistance()) {
-    		if (Math.abs(event.getZ()) < MyConfig.getSafeDistance()) {
+
+		// no spawns closer to worldspawn than safe distance
+		
+		LevelData winfo = serverWorld.getLevelData();
+		double xzf = serverWorld.dimensionType().coordinateScale();
+		if (xzf == 0.0)	{
+			xzf = 1.0d;
+		}
+    	Vec3 spawnVec = new Vec3 (winfo.getXSpawn()/xzf,winfo.getYSpawn(),winfo.getZSpawn()/xzf);
+    	Vec3 eventVec = new Vec3 (event.getX(),event.getY(),event.getZ());
+    	float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
+    	if ( serverWorld.dimension() ==  Level.OVERWORLD ) {
+        	if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
     			event.setResult(Result.DENY);
-    			return ;
-    		}
+    			return;
+        	}
     	}
 
-    	float distanceModifier = calcDistanceModifier(event, serverWorld);
+    	float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
     	float pctModifier = 1.0f + (distanceModifier/100) * 2;
 
-		int xpReward;
 		try {
-			xpReward = (int) (fieldXpReward.getInt(entity) * pctModifier);
-			fieldXpReward.setInt(entity, xpReward);
+			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * pctModifier));
 		} catch (Exception e) {
 			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
 			return;
 		}    	
 
-    	
     	if (MyConfig.isHpMaxModified()) {
             if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
-	        	float baseMaxHealth = entity.getMaxHealth();
-	        	float totalMaxHealth = entity.getMaxHealth();
-	        	float healthModifier = (totalMaxHealth * distanceModifier) / 100.0f;
-	        	float maxHealthMultiplier = calcMaxHealthMultiplier(entity);
-	            totalMaxHealth = baseMaxHealth + (maxHealthMultiplier * healthModifier);    
-	            float maxHealthModifier = (((totalMaxHealth/baseMaxHealth) - 1.0f));
-	            entity.getAttribute(Attributes.MAX_HEALTH);
+                float maxHealthModifier = calcMaxHealthMultiplier(entity) * (distanceModifier / 100.0f);
 	            entity.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
-
-	            entity.setHealth(entity.getMaxHealth());
 	    		if (MyConfig.getaDebugLevel() > 1) {
-	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost HP from "+baseMaxHealth+" to "+ totalMaxHealth + ".");
+		            System.out.println("Adjust " +entity.getType().toShortString() + entity.getHealth() + " health to " + entity.getMaxHealth());
 	    		}
+	            entity.setHealth(entity.getMaxHealth());
             } else {
 	    		if (MyConfig.getaDebugLevel() > 1) {
 	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Max Hit Point Value Null .");
 	    		}
             }
     	}
-    	
 
     	if (MyConfig.isSpeedModified()) {
             if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
@@ -154,8 +156,7 @@ public class SpawnEventHandler {
                 if (MyConfig.getaDebugLevel() > 1) {
         			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost KB Resist from "+baseKnockBackResistance+" to "+ newKnockBackResistance+ ".");
         		}
-            	
-            }else {
+            } else {
 	    		if (MyConfig.getaDebugLevel() > 1) {
 	    			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " KB Resist Null .");
 	    		}        			
@@ -166,59 +167,26 @@ public class SpawnEventHandler {
 
 
 
-	private float calcDistanceModifier(LivingSpawnEvent.CheckSpawn event, ServerLevel serverLevel) {
-		float distanceFromSpawn = (float) Math.abs(serverLevel.getLevelData().getXSpawn()-event.getX()) / 1000.00f;
-		
-		if (distanceFromSpawn > MyConfig.getModifierMaxDistance()) {
-    		distanceFromSpawn = MyConfig.getModifierMaxDistance(); 
+	private float calcDistanceModifier(float distanceFromSpawn, int y) {
+
+		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
+    	if (y < MyConfig.getMinimumSafeAltitude()) {
+    		pctMax *= 1.06f;
+    	} else if (y > MyConfig.getMaximumSafeAltitude()) {
+    		pctMax *= 1.09f;
     	}
-    	if (distanceFromSpawn < MyConfig.getModifierMaxDistance()) {
-    		distanceFromSpawn = (float) Math.abs(serverLevel.getLevelData().getZSpawn()-event.getZ()) / 1000.00f;    		
-        	if (distanceFromSpawn > MyConfig.getModifierMaxDistance()) {
-        		distanceFromSpawn = MyConfig.getModifierMaxDistance(); 
-        	}
-    	}
-    	if (distanceFromSpawn < MyConfig.getModifierMaxDistance()) {
-        	Vec3 spawnVec = new Vec3 (serverLevel.getLevelData().getXSpawn(),serverLevel.getLevelData().getYSpawn(),serverLevel.getLevelData().getZSpawn());
-        	Vec3 eventVec = new Vec3 (event.getX(),event.getY(),event.getZ());
-        	distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec)) ;
-    	} 
+    	return pctMax * MyConfig.getModifierValue();
 
-    	if (distanceFromSpawn > MyConfig.getModifierMaxDistance()) {
-    		distanceFromSpawn = MyConfig.getModifierMaxDistance();
-    	}
-    	
-//    	int safe = MyConfig.getSafeDistance();
-//    	int mdist = MyConfig.getModifierMaxDistance();
-//    	int mval = MyConfig.getModifierValue();
-    	float maxModifierDistance = MyConfig.getModifierMaxDistance();
-    	float modifierValue = MyConfig.getModifierValue();
-    	float pctDistanceToMax = distanceFromSpawn/maxModifierDistance ;
-    	float distanceModifier = modifierValue * pctDistanceToMax;
-
-    	double spawnHeight = event.getY();
-//    	int minSafeAltitude = MyConfig.getMinimumSafeAltitude();
-//    	int maxSafeAltitude = MyConfig.getMaximumSafeAltitude();
-    	
-		if (spawnHeight < MyConfig.getMinimumSafeAltitude()) {
-			distanceModifier = distanceModifier + 2.0f;
-		}
-
-		if (spawnHeight > MyConfig.getMaximumSafeAltitude()) {
-			distanceModifier = distanceModifier + 3.0f;
-		}
-
-		return distanceModifier;
 	}
     
     
     
 	private float calcMaxHealthMultiplier(LivingEntity entity) {
 		float maxHealthMultiplier = 1.0f;
-
+		
 		// give some mobs more bonus hit points.
 		if (entity instanceof Zombie) {
-			maxHealthMultiplier = 2.0f;
+			maxHealthMultiplier = 1.75f;
 		} else if (entity instanceof CaveSpider) {
 			// no mod
 		} else if (entity instanceof Spider) {
@@ -227,8 +195,8 @@ public class SpawnEventHandler {
 			// no mod
 		} else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
 			// no mod
-		} else if (entity instanceof Skeleton) {
-			maxHealthMultiplier = 1.8f;
+		} else if (entity instanceof AbstractSkeleton) {
+			maxHealthMultiplier = 1.5f;
 		}
 		return maxHealthMultiplier;
 	}
