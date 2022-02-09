@@ -117,7 +117,11 @@ public class SpawnEventHandler {
     	if (MyConfig.isSpeedModified()) {
             if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
                 float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
-                float newSpeed = baseSpeed * pctModifier;
+                float speedModifier = pctModifier;
+                if (speedModifier > 1.5f) speedModifier *= 0.75f;
+                if (speedModifier > 2.0f) speedModifier = 2.0f;
+                System.out.println("speed modifier: " + speedModifier);
+                float newSpeed = baseSpeed * speedModifier;
                 entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);    		
         		if (MyConfig.getaDebugLevel() > 1) {
         			System.out.println(Main.MODID + " : HSP : " + entity.getType().toString() + " Boost speed from "+baseSpeed+" to "+ newSpeed+ ".");
