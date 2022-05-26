@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.MyConfig;
 
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.coremod.api.ASMAPI;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,7 +61,7 @@ public class SpawnEventHandler {
     	if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed this field.
     		return;
     	}
-    	ServerLevel serverWorld = (ServerLevel) event.getWorld();
+    	ServerLevel level = (ServerLevel) event.getWorld();
 
     	LivingEntity entity = event.getEntityLiving();
         
@@ -68,28 +70,46 @@ public class SpawnEventHandler {
 			return;
 		}
  
+		String dimensionName = level.dimension().location().toString();
+		if (MyConfig.isDimensionOmitted(dimensionName)) {
+			return;
+		}
+		
 		if (MyConfig.getaDebugLevel() > 0) {
 			System.out.println(Main.MODID + "-" + entity.getName().getString() + " : Hostile Spawn Event.("+event.getX()+" "+event.getY()+ " "+event.getZ()+ ")  " + entity.getType().toString());
 		}
 
 		// no spawns closer to worldspawn than safe distance
 		
-		LevelData winfo = serverWorld.getLevelData();
-		double xzf = serverWorld.dimensionType().coordinateScale();
+		LevelData winfo = level.getLevelData();
+		double xzf = level.dimensionType().coordinateScale();
 		if (xzf == 0.0)	{
 			xzf = 1.0d;
 		}
     	Vec3 spawnVec = new Vec3 (winfo.getXSpawn()/xzf,winfo.getYSpawn(),winfo.getZSpawn()/xzf);
     	Vec3 eventVec = new Vec3 (event.getX(),event.getY(),event.getZ());
     	float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
-    	if ( serverWorld.dimension() ==  Level.OVERWORLD ) {
+    	if ( level.dimension() ==  Level.OVERWORLD ) {
         	if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
     			event.setResult(Result.DENY);
     			return;
         	}
     	}
+    	
 
+    	if (MyConfig.isGrimCitadels()) {
+    		float distanceFromClosestGrim = MyConfig.getGrimCitadelDistance(entity.blockPosition());
+    		int x = MyConfig.getGrimCitadelBonusDistance();
+    		GrimCitadelManager.checkCleanUpCitadels(level);
+    		if (distanceFromClosestGrim <= MyConfig.getGrimCitadelBonusDistance()) {
+    			float grimMod = (float) (1.0 - ((float) distanceFromClosestGrim/MyConfig.getGrimCitadelBonusDistance()));
+    			grimMod *= MyConfig.getModifierMaxDistance();
+    			distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
+    		}
+    	}
+    	int x = 3;
     	float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
+    	
     	float pctModifier = 1.0f + (distanceModifier/100) * 2;
 
 		try {
@@ -120,7 +140,6 @@ public class SpawnEventHandler {
                 float speedModifier = pctModifier;
                 if (speedModifier > 1.5f) speedModifier *= 0.75f;
                 if (speedModifier > 2.0f) speedModifier = 2.0f;
-                System.out.println("speed modifier: " + speedModifier);
                 float newSpeed = baseSpeed * speedModifier;
                 entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);    		
         		if (MyConfig.getaDebugLevel() > 1) {
@@ -168,6 +187,10 @@ public class SpawnEventHandler {
         }
         
     }
+
+
+
+
 
 
 

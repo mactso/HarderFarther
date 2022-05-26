@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,12 +12,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.Main;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -24,7 +23,6 @@ import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class MyConfig {
@@ -46,6 +44,10 @@ public class MyConfig {
 
 	public static void setaDebugLevel(int aDebugLevel) {
 		MyConfig.aDebugLevel = aDebugLevel;
+	}
+	
+	public static boolean isDimensionOmitted(String dimensionName) {
+			return dimensionOmitList.contains(dimensionName);
 	}
 
 	public static int getModifierMaxDistance() {
@@ -103,10 +105,36 @@ public class MyConfig {
 	public static int getOddsDropExperienceBottle() {
 		return oddsDropExperienceBottle;
 	}
+
+	public static boolean isGrimCitadels() {
+		return grimCitadels;
+	}
+	
+	public static int getGrimCitadelDistance (BlockPos pos) {
+		int closest = Integer.MAX_VALUE;
+
+		for (BlockPos b : grimCitadelsBlockPosList) {
+			closest = Math.min(b.distManhattan(pos), closest);
+		}
+		return closest;
+	}
+
+	public static int getGrimCitadelBonusDistance() {
+		return grimCitadelBonusDistance;
+	}
+	
+	public static List<BlockPos> getGrimCitadelsBlockPosList() {
+		return grimCitadelsBlockPosList;
+	}
+
+	public static void setGrimCitadelsBlockPosList(List<BlockPos> grimCitadelsBlockPosList) {
+		MyConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
+	}
 	
 	private static int      aDebugLevel;
 	private static int 	    limitMobFarmsTimer;
 	private static boolean  makeMonstersHarderFarther;
+	private static List<? extends String> dimensionOmitList;
 	private static int 	    modifierMaxDistance;
 	private static int 		modifierValue;
 	private static int      safeDistance;
@@ -118,7 +146,15 @@ public class MyConfig {
 	private static boolean  knockbackMod;
 
 	private static boolean  grimCitadels;
+	private static int 	    grimCitadelBonusDistance;
+
+
+
+	private static List<? extends String> grimCitadelsList;
+	private static List<BlockPos> grimCitadelsBlockPosList;
 	
+
+
 	private static int      minimumSafeAltitude;
 	private static int      maximumSafeAltitude;
 	public static final int KILLER_ANY   = 0;
@@ -126,8 +162,9 @@ public class MyConfig {
 	public static final int KILLER_PLAYER = 2;
 
 	@SubscribeEvent
-	public static void onModConfigEvent(final ModConfigEvent configEvent)
+	public static <ModConfig> void onModConfigEvent(final ModConfigEvent configEvent)
 	{
+
 		if (configEvent.getConfig().getSpec() == MyConfig.COMMON_SPEC)
 		{
 			bakeConfig();
@@ -138,6 +175,7 @@ public class MyConfig {
 	public static void pushValues() {
 		COMMON.debugLevel.set(aDebugLevel);
 		COMMON.limitMobFarmsTimer.set(limitMobFarmsTimer);
+		COMMON.dimensionOmitList.set(dimensionOmitList);
 		COMMON.makeMonstersHarderFarther.set(makeMonstersHarderFarther);
 		COMMON.modifierMaxDistance.set(modifierMaxDistance);
 		COMMON.modifierValue.set(modifierValue);
@@ -149,6 +187,9 @@ public class MyConfig {
 		COMMON.speedMod.set(speedMod);
 		COMMON.atkDmgMod.set(atkDmgMod);
 		COMMON.knockbackMod.set(knockbackMod);
+		COMMON.grimCitadels.set(grimCitadels);
+		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
+		COMMON.grimCitadelsList.set(grimCitadelsList);
 	}
 	
 	// remember need to push each of these values separately once we have commands.
@@ -157,6 +198,7 @@ public class MyConfig {
 
 		aDebugLevel = COMMON.debugLevel.get();
 		limitMobFarmsTimer = COMMON.limitMobFarmsTimer.get();
+		dimensionOmitList = COMMON.dimensionOmitList.get();
 		makeMonstersHarderFarther = COMMON.makeMonstersHarderFarther.get();
 		modifierMaxDistance = COMMON.modifierMaxDistance.get();
 		modifierValue = COMMON.modifierValue.get();
@@ -169,12 +211,27 @@ public class MyConfig {
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
 		grimCitadels = COMMON.grimCitadels.get();
-		LootManager.initLootItems(extract(COMMON.lootItemsList.get()));
+		grimCitadelBonusDistance = COMMON.grimCitadelBonusDistance.get();
+		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
+		grimCitadelsList = COMMON.grimCitadelsList.get();
 		if (aDebugLevel > 0) {
 			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
 		}
 	}
 	
+	private static List<BlockPos> getBlockPositions(List<? extends String> list) {
+
+		List< BlockPos> returnList = new ArrayList<>();
+		for (String pos : list) {
+			 String[] posParts = pos.split(",");
+			 int x = Integer.valueOf(posParts[0]);
+			 int y = 90;
+			 int z = Integer.valueOf(posParts[1]);
+			 returnList.add(new BlockPos(x,y,z));
+		}
+		return returnList;
+	}
+
 	private static String[] extract(List<? extends String> value)
 	{
 		return value.toArray(new String[value.size()]);
@@ -184,6 +241,7 @@ public class MyConfig {
 
 		public final IntValue debugLevel;
 		public final IntValue limitMobFarmsTimer;
+		public final ConfigValue<List<? extends String>> dimensionOmitList;	
 		public final BooleanValue makeMonstersHarderFarther;
 		public final IntValue modifierMaxDistance;
 		public final IntValue modifierValue;
@@ -198,6 +256,7 @@ public class MyConfig {
 		public final BooleanValue knockbackMod;
 		
 		public final BooleanValue grimCitadels;
+		public final IntValue grimCitadelBonusDistance;
 		public final ConfigValue<List<? extends String>> grimCitadelsList;		
 		
 		public Common(ForgeConfigSpec.Builder builder) {
@@ -212,6 +271,9 @@ public class MyConfig {
 					"0,3096",             "128,-3000",
 					"-2970,3016", "-3017,80", "-3128,-3256");
 
+			List<String> defDimensionOmitList = Arrays.asList(
+					"");
+			
 			builder.push("Harder Farther Control Values");
 			
 			debugLevel = builder
@@ -219,6 +281,12 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "debugLevel")
 					.defineInRange("debugLevel", () -> 0, 0, 2);
 
+			dimensionOmitList = builder
+					.comment("Dimension Omit List")
+					.translation(Main.MODID + ".config" + "dimensionOmitList")
+					.defineList("dimensionOmitList", defDimensionOmitList, Common::isString);			
+			
+			
 			limitMobFarmsTimer = builder
 					.comment("Limit Mob Farm XP and Drops (0 == no limit).  5 ticks (quarter second) is enough. ")
 					.translation(Main.MODID + ".config." + "limitMobFarmsTimer")
@@ -237,7 +305,7 @@ public class MyConfig {
 			modifierValue = builder
 					.comment("modifierValue: Increase Mob Values by 1% to 999%")
 					.translation(Main.MODID + ".config." + "modifierValue")
-					.defineInRange("modifierValue", () -> 30, 1, 999);
+					.defineInRange("modifierValue", () -> 99, 1, 999);
 			
 			safeDistance = builder
 					.comment("Worldspawn Safe Distance: No Mobs Will Spawn In this Range")
@@ -290,7 +358,12 @@ public class MyConfig {
 			grimCitadels = builder
 					.comment("Use Grim Citadels (true) ")
 					.translation(Main.MODID + ".config." + "grimCitadels")
-					.define ("grimCitadels", () -> true);
+					.define ("grimCitadels", () -> false);
+			
+			grimCitadelBonusDistance = builder
+					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")
+					.translation(Main.MODID + ".config." + "grimCitadelBonusDistance")
+					.defineInRange("grimCitadelBonusDistance", () -> 1000, 2000, 6000);	
 			
 			grimCitadelsList = builder
 					.comment("Loot Items List")
@@ -326,6 +399,7 @@ public class MyConfig {
 		
 		p.sendMessage(component, p.getUUID());
 	}
+
 	
 }
 
