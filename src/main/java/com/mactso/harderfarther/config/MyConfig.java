@@ -38,11 +38,15 @@ public class MyConfig {
 		COMMON = specPair.getLeft();
 	}
 
-	public static int getaDebugLevel() {
+	public static int getDebugLevel() {
 		return aDebugLevel;
 	}
 
-	public static void setaDebugLevel(int aDebugLevel) {
+	public static boolean isOnlyOverworld() {
+		return onlyOverworld;
+	}	
+	
+	public static void setDebugLevel(int aDebugLevel) {
 		MyConfig.aDebugLevel = aDebugLevel;
 	}
 	
@@ -110,14 +114,6 @@ public class MyConfig {
 		return grimCitadels;
 	}
 	
-	public static int getGrimCitadelDistance (BlockPos pos) {
-		int closest = Integer.MAX_VALUE;
-
-		for (BlockPos b : grimCitadelsBlockPosList) {
-			closest = Math.min(b.distManhattan(pos), closest);
-		}
-		return closest;
-	}
 
 	public static int getGrimCitadelBonusDistance() {
 		return grimCitadelBonusDistance;
@@ -132,6 +128,7 @@ public class MyConfig {
 	}
 	
 	private static int      aDebugLevel;
+	private static boolean  onlyOverworld;
 	private static int 	    limitMobFarmsTimer;
 	private static boolean  makeMonstersHarderFarther;
 	private static List<? extends String> dimensionOmitList;
@@ -174,6 +171,7 @@ public class MyConfig {
 
 	public static void pushValues() {
 		COMMON.debugLevel.set(aDebugLevel);
+		COMMON.onlyOverworld.set(onlyOverworld);
 		COMMON.limitMobFarmsTimer.set(limitMobFarmsTimer);
 		COMMON.dimensionOmitList.set(dimensionOmitList);
 		COMMON.makeMonstersHarderFarther.set(makeMonstersHarderFarther);
@@ -197,6 +195,7 @@ public class MyConfig {
 	{
 
 		aDebugLevel = COMMON.debugLevel.get();
+		onlyOverworld = COMMON.onlyOverworld.get();
 		limitMobFarmsTimer = COMMON.limitMobFarmsTimer.get();
 		dimensionOmitList = COMMON.dimensionOmitList.get();
 		makeMonstersHarderFarther = COMMON.makeMonstersHarderFarther.get();
@@ -217,6 +216,7 @@ public class MyConfig {
 		if (aDebugLevel > 0) {
 			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
 		}
+
 	}
 	
 	private static List<BlockPos> getBlockPositions(List<? extends String> list) {
@@ -241,6 +241,7 @@ public class MyConfig {
 
 		public final IntValue debugLevel;
 		public final IntValue limitMobFarmsTimer;
+		public final BooleanValue onlyOverworld;
 		public final ConfigValue<List<? extends String>> dimensionOmitList;	
 		public final BooleanValue makeMonstersHarderFarther;
 		public final IntValue modifierMaxDistance;
@@ -272,7 +273,7 @@ public class MyConfig {
 					"-2970,3016", "-3017,80", "-3128,-3256");
 
 			List<String> defDimensionOmitList = Arrays.asList(
-					"");
+					"minecraft:the_nether","minecraft:the_end");
 			
 			builder.push("Harder Farther Control Values");
 			
@@ -281,6 +282,11 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "debugLevel")
 					.defineInRange("debugLevel", () -> 0, 0, 2);
 
+			onlyOverworld= builder
+					.comment("Only in minecraft Overworld (true) ")
+					.translation(Main.MODID + ".config." + "onlyOverworld")
+					.define ("onlyOverworld", () -> true);
+			
 			dimensionOmitList = builder
 					.comment("Dimension Omit List")
 					.translation(Main.MODID + ".config" + "dimensionOmitList")
@@ -399,6 +405,8 @@ public class MyConfig {
 		
 		p.sendMessage(component, p.getUUID());
 	}
+
+
 
 	
 }

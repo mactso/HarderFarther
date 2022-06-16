@@ -30,7 +30,7 @@ public class ExperienceDropEventHandler {
 
 		long worldTime = eventEntity.level.getGameTime();
 		if (tickTimer > worldTime) {
-			if (MyConfig.getaDebugLevel() > 0) {
+			if (MyConfig.getDebugLevel() > 0) {
 				System.out.println("Mob Died: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
 						+ ", " + (int) eventEntity.getZ() + ", " + " inside no bonus loot frame.");
 			}
@@ -71,7 +71,7 @@ public class ExperienceDropEventHandler {
 			int newDroppedExperience = originalExperience + (int) (originalExperience * PctMultiplier);
 			event.setDroppedExperience(newDroppedExperience);
 
-			if (MyConfig.getaDebugLevel() > 0) {
+			if (MyConfig.getDebugLevel() > 0) {
 				System.out.println("Harder Farther: A " + eventEntity.getName().getString() + " Died at: "
 
 						+ (int) eventEntity.getX() + ", " + (int) eventEntity.getY() + ", "

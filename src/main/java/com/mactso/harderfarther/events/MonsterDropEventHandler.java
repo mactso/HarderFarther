@@ -85,7 +85,7 @@ public class MonsterDropEventHandler {
 				long nextLootTime = lastMobDeathTime + MyConfig.getMobFarmingLimitingTimer();
 				if (worldTime < nextLootTime) {
 					
-					if (MyConfig.getaDebugLevel() > 0) {
+					if (MyConfig.getDebugLevel() > 0) {
 						System.out
 								.println("Mobs Dying Too Quickly at: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
 										+ ", " + (int) eventEntity.getZ() + ", " + " loot and xp denied.  Current Time:" +worldTime+ " nextLoot Time: "+nextLootTime+".");
@@ -93,7 +93,7 @@ public class MonsterDropEventHandler {
 					event.setCanceled(true);
 					return;
 				}
-				if (MyConfig.getaDebugLevel() > 0) {
+				if (MyConfig.getDebugLevel() > 0) {
 					System.out
 							.println("Mobs Dropping Loot at : " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
 									+ ", " + (int) eventEntity.getZ() + " Current Time:" +worldTime+ " nextLoot Time: "+nextLootTime+".");
@@ -209,7 +209,7 @@ public class MonsterDropEventHandler {
 				eventEntity.getZ(), itemStackToDrop);
 		eventItems.add(myItemEntity);
 
-		if (MyConfig.getaDebugLevel() > 0) {
+		if (MyConfig.getDebugLevel() > 0) {
 			System.out.println("Harder Farther: A " + eventEntity.getName().getString() + " Died at: "
 
 					+ (int) eventEntity.getX() + ", " + (int) eventEntity.getY() + ", "

@@ -1,0 +1,27 @@
+{
+    "parent": "block/block",	
+	"textures": {
+		"0": "harderfarther:block/grim_heart",
+		"particle": "block/orange_stained_glass"
+	},
+	"elements": [
+		{
+			"from": [6, 6, 6],
+			"to": [11, 11, 11],
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"gui": {
+			"rotation": [0, 0, 2]
+		}
+	}
+}
