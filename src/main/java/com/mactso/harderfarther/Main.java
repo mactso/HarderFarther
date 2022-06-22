@@ -11,6 +11,7 @@ import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.ChunkEvent;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
+import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
@@ -76,6 +77,7 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
+				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
 		}   
 		
 		@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)

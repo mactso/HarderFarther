@@ -29,7 +29,7 @@ public class FogColorsEventHandler {
 		LocalPlayer p = m.player;
 		long gametick = p.level.getGameTime();
 
-		float range = GrimCitadelManager.getGrimCitadelDistance(p.blockPosition());
+		float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
 
 		if (range > grimBonusDistance) {
 			if (sliderRedPercent == 1.0f)
@@ -71,7 +71,7 @@ public class FogColorsEventHandler {
 			LocalPlayer p = m.player;
 			long gametick = p.level.getGameTime();
 			
-			float range = GrimCitadelManager.getGrimCitadelDistance(p.blockPosition());
+			float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
 			if (range > grimBonusDistance) {
 				
 				if ((sliderFogPercent == 1.0f) && (sliderStartFogPercent == 1.0f))

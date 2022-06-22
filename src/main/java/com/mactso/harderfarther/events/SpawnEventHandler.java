@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
@@ -113,12 +112,13 @@ public class SpawnEventHandler {
 		}
 
 		if (MyConfig.isGrimCitadels()) {
-			float distanceFromClosestGrim = GrimCitadelManager.getGrimCitadelDistance(entity.blockPosition());
-
-			int grimDistSq = MyConfig.getGrimCitadelBonusDistance() * MyConfig.getGrimCitadelBonusDistance();
 			GrimCitadelManager.checkCleanUpCitadels(level);
-			if (distanceFromClosestGrim <= grimDistSq) {
-				float grimMod = (float) (1.0 - ((float) distanceFromClosestGrim / grimDistSq));
+
+			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
+			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
+			
+			if (closestGrimDistSq <= bonusGrimDistSq) {
+				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
 				grimMod *= MyConfig.getModifierMaxDistance();
 				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
 			}

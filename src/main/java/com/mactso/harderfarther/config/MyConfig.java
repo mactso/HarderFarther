@@ -144,8 +144,12 @@ public class MyConfig {
 
 	private static boolean  grimCitadels;
 	private static int 	    grimCitadelBonusDistance;
+	private static int 	    grimCitadelBonusDistanceSq;
 
 
+	public static int getGrimCitadelBonusDistanceSq() {
+		return grimCitadelBonusDistanceSq;
+	}
 
 	private static List<? extends String> grimCitadelsList;
 	private static List<BlockPos> grimCitadelsBlockPosList;
@@ -211,6 +215,7 @@ public class MyConfig {
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
 		grimCitadels = COMMON.grimCitadels.get();
 		grimCitadelBonusDistance = COMMON.grimCitadelBonusDistance.get();
+		grimCitadelBonusDistanceSq = grimCitadelBonusDistance*grimCitadelBonusDistance;
 		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
 		grimCitadelsList = COMMON.grimCitadelsList.get();
 		if (aDebugLevel > 0) {

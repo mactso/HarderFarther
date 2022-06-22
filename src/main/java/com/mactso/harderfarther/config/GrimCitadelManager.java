@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -304,7 +305,7 @@ public class GrimCitadelManager {
 
 		floorPos.setX(posX + fx);
 		floorPos.setZ(posZ + fz);
-		if (rand.nextInt(10) == 0) {
+		if (rand.nextInt(10) < 2) {
 			level.setBlock(floorPos, Blocks.AIR.defaultBlockState(), 3);
 		} else {
 			level.setBlock(floorPos, Blocks.HONEY_BLOCK.defaultBlockState(), 3);
@@ -328,55 +329,63 @@ public class GrimCitadelManager {
 		BlockPos savePos = pos.above(+1);
 		int fx = getValidRandomFloorSpot(level.random);
 		int fz = getValidRandomFloorSpot(level.random);
-
+		boolean livingfloor = false;
+		
 		if (fy % 12 == 0) {
 			level.setBlock(savePos.south(fx).east(fz), Blocks.CHEST.defaultBlockState(), 3);
 			RandomizableContainerBlockEntity.setLootTable(level, level.random, savePos.south(fx).east(fz),
 					BuiltInLootTables.NETHER_BRIDGE);
+			livingfloor= true;
 		}
-		int numZP = level.random.nextInt(4);
-		for (int i = 0; i < numZP; i++) {
-			Mob e = EntityType.ZOMBIFIED_PIGLIN.spawn(level, null, null, null, savePos.north(2).west(2),
-					MobSpawnType.NATURAL, true, true);
-			e.setPersistenceRequired();
+
+		if (!livingfloor) {
+			populateUndeadFloor(level, savePos);
+		} else {
+			populateLivingFloor(level, savePos);
 		}
-		numZP = level.random.nextInt(2);
+
+	}
+
+	private static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range, int modifier) {
+		int numZP;
+		numZP = level.random.nextInt(range)-modifier;
+		if (numZP < 0) return false;
 		for (int i = 0; i < numZP; i++) {
-			Mob e = EntityType.HOGLIN.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL,
+			Mob e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL,
 					true, true);
 			e.setPersistenceRequired();
-		}
-		numZP = level.random.nextInt(4) - 2;
-		for (int i = 0; i < numZP; i++) {
-			Mob e = EntityType.WITHER_SKELETON.spawn(level, null, null, null, savePos.north(2).west(2),
-					MobSpawnType.NATURAL, true, true);
-			e.setPersistenceRequired();
-		}
-
-	}
-
-	public static int getGrimCitadelDistance(BlockPos pos) {
-		int closest = Integer.MAX_VALUE;
-
-		for (BlockPos b : realGCList) {
-			closest = Math.min((int) b.distSqr(pos), closest);
-		}
-		return closest;
-	}
-
-	public static int getGrimRange(BlockPos pos) {
-		Iterator<BlockPos> iter = realGCList.iterator();
-
-		while (iter.hasNext()) {
-			BlockPos grimPos = iter.next();
-			if (grimPos.distManhattan(pos) <= getGrimCitadelDistance(grimPos)) {
-				return grimPos.distManhattan(pos);
+			if (et == EntityType.ZOMBIFIED_PIGLIN) {
+				e.setAggressive(true);
 			}
 		}
-
-		return Integer.MAX_VALUE;
-
+		return true;
 	}
+
+	private static void populateLivingFloor(ServerLevel level, BlockPos savePos) {
+		populateEntityType(EntityType.PIGLIN_BRUTE, level, savePos, 3, 0);
+		populateEntityType(EntityType.HOGLIN, level, savePos, 2, 0);
+		populateEntityType(EntityType.BLAZE, level, savePos, 3, -1);
+	}
+
+	private static void populateUndeadFloor(ServerLevel level, BlockPos savePos) {
+		populateEntityType(EntityType.ZOMBIFIED_PIGLIN, level, savePos, 4, 0);
+		populateEntityType(EntityType.BLAZE, level, savePos, 3, -1);
+		if (!populateEntityType(EntityType.WITHER_SKELETON, level, savePos, 5, -1)) {
+			populateEntityType(EntityType.ZOGLIN, level, savePos, 2, 0);
+		}
+	}
+
+	
+	public static int getClosestGrimCitadelDistanceSq(BlockPos pos) {
+		int closestSq = Integer.MAX_VALUE;
+
+		for (BlockPos b : realGCList) {
+			closestSq = Math.min((int) b.distSqr(pos), closestSq);
+		}
+		
+		return closestSq;
+	}
+
 
 	public static void checkCleanUpCitadels(ServerLevel level) {
 
@@ -410,7 +419,7 @@ public class GrimCitadelManager {
 			if ((ePos.getX() == pos.getX()) && ePos.getZ() == pos.getZ()) {
 				if (level.getBlockState(ePos).getBlock() == ModBlocks.GRIM_HEART) {
 					foundHeart = true;
-					System.out.println("foundHeart"); // TODO remove
+					// System.out.println("foundHeart"); // TODO remove
 					break;
 				}
 			}
@@ -524,13 +533,24 @@ public class GrimCitadelManager {
 	// File Section: Read and write grimcitadel data.
 	public static void load(MinecraftServer server) {
 
+//	       File file = new File(
+//	               "C:\\Users\\pankaj\\Desktop\\test.txt");
+//	    
+//	           // Note:  Double backquote is to avoid compiler
+//	           // interpret words
+//	           // like \test as \t (ie. as a escape sequence)
+//	    
+//	           // Creating an object of BufferedReader class
+		
+		
 		File file1 = server.getWorldPath(LevelResource.ROOT).toFile();
 		grimFile = new File(file1, "data/grimcitadels.dat");
 		if (grimFile.exists()) {
 			try {
-				FileInputStream fis = new FileInputStream(grimFile);
-				readData(fis);
-				fis.close();
+		        BufferedReader br
+	               = new BufferedReader(new FileReader(grimFile));
+				readData(br);
+				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -566,7 +586,7 @@ public class GrimCitadelManager {
 			FileOutputStream fos = new FileOutputStream(grimFile);
 			writeData(fos);
 			fos.close();
-			System.out.println("grimfile saved.");
+			Utility.debugMsg(1,"grimfile saved.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -582,13 +602,11 @@ public class GrimCitadelManager {
 		}
 	}
 
-	public static void readData(FileInputStream fis) {
+	public static void readData(BufferedReader br) {
 		String line;
 		int linecount = 0;
 
-		try (InputStreamReader input = new InputStreamReader(
-				new FileInputStream("config/spawnbalanceutility/BiomeMobWeight.csv"))) {
-			BufferedReader br = new BufferedReader(input);
+		try {
 			while ((line = br.readLine()) != null) {
 				linecount++;
 				StringTokenizer st = new StringTokenizer(line, ",");
@@ -599,16 +617,15 @@ public class GrimCitadelManager {
 					realGCList.add(new BlockPos(x, y, z));
 				} catch (Exception e) {
 					if (!(line.isEmpty())) {
-						System.out.println("grimCitadel line " + linecount + " is malformed.");
+						Utility.debugMsg(0, "grimcitadels.data line " + linecount + " is malformed.");
 					} else if (MyConfig.getDebugLevel() > 0) {
-						System.out.println(
-								"GrimCitadel Warning blank line at " + linecount + "th line of BiomeMobWeight.csv.");
+						Utility.debugMsg(0, 
+								"Harder Farther: Warning blank line at " + linecount + "th line of grimcitadels.dat");
 					}
 				}
 			}
-			input.close();
 		} catch (Exception e) {
-			System.out.println("BiomeMobWeight.csv not found in subdirectory SpawnBalanceUtility");
+			Utility.debugMsg(0, "grimcitadels.dat not found in sudirectory saves/world/data.");
 			// e.printStackTrace();
 		}
 
