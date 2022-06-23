@@ -1,0 +1,32 @@
+{
+    "parent": "block/block",	
+	"textures": {
+		"0": "harderfarther:block/grim_gate_block",
+		"particle": "block/orange_stained_glass"
+	},
+    "elements": [
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "texture": "#0", "cullface": "down" },
+                "up":    { "texture": "#0", "cullface": "up" },
+                "north": { "texture": "#0", "cullface": "north" },
+                "south": { "texture": "#0", "cullface": "south" },
+                "west":  { "texture": "#0", "cullface": "west" },
+                "east":  { "texture": "#0", "cullface": "east" }
+            }
+        },
+        {   "from": [ 1, 1, 1 ],
+            "to": [ 15, 15, 15 ],
+            "faces": {
+                "down":  { "uv": [ 1, 1, 15, 15 ], "texture": "#0"},
+                "up":    { "uv": [ 1, 1, 15, 15 ], "texture": "#0"},
+                "north": { "uv": [ 1, 1, 15, 15 ], "texture": "#0"},
+                "south": { "uv": [ 1, 1, 15, 15 ], "texture": "#0"},
+                "west":  { "uv": [ 1, 1, 15, 15 ], "texture": "#0"},
+                "east":  { "uv": [ 1, 1, 15, 15 ], "texture": "#0"}
+            }
+        }
+    ]
+}
+

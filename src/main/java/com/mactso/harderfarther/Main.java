@@ -17,10 +17,12 @@ import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.Register;
+import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
@@ -35,13 +37,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkConstants;
-
+import net.minecraftforge.api.distmarker.Dist;
 
 
 @Mod("harderfarther")
 public class Main {
 
 	    public static final String MODID = "harderfarther"; 
+	    public static LivingEventMovementHandler lem;
 	    
 	    public Main()
 	    {
@@ -55,10 +58,12 @@ public class Main {
 
 	    }
 
+		@OnlyIn(Dist.CLIENT)
 	    @SubscribeEvent
-	    public void preInit(final FMLClientSetupEvent event) {
+	    public void setupClient(final FMLClientSetupEvent event) {
 	    	
 			MinecraftForge.EVENT_BUS.register(new FogColorsEventHandler());
+			ModBlocks.setRenderLayer();
 			
 	    }
 	    
@@ -77,8 +82,11 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
-				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
-		}   
+				lem = new LivingEventMovementHandler();
+				MinecraftForge.EVENT_BUS.register(lem);
+		}  
+		
+		
 		
 		@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 	    public static class ModEvents
@@ -117,10 +125,12 @@ public class Main {
 			public static void onServerStopping(ServerStoppingEvent event)
 			{
 				GrimCitadelManager.clear();
+				Utility.debugMsg(0, MODID + "Cleanup Successful");
 			}
 
 
 		}
 	
+		
 
 }

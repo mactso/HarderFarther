@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -114,9 +115,16 @@ public class MyConfig {
 		return grimCitadels;
 	}
 	
+	public static int getGrimCitadelsCount() {
+		return grimCitadelsCount;
+	}
 
 	public static int getGrimCitadelBonusDistance() {
 		return grimCitadelBonusDistance;
+	}
+	
+	public static int getGrimCitadelBonusDistanceSq() {
+		return grimCitadelBonusDistanceSq;
 	}
 	
 	public static List<BlockPos> getGrimCitadelsBlockPosList() {
@@ -125,6 +133,22 @@ public class MyConfig {
 
 	public static void setGrimCitadelsBlockPosList(List<BlockPos> grimCitadelsBlockPosList) {
 		MyConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
+	}
+	
+	public static boolean isGrimHarmPassiveCreatures() {
+		return grimHarmAnimals;
+	}
+	
+	public static double getGrimFogRedPercent() {
+		return grimFogRedPercent;
+	}
+
+	public static double getGrimFogBluePercent() {
+		return grimFogBluePercent;
+	}
+
+	public static double getGrimFogGreenPercent() {
+		return grimFogGreenPercent;
 	}
 	
 	private static int      aDebugLevel;
@@ -143,13 +167,14 @@ public class MyConfig {
 	private static boolean  knockbackMod;
 
 	private static boolean  grimCitadels;
+	private static int      grimCitadelsCount;
 	private static int 	    grimCitadelBonusDistance;
 	private static int 	    grimCitadelBonusDistanceSq;
+	private static boolean  grimHarmAnimals;
 
-
-	public static int getGrimCitadelBonusDistanceSq() {
-		return grimCitadelBonusDistanceSq;
-	}
+	private static double 	grimFogRedPercent;
+	private static double 	grimFogBluePercent;
+	private static double 	grimFogGreenPercent;
 
 	private static List<? extends String> grimCitadelsList;
 	private static List<BlockPos> grimCitadelsBlockPosList;
@@ -191,7 +216,13 @@ public class MyConfig {
 		COMMON.knockbackMod.set(knockbackMod);
 		COMMON.grimCitadels.set(grimCitadels);
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
+		COMMON.grimCitadelsCount.set(grimCitadelsCount);
+
 		COMMON.grimCitadelsList.set(grimCitadelsList);
+		COMMON.grimHarmAnimals.set(grimHarmAnimals);
+		COMMON.grimFogRedPercent.set (grimFogRedPercent);
+		COMMON.grimFogBluePercent.set (grimFogBluePercent);
+		COMMON.grimFogGreenPercent.set (grimFogGreenPercent);
 	}
 	
 	// remember need to push each of these values separately once we have commands.
@@ -214,8 +245,13 @@ public class MyConfig {
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
 		grimCitadels = COMMON.grimCitadels.get();
+		grimCitadelsCount = COMMON.grimCitadelsCount.get();
 		grimCitadelBonusDistance = COMMON.grimCitadelBonusDistance.get();
 		grimCitadelBonusDistanceSq = grimCitadelBonusDistance*grimCitadelBonusDistance;
+		grimHarmAnimals = COMMON.grimHarmAnimals.get();
+		grimFogRedPercent = COMMON.grimFogRedPercent.get();
+		grimFogBluePercent = COMMON.grimFogBluePercent.get();
+		grimFogGreenPercent = COMMON.grimFogGreenPercent.get();
 		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
 		grimCitadelsList = COMMON.grimCitadelsList.get();
 		if (aDebugLevel > 0) {
@@ -224,6 +260,8 @@ public class MyConfig {
 
 	}
 	
+
+
 	private static List<BlockPos> getBlockPositions(List<? extends String> list) {
 
 		List< BlockPos> returnList = new ArrayList<>();
@@ -255,6 +293,7 @@ public class MyConfig {
 		public final IntValue safeDistance;
 		public final IntValue minimumSafeAltitude;
 		public final IntValue maximumSafeAltitude;
+		
 		public final ConfigValue<List<? extends String>> lootItemsList;
 		public final BooleanValue hpMaxMod;
 		public final BooleanValue speedMod;
@@ -262,7 +301,14 @@ public class MyConfig {
 		public final BooleanValue knockbackMod;
 		
 		public final BooleanValue grimCitadels;
+		public final IntValue grimCitadelsCount;
 		public final IntValue grimCitadelBonusDistance;
+		
+		public final BooleanValue grimHarmAnimals;
+		public final DoubleValue grimFogRedPercent;
+		public final DoubleValue grimFogBluePercent;
+		public final DoubleValue grimFogGreenPercent;
+
 		public final ConfigValue<List<? extends String>> grimCitadelsList;		
 		
 		public Common(ForgeConfigSpec.Builder builder) {
@@ -370,12 +416,38 @@ public class MyConfig {
 					.comment("Use Grim Citadels (true) ")
 					.translation(Main.MODID + ".config." + "grimCitadels")
 					.define ("grimCitadels", () -> false);
-			
+
 			grimCitadelBonusDistance = builder
 					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")
 					.translation(Main.MODID + ".config." + "grimCitadelBonusDistance")
 					.defineInRange("grimCitadelBonusDistance", () -> 1000, 2000, 6000);	
 			
+			grimCitadelsCount = builder
+					.comment("grimCitadelsCount : number of grim Citadels kept in the game (if 0 will count down til none left)")
+					.translation(Main.MODID + ".config." + "grimCitadelsCount")
+					.defineInRange("grimCitadelsCount", () -> 8, 0, 16);	
+
+			grimHarmAnimals = builder
+					.comment("grimHarmAnimals : Animals near grim citadels get sick. ")
+					.translation(Main.MODID + ".config." + "grimHarmAnimals")
+					.define ("grimHarmAnimals", () -> true);
+			
+			
+			grimFogRedPercent = builder
+					.comment("grimFogRedPercent : Grim Fog Red Component Multiplier")
+					.translation(Main.MODID + ".config." + "grimFogRedPercent")
+					.defineInRange("grimFogRedPercent", () -> 0.95, 0.0, 1.0);	
+
+			grimFogBluePercent = builder
+					.comment("grimFogBluePercent : Grim Fog Blue Component Multiplier")
+					.translation(Main.MODID + ".config." + "grimFogBluePercent")
+					.defineInRange("grimFogBluePercent", () -> 0.05, 0.0, 1.0);	
+
+			grimFogGreenPercent = builder
+					.comment("grimFogGreenPercent : Grim Fog Green Component Multiplier")
+					.translation(Main.MODID + ".config." + "grimFogGreenPercent")
+					.defineInRange("grimFogGreenPercent", () -> 0.05, 0.0, 1.0);	
+
 			grimCitadelsList = builder
 					.comment("Loot Items List")
 					.translation(Main.MODID + ".config" + "grimCitadelsList")
@@ -386,6 +458,7 @@ public class MyConfig {
 			
 		}
 		
+
 		public static boolean isString(Object o)
 		{
 			return (o instanceof String);
@@ -394,23 +467,23 @@ public class MyConfig {
 	
 
 	
-	// support for any color chattext
-	public static void sendChat(Player p, String chatMessage, TextColor color) {
-		TextComponent component = new TextComponent (chatMessage);
-		component.getStyle().withColor(color);
-		p.sendMessage(component, p.getUUID());
-	}
-	
-	// support for any color, optionally bold text.
-	public static void sendBoldChat(Player p, String chatMessage, TextColor color) {
-		TextComponent component = new TextComponent (chatMessage);
-
-		component.getStyle().withBold(true);
-		component.getStyle().withColor(color);
-		
-		p.sendMessage(component, p.getUUID());
-	}
-
+//	// support for any color chattext
+//	public static void sendChat(Player p, String chatMessage, TextColor color) {
+//		TextComponent component = new TextComponent (chatMessage);
+//		component.getStyle().withColor(color);
+//		p.sendMessage(component, p.getUUID());
+//	}
+//	
+//	// support for any color, optionally bold text.
+//	public static void sendBoldChat(Player p, String chatMessage, TextColor color) {
+//		TextComponent component = new TextComponent (chatMessage);
+//
+//		component.getStyle().withBold(true);
+//		component.getStyle().withColor(color);
+//		
+//		p.sendMessage(component, p.getUUID());
+//	}
+//
 
 
 	

@@ -12,9 +12,8 @@ import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class FogColorsEventHandler {
-	private static int grimBonusDistance = MyConfig.getGrimCitadelBonusDistance()
-			* MyConfig.getGrimCitadelBonusDistance();
-	private static float sliderRedPercent = 1.0f;
+	private static int grimBonusDistanceSq = MyConfig.getGrimCitadelBonusDistanceSq();
+	private static float sliderColorPercent = 1.0f;
 	private long colorTick = 0;
 	private static float sliderFogPercent = 1.0f;
 	private long fogTick = 0;
@@ -31,38 +30,68 @@ public class FogColorsEventHandler {
 
 		float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
 
-		if (range > grimBonusDistance) {
-			if (sliderRedPercent == 1.0f)
+		if (range > grimBonusDistanceSq) {
+			if (sliderColorPercent == 1.0f)
 				return;
 			if ( (colorTick != gametick)) {
 				colorTick = gametick;
-				sliderRedPercent = adjustSlider(sliderRedPercent, 1.0f);
+				sliderColorPercent = adjustSlider(sliderColorPercent, 1.0f);
 			}
-			slideFogColor(event, sliderRedPercent);
+			slideFogColor(event, sliderColorPercent);
 			return;
 		}
 
- 		float percent = (range / grimBonusDistance) / 2;
+ 		float percent = (range / grimBonusDistanceSq) / 2;
 
 		if (percent < 0.05f)
 			percent = 0.05f;
 
 		if (colorTick != gametick) {
 			colorTick = gametick;
-			sliderRedPercent = adjustSlider(sliderRedPercent, percent);
+			sliderColorPercent = adjustSlider(sliderColorPercent, percent);
 		}
 
-		slideFogColor(event, sliderRedPercent);
-	}
-
-	private void slideFogColor(FogColors event, float slider) {
-		float g = event.getGreen();
-		event.setGreen(g * slider);
-		float b = event.getBlue();
-		event.setBlue(b * slider);
+		slideFogColor(event, sliderColorPercent);
 	}
 
 	
+	private float adjustSlider(float slider, float target) {
+		final double slideAmount = 0.005f;
+		if (slider > target) {
+			slider -= slideAmount;
+		} else if (slider < target) {
+			slider += slideAmount;
+		} else {
+			slider = target;
+		}
+		return slider;
+	}
+	
+	
+	private void slideFogColor(FogColors event, float slider) {
+		float redSlider = slider;
+		if (redSlider < MyConfig.getGrimFogRedPercent()) {
+			redSlider = (float) MyConfig.getGrimFogRedPercent();
+		}
+		float greenSlider = slider;
+		if (greenSlider < MyConfig.getGrimFogGreenPercent()) {
+			greenSlider = (float) MyConfig.getGrimFogGreenPercent();
+		}
+		float blueSlider = slider;
+		if (blueSlider < MyConfig.getGrimFogBluePercent()) {
+			blueSlider = (float) MyConfig.getGrimFogBluePercent();
+		}
+		float r = event.getRed();
+		event.setRed(r * redSlider);
+		float g = event.getGreen();
+		event.setGreen(g * greenSlider);
+		float b = event.getBlue();
+		event.setBlue(b * blueSlider);
+	}
+
+	
+	
+	// Density of Fog- not Color
 	@SubscribeEvent
 	public void handleFogRender(RenderFogEvent event) {
 
@@ -72,7 +101,7 @@ public class FogColorsEventHandler {
 			long gametick = p.level.getGameTime();
 			
 			float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
-			if (range > grimBonusDistance) {
+			if (range > grimBonusDistanceSq) {
 				
 				if ((sliderFogPercent == 1.0f) && (sliderStartFogPercent == 1.0f))
 					return;
@@ -87,7 +116,7 @@ public class FogColorsEventHandler {
 				return;
 			}	
 
-			float percent = (range / grimBonusDistance);
+			float percent = (range / grimBonusDistanceSq);
 
 			if (percent < 0.01f) {
 				percent = 0.01f + ((0.01f - percent) * 100);
@@ -123,15 +152,5 @@ public class FogColorsEventHandler {
 		
 	}
 
-	private float adjustSlider(float slider, float target) {
-		final double slideAmount = 0.005f;
-		if (slider > target) {
-			slider -= slideAmount;
-		} else if (slider < target) {
-			slider += slideAmount;
-		} else {
-			slider = target;
-		}
-		return slider;
-	}
+
 }
