@@ -420,12 +420,12 @@ public class MyConfig {
 			grimCitadelBonusDistance = builder
 					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")
 					.translation(Main.MODID + ".config." + "grimCitadelBonusDistance")
-					.defineInRange("grimCitadelBonusDistance", () -> 1000, 2000, 6000);	
+					.defineInRange("grimCitadelBonusDistance", () -> 1500, 1000, 6000);	
 			
 			grimCitadelsCount = builder
 					.comment("grimCitadelsCount : number of grim Citadels kept in the game (if 0 will count down til none left)")
 					.translation(Main.MODID + ".config." + "grimCitadelsCount")
-					.defineInRange("grimCitadelsCount", () -> 8, 0, 16);	
+					.defineInRange("grimCitadelsCount", () -> 5, 0, 16);	
 
 			grimHarmAnimals = builder
 					.comment("grimHarmAnimals : Animals near grim citadels get sick. ")

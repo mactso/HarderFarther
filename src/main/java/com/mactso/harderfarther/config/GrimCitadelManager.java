@@ -26,6 +26,7 @@ import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.phys.Vec3;
 
 public class GrimCitadelManager {
 	private static long checkTimer = 0;
@@ -122,17 +124,17 @@ public class GrimCitadelManager {
 
 	private static void buildDoor(ServerLevel level, int bottom, int top, Random rand, BlockPos bottomPos) {
 		if (level.getRandom().nextBoolean() == true) {
-			level.setBlock(bottomPos.south(grimRadius + 1), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
-			level.setBlock(bottomPos.south(grimRadius + 1).above(1), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
-			level.setBlock(bottomPos.south(grimRadius + 1).above(2), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
+			level.setBlock(bottomPos.south(grimRadius + 1), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
+			level.setBlock(bottomPos.south(grimRadius + 1).above(1), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
+			level.setBlock(bottomPos.south(grimRadius + 1).above(2), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
 			level.setBlock(bottomPos.south(grimRadius + 2), Blocks.AIR.defaultBlockState(), 0);
 			level.setBlock(bottomPos.south(grimRadius + 2).above(1), Blocks.AIR.defaultBlockState(), 0);
 			level.setBlock(bottomPos.south(grimRadius + 2).above(2), Blocks.AIR.defaultBlockState(), 0);
 
 		} else {
-			level.setBlock(bottomPos.north(grimRadius + 1), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
-			level.setBlock(bottomPos.north(grimRadius + 1).above(1), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
-			level.setBlock(bottomPos.north(grimRadius + 1).above(2), ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 0);
+			level.setBlock(bottomPos.north(grimRadius + 1), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
+			level.setBlock(bottomPos.north(grimRadius + 1).above(1), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
+			level.setBlock(bottomPos.north(grimRadius + 1).above(2), ModBlocks.GRIM_GATE.defaultBlockState(), 0);
 			level.setBlock(bottomPos.north(grimRadius + 2), Blocks.AIR.defaultBlockState(), 0);
 			level.setBlock(bottomPos.north(grimRadius + 2).above(1), Blocks.AIR.defaultBlockState(), 0);
 			level.setBlock(bottomPos.north(grimRadius + 2).above(2), Blocks.AIR.defaultBlockState(), 0);
@@ -344,7 +346,7 @@ public class GrimCitadelManager {
 		if (rand.nextInt(10) < 2) {
 			level.setBlock(floorPos, Blocks.AIR.defaultBlockState(), 3);
 		} else {
-			level.setBlock(floorPos, ModBlocks.GRIM_GATE_BLOCK.defaultBlockState(), 3);
+			level.setBlock(floorPos, ModBlocks.GRIM_GATE.defaultBlockState(), 3);
 		}
 		level.setBlock(floorPos.above(), Blocks.CAVE_AIR.defaultBlockState(), 3);
 		floorPos.setX(posX);
@@ -368,7 +370,7 @@ public class GrimCitadelManager {
 		boolean livingfloor = false;
 		
 		if (fy % 12 == 0) {
-			if (level.getBlockState(savePos.south(fx).east(fz).below()).getBlock() != ModBlocks.GRIM_GATE_BLOCK) {
+			if (level.getBlockState(savePos.south(fx).east(fz).below()).getBlock() != ModBlocks.GRIM_GATE) {
 				level.setBlock(savePos.south(fx).east(fz), Blocks.CHEST.defaultBlockState(), 3);
 				RandomizableContainerBlockEntity.setLootTable(level, level.random, savePos.south(fx).east(fz),
 						BuiltInLootTables.NETHER_BRIDGE);
@@ -386,11 +388,17 @@ public class GrimCitadelManager {
 
 	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range, int modifier) {
 		int numZP;
+		Mob e;
 		numZP = level.random.nextInt(range)-modifier;
 		if (numZP < 0) return false;
-		for (int i = 0; i < numZP; i++) {
-			Mob e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL,
-					true, true);
+		for (int i = 0; i <= numZP; i++) {
+			if (et == EntityType.PHANTOM) {
+				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.SPAWNER,
+						true, true);
+			} else {
+				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL,
+						true, true);
+			}
 			e.setPersistenceRequired();
 			if (et == EntityType.ZOMBIFIED_PIGLIN) {
 				e.setAggressive(true);
@@ -424,6 +432,20 @@ public class GrimCitadelManager {
 		return closestSq;
 	}
 
+	public static Vec3 getDirectionGrimCitadel(BlockPos pos) {
+		int closestSq = Integer.MAX_VALUE;
+		BlockPos cPos = pos;
+		for (BlockPos b : realGCList) {
+			closestSq = Math.min((int) b.distSqr(pos), closestSq);
+			cPos = b;
+		}
+		if (closestSq != Integer.MAX_VALUE) {
+			Vec3 v = new Vec3(cPos.getX()-pos.getX(),cPos.getY()-pos.getY(),cPos.getZ()-pos.getZ());
+			return v.normalize();
+		}
+		return null;
+	}
+	
 	public static int getFarthestGrimCitadelDistanceSq(BlockPos pos) {
 		int farthestSq = 0;
 
