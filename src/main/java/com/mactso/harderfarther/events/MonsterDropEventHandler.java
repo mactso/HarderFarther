@@ -137,23 +137,16 @@ public class MonsterDropEventHandler {
 
 		float distanceModifier = calcDistanceModifier(event, serverWorld);
 		
-		if (distanceModifier < 1.0) {
-			return;
-		}
-
-		
-		if (distanceModifier > MyConfig.getModifierValue())
-			distanceModifier = MyConfig.getModifierValue();
 		if (eventEntity.getY() > MyConfig.getMaximumSafeAltitude()) {
-			distanceModifier = distanceModifier + 3.0f;
+			distanceModifier = distanceModifier * 1.03f;
 		}
 		
 		if (eventEntity.getY() < MyConfig.getMinimumSafeAltitude()) {
-			distanceModifier = distanceModifier + 2.0f;
+			distanceModifier = distanceModifier * 1.02f;
 		}
 		
-		float oddsMultiplier = distanceModifier / MyConfig.getModifierValue();
-		float odds = 333 * oddsMultiplier;
+;
+		float odds = 333 * distanceModifier;
 
 		int randomLootRolld1000 = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
 		// String meName = me.getName().getString();
@@ -174,10 +167,10 @@ public class MonsterDropEventHandler {
 		}
 		
 		int randomLootItemRoll = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
-
+		randomLootItemRoll += odds/2;
 		
 		ItemStack itemStackToDrop;
-		float itemPowerModifier = oddsMultiplier;
+		float itemPowerModifier = distanceModifier;
 
 		if (me instanceof Bat) {
 			itemStackToDrop = new ItemStack(Items.LEATHER, (int) 1);
@@ -223,12 +216,12 @@ public class MonsterDropEventHandler {
 		TextComponent potionName = new TextComponent("Ogre Power Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName); // TODO: Verify this 
 		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
-		int durationAbsorb = (int) (3000 * oddsMultiplier);
-		int effectAbsorb = (int) (2 * oddsMultiplier);
+		int durationAbsorb = (int) (4800 * oddsMultiplier);
+		int effectAbsorb = (int) (4 * oddsMultiplier);
 		if (effectAbsorb > 2) effectAbsorb = 2;
 		col.add(new MobEffectInstance(MobEffects.DAMAGE_BOOST, durationAbsorb, effectAbsorb));
-		col.add(new MobEffectInstance(MobEffects.NIGHT_VISION, 120, effectAbsorb));
-		col.add(new MobEffectInstance(MobEffects.REGENERATION, 60, effectAbsorb));
+		col.add(new MobEffectInstance(MobEffects.NIGHT_VISION, durationAbsorb/2, 0));
+		col.add(new MobEffectInstance(MobEffects.REGENERATION, 120, effectAbsorb));
 		PotionUtils.setCustomEffects(potion, col);
 		CompoundTag compoundnbt = potion.getTag();
 		compoundnbt.putInt("CustomPotionColor", 13415603);
@@ -238,10 +231,10 @@ public class MonsterDropEventHandler {
 
 	private ItemStack makeLifeSavingPotion(float oddsMultiplier) {
 		ItemStack itemStackToDrop;
-		int durationAbsorb = (int) (30000 * oddsMultiplier);
-		int effectAbsorb = (int) (1 + 8 * oddsMultiplier);
+		int durationAbsorb = (int) (18000 * oddsMultiplier);
+		int effectAbsorb = (int) (2 + 4 * oddsMultiplier);
 		int durationRegen = (int) (200 * oddsMultiplier);
-		int effectRegen = (int) (5 * oddsMultiplier);
+		int effectRegen = (int) (4 * oddsMultiplier);
 
 		TextComponent potionName = new TextComponent("Life Saving Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
@@ -286,9 +279,7 @@ public class MonsterDropEventHandler {
 //    	int mdist = MyConfig.getModifierMaxDistance();
 //    	int mval = MyConfig.getModifierValue();
     	float maxModifierDistance = MyConfig.getModifierMaxDistance();
-    	float modifierValue = MyConfig.getModifierValue();
-    	float pctDistanceToMax = distanceFromSpawn/maxModifierDistance ;
-    	float distanceModifier = modifierValue * pctDistanceToMax;
+       	float distanceModifier = distanceFromSpawn/maxModifierDistance ;
 
     	double spawnHeight = eY;
 //    	int minSafeAltitude = MyConfig.getMinimumSafeAltitude();

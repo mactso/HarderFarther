@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.config.MyConfig;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TextComponent;
@@ -12,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class Utility {
 	
@@ -34,19 +36,20 @@ public class Utility {
 		
 	}
 
-	public static void sendBoldChat(ServerPlayer p, String chatMessage, TextColor textColor) {
+	public static void sendBoldChat(Player p, String chatMessage, ChatFormatting textColor) {
 
 		TextComponent component = new TextComponent (chatMessage);
-		component.getStyle().withBold(true);
-		component.getStyle().withColor(textColor);
+		component.setStyle(component.getStyle().withBold(true));
+		component.setStyle(component.getStyle().withColor(ChatFormatting.DARK_GREEN));
 		p.sendMessage(component, p.getUUID());
 
 	}	
 	
-	public static void sendChat(ServerPlayer p, String chatMessage, TextColor textColor) {
+
+	public static void sendChat(Player p, String chatMessage, ChatFormatting textColor) {
 
 		TextComponent component = new TextComponent (chatMessage);
-		component.getStyle().withColor(textColor);
+		component.setStyle(component.getStyle().withColor(ChatFormatting.GREEN));
 		p.sendMessage(component, p.getUUID());
 
 	}

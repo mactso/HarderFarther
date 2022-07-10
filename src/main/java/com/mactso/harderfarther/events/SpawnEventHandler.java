@@ -47,6 +47,141 @@ public class SpawnEventHandler {
 		}
 	}
 
+	private void boostEntityAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+		if (MyConfig.isAtkDmgBoosted()) {
+			if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
+				float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+				float damageBoost = (MyConfig.getAtkPercent() * distanceModifier);
+				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
+				entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
+
+				Utility.debugMsg(2, pos,
+						"--Boost " + eDsc + " attack damage from " + baseAttackDamage + " to " + newAttackDamage + ".");
+			} else {
+				Utility.debugMsg(2, pos, "erBoost " + eDsc + " Attack Damage Null  .");
+			}
+		}
+	}
+
+	private void boostEntityHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+		if (MyConfig.isHpMaxBoosted()) {
+			if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
+				float startHealth = entity.getHealth();
+				float healthBoost = (MyConfig.getHpMaxPercent() * distanceModifier);
+				healthBoost = limitHealthBoostByMob(healthBoost, entity);
+				entity.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(
+						new AttributeModifier("maxhealthboost", healthBoost, Operation.MULTIPLY_TOTAL));
+				entity.setHealth(entity.getMaxHealth());
+				Utility.debugMsg(2, pos, "--Boost " + eDsc + " " + startHealth + " health to " + entity.getHealth());
+
+			} else {
+				Utility.debugMsg(1, pos, "erBoost: " + eDsc + " " + entity.getHealth() + " MaxHealth attribute null.");
+			}
+		}
+	}
+
+	private void boostEntityKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
+			float distanceModifier) {
+		if (MyConfig.isKnockBackBoosted()) {
+			if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
+				float baseKnockBackResistance = (float) entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
+				if (baseKnockBackResistance == 0) {
+					baseKnockBackResistance = getKBRBoostByMob(entity);
+				}
+				float kbrBoost = (MyConfig.getKnockBackPercent() * distanceModifier);
+				float newKnockBackResistance = baseKnockBackResistance + baseKnockBackResistance * kbrBoost;
+				entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
+
+				Utility.debugMsg(2, pos, "--Boost " + eDsc + " Boost KB Resist from " + baseKnockBackResistance + " to "
+						+ newKnockBackResistance + ".");
+
+			} else {
+				Utility.debugMsg(2, pos, "erBoost " + entity.getType().toString() + " KB Resist Null .");
+
+			}
+		}
+	}
+
+	private void boostEntitySpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+
+		if (MyConfig.isSpeedBoosted()) {
+			if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
+				float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
+				float speedModifier = (MyConfig.getSpeedPercent() * distanceModifier);
+				if (entity instanceof Zombie) {
+					Zombie z = (Zombie) entity;
+					if (z.isBaby()) {
+						speedModifier *= 0.5f;
+					}
+				}
+				float newSpeed = baseSpeed + (baseSpeed * speedModifier);
+				entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
+				Utility.debugMsg(2, pos, "--Boost " + eDsc + " speed from " + baseSpeed + " to " + newSpeed + ".");
+			} else {
+				Utility.debugMsg(2, pos, "erBoost : " + eDsc + " Speed Value Null .");
+			}
+		}
+	}
+
+	private float calcDistanceModifier(float distanceFromSpawn, int y) {
+
+		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
+		if (y < MyConfig.getMinimumSafeAltitude()) {
+			pctMax *= 1.06f;
+		} else if (y > MyConfig.getMaximumSafeAltitude()) {
+			pctMax *= 1.09f;
+		}
+		return pctMax;
+
+	}
+
+	private float getKBRBoostByMob(LivingEntity entity) {
+		float kbrBoost = 0;
+		// give some mobs more bonus hit points.
+		if (entity instanceof Zombie) {
+			kbrBoost = .45f;
+		} else if (entity instanceof CaveSpider) {
+			kbrBoost = 0.05f; // lower boost
+		} else if (entity instanceof Spider) {
+			kbrBoost = .6f; // higher boost
+		} else if (entity instanceof Creeper) {
+			kbrBoost = 0.2f; // lower boost
+		} else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
+			kbrBoost = 0.2f;
+		} else if (entity instanceof AbstractSkeleton) {
+			kbrBoost = 0.3f;
+		} else if (entity.getMaxHealth() < 10) {
+			kbrBoost = 0.05f;
+		} else if (entity.getMaxHealth() < 40) {
+			kbrBoost = 0.2f;
+		} else {
+			kbrBoost = 0.35f;
+		}
+		return kbrBoost * 0.7f;
+	}
+
+	private float limitHealthBoostByMob(float healthBoost, LivingEntity entity) {
+
+		// give some mobs more bonus hit points.
+		if (entity instanceof Zombie) {
+			Zombie z = (Zombie) entity;
+			if (z.isBaby()) {
+				healthBoost *= 0.6f;
+			}
+		} else if (entity instanceof CaveSpider) {
+			healthBoost *= 0.5f; // lower boost
+		} else if (entity instanceof Spider) {
+			healthBoost *= 1.10f; // higher boost
+		} else if (entity instanceof Creeper) {
+			healthBoost *= 0.85f; // lower boost
+		} else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
+			healthBoost *= 0.1f; // much lower boost they are self boosted.
+		} else if (entity instanceof AbstractSkeleton) {
+			healthBoost *= 0.9f;
+		}
+		return healthBoost;
+	}
+
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
 
@@ -84,10 +219,10 @@ public class SpawnEventHandler {
 			return;
 		}
 
-		BlockPos pos = entity.blockPosition();
-		String eDsc = entity.getType().toShortString();
+		BlockPos ePos = entity.blockPosition();
+		String eDsc = entity.getType().getRegistryName().toString();
 
-		Utility.debugMsg(2, pos,
+		Utility.debugMsg(2, ePos,
 				entity.getName().getString() + " : Hostile Spawn Event. " + entity.getType().toString());
 
 		// no spawns closer to worldspawn than safe distance
@@ -99,24 +234,25 @@ public class SpawnEventHandler {
 		}
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
-		
-		
-		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
-		
-		
+
+
 		if (level.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
 				event.setResult(Result.DENY);
+				BlockPos sPos = new BlockPos(event.getX(), event.getY(), event.getZ());
+				Utility.debugMsg(2, sPos, "Safe Blocked " + entity.getType().getRegistryName().toString());
 				return;
 			}
 		}
+
+		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
 
 		if (MyConfig.isGrimCitadels()) {
 			GrimCitadelManager.checkCleanUpCitadels(level);
 
 			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
 			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-			
+
 			if (closestGrimDistSq <= bonusGrimDistSq) {
 				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
 				grimMod *= MyConfig.getModifierMaxDistance();
@@ -126,106 +262,18 @@ public class SpawnEventHandler {
 
 		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
 
-		float pctModifier = 1.0f + (distanceModifier / 100) * 2;
-
 		try {
-			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * pctModifier));
+			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
 		} catch (Exception e) {
 			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
 			return;
 		}
 
-		if (MyConfig.isHpMaxModified()) {
-			if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
-				float maxHealthModifier = calcMaxHealthMultiplier(entity) * (distanceModifier / 100.0f);
-				entity.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(
-						new AttributeModifier("maxhealthboost", maxHealthModifier, Operation.MULTIPLY_TOTAL));
-				Utility.debugMsg(2, pos,
-						"Adjust " + eDsc + " " + entity.getHealth() + " health to " + entity.getMaxHealth());
-			} else {
-				Utility.debugMsg(1, pos, "Error: " + eDsc + " " + entity.getHealth() + " MaxHealth attribute null.");
-			}
-		}
+		boostEntityHealth(entity, ePos, eDsc, distanceModifier);
+		boostEntitySpeed(entity, ePos, eDsc, distanceModifier);
+		boostEntityAtkDmg(entity, ePos, eDsc, distanceModifier);
+		boostEntityKnockbackResistance(entity, ePos, eDsc, distanceModifier);
 
-		if (MyConfig.isSpeedModified()) {
-			if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
-				float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
-				float speedModifier = pctModifier;
-				if (speedModifier > 1.5f)
-					speedModifier *= 0.75f;
-				if (speedModifier > 2.0f)
-					speedModifier = 2.0f;
-				float newSpeed = baseSpeed * speedModifier;
-				entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
-				Utility.debugMsg(2, pos, "Adjust " + eDsc + " Boost speed from " + baseSpeed + " to " + newSpeed + ".");
-			}
-
-		} else {
-			Utility.debugMsg(2, pos, " HSP : " + eDsc + " Speed Value Null .");
-
-		}
-
-		if (MyConfig.isAtkDmgModified()) {
-			if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
-				float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-
-				float newAttackDamage = baseAttackDamage * pctModifier;
-				entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
-
-				Utility.debugMsg(2, pos, " : HSP : " + entity.getType().toString() + " Boost attack damage from "
-						+ baseAttackDamage + " to " + newAttackDamage + ".");
-			} else {
-				Utility.debugMsg(2, pos, " HSP : " + eDsc + " Attack Damage Null  .");
-			}
-		}
-
-		if (MyConfig.isKnockBackModified()) {
-			if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
-				float baseKnockBackResistance = (float) entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
-				float newKnockBackResistance = ((1.0f + baseKnockBackResistance) * pctModifier) - 1.0f;
-				entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
-
-				Utility.debugMsg(2, pos, " : HSP : " + entity.getType().toString() + " Boost KB Resist from "
-						+ baseKnockBackResistance + " to " + newKnockBackResistance + ".");
-
-			} else {
-				Utility.debugMsg(2, pos, " : HSP : " + entity.getType().toString() + " KB Resist Null .");
-
-			}
-		}
-
-	}
-
-	private float calcDistanceModifier(float distanceFromSpawn, int y) {
-
-		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
-		if (y < MyConfig.getMinimumSafeAltitude()) {
-			pctMax *= 1.06f;
-		} else if (y > MyConfig.getMaximumSafeAltitude()) {
-			pctMax *= 1.09f;
-		}
-		return pctMax * MyConfig.getModifierValue();
-
-	}
-
-	private float calcMaxHealthMultiplier(LivingEntity entity) {
-		float maxHealthMultiplier = 1.0f;
-
-		// give some mobs more bonus hit points.
-		if (entity instanceof Zombie) {
-			maxHealthMultiplier = 1.75f;
-		} else if (entity instanceof CaveSpider) {
-			// no mod
-		} else if (entity instanceof Spider) {
-			maxHealthMultiplier = 2.1f;
-		} else if (entity instanceof Creeper) {
-			// no mod
-		} else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
-			// no mod
-		} else if (entity instanceof AbstractSkeleton) {
-			maxHealthMultiplier = 1.5f;
-		}
-		return maxHealthMultiplier;
 	}
 
 }

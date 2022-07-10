@@ -2,11 +2,9 @@ package com.mactso.harderfarther.config;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,7 +24,6 @@ import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,12 +33,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,6 +54,11 @@ public class GrimCitadelManager {
 	public static List<BlockPos> realGCList = new ArrayList<BlockPos>();
 
 	private static int grimRadius = 4;
+
+	public static int getGrimRadius() {
+		return grimRadius;
+	}
+
 	private static BlockState BASALT = Blocks.BASALT.defaultBlockState();
 	private static BlockState POLISHEDBASALT = Blocks.POLISHED_BASALT.defaultBlockState();
 	private static BlockState BLACKSTONE = Blocks.BLACKSTONE.defaultBlockState();
@@ -432,6 +432,22 @@ public class GrimCitadelManager {
 		return closestSq;
 	}
 
+	public static BlockPos getClosestGrimCitadelPos(BlockPos pos) {
+		BlockPos grimPos = pos;
+		int closestSqr = Integer.MAX_VALUE;
+		for (BlockPos b : realGCList) {
+			int nextSqr = (int) b.distSqr(pos);
+			if (closestSqr > nextSqr) {
+				closestSqr = nextSqr;
+				grimPos = b;
+			}
+		}
+		if (grimPos == pos) {
+			return null;
+		}
+		return grimPos;
+	}
+	
 	public static Vec3 getDirectionGrimCitadel(BlockPos pos) {
 		int closestSq = Integer.MAX_VALUE;
 		BlockPos cPos = pos;
@@ -746,6 +762,10 @@ public class GrimCitadelManager {
 			// e.printStackTrace();
 		}
 
+	}
+
+	public static String getCitadelListAsString() {
+		return realGCList.toString();
 	}
 
 }

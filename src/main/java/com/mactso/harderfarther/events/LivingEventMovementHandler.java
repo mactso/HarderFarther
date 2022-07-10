@@ -16,12 +16,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
@@ -68,13 +65,22 @@ public class LivingEventMovementHandler {
 
 	@SubscribeEvent
 	public void livingEntityHandler(LivingUpdateEvent event) {
+		
+		// everything below here is grim citadel code
+		if (!MyConfig.isGrimCitadels()) {
+			return;
+		}
+
 		LivingEntity le = event.getEntityLiving();
 		BlockPos pos = le.blockPosition();
 		Level level = le.level;
+		BlockEvents.killWaterPos(level); 
 		long gameTime = level.getGameTime();
 		initializeDistanceConstants();
 		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
 
+
+		
 		if ((closestGrimDistSq > gDist100)) { // note also MAXINTEGER in here.
 			return;
 		}
@@ -120,9 +126,11 @@ public class LivingEventMovementHandler {
 			if (gHungerBlocks.contains(b) || gHungerBlocks.contains(bb)) {
 				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.HUNGER, duration);
 			}
-			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.MOVEMENT_SLOWDOWN, duration);
-			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
-			Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
+			if (closestGrimDistSq<MyConfig.getGrimCitadelPlayerCurseDistanceSq()) {
+				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.MOVEMENT_SLOWDOWN, duration);
+				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
+				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
+			}
 			if (isTooCloseToFly(closestGrimDistSq)) {
 				slowFlyingMotion(le);
 				if (p.isFallFlying()) {
@@ -264,9 +272,10 @@ public class LivingEventMovementHandler {
 	}
 	
 	private void doGrimEffectsAnimals(LivingEntity le, BlockPos pos, Level level) {
-		if (level.getRandom().nextInt(400) < 3) {
-			if (le.getHealth() > 2) {
+		if (level.getRandom().nextInt(400) < 9) {
+			if (le.getHealth() > 3) {
 				Utility.updateEffect((LivingEntity) le, 0, MobEffects.POISON, 10);
+				level.setBlock(le.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
 			}
 			if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
 				level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);

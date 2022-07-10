@@ -1,18 +1,18 @@
 // 16.2+ harder farther
 package com.mactso.harderfarther;
 
-
-
-
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.blockentities.ModBlockEntities;
 import com.mactso.harderfarther.config.GrimCitadelManager;
+import com.mactso.harderfarther.config.HarderFartherCommands;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.events.BlockEvents;
 import com.mactso.harderfarther.events.ChunkEvent;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
+import com.mactso.harderfarther.events.PlayerInteractionEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.item.ModItems;
@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -48,7 +49,7 @@ public class Main {
 	    
 	    public Main()
 	    {
-	    	
+
 	    	System.out.println(MODID + ": Registering Mod.");
 	  		FMLJavaModLoadingContext.get().getModEventBus().register(this);
  	        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON,MyConfig.COMMON_SPEC );
@@ -82,9 +83,11 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
+//				MinecraftForge.EVENT_BUS.register(new PlayerInteractionEventHandler());
 				lem = new LivingEventMovementHandler();
 				MinecraftForge.EVENT_BUS.register(lem);
-		}  
+				MinecraftForge.EVENT_BUS.register(new BlockEvents());
+ 		}  
 		
 		
 		
@@ -128,8 +131,15 @@ public class Main {
 				Utility.debugMsg(0, MODID + "Cleanup Successful");
 			}
 
+			@SubscribeEvent 		
+			public static void onCommandsRegistry(final RegisterCommandsEvent event) {
+				System.out.println("Happy Trails: Registering Command Dispatcher");
+				HarderFartherCommands.register(event.getDispatcher());			
+			}
 
 		}
+		
+		
 	
 		
 

@@ -20,9 +20,10 @@ public class LootManager {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static Hashtable<Integer, LootItem> lootHashtable = new Hashtable<>();
-
+	public static boolean init = false;
 	
 	public static ItemStack getLootItem (String Rarity, Random rand) {
+
 		Item lootItem;
 		int workroll = 0;
 		int worksides = 0;
