@@ -19,10 +19,9 @@ public class FogColorsEventHandler {
 	private long fogTick = 0;
 	private static float sliderStartFogPercent = 1.0f;
 
-
-
 	@SubscribeEvent
 	public void onFogColorCheck(FogColors event) {
+
 		
 		Minecraft m = Minecraft.getInstance();
 		LocalPlayer p = m.player;
@@ -30,7 +29,7 @@ public class FogColorsEventHandler {
 
 		float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
 
-		if (range > grimBonusDistanceSq) {
+		if ((range > grimBonusDistanceSq) || (!MyConfig.isGrimCitadels())) {
 			if (sliderColorPercent == 1.0f)
 				return;
 			if ( (colorTick != gametick)) {

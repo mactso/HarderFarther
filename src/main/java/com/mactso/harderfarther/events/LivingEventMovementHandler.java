@@ -74,7 +74,7 @@ public class LivingEventMovementHandler {
 		LivingEntity le = event.getEntityLiving();
 		BlockPos pos = le.blockPosition();
 		Level level = le.level;
-		BlockEvents.killWaterPos(level); 
+		BlockEvents.killFluidPos(level); 
 		long gameTime = level.getGameTime();
 		initializeDistanceConstants();
 		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
@@ -106,12 +106,18 @@ public class LivingEventMovementHandler {
 
 		ServerLevel serverLevel = (ServerLevel) level;
 
-		if ((closestGrimDistSq >= gDist05) && (closestGrimDistSq <= gDist50)) {
+		if ((closestGrimDistSq >= gDist16) && (closestGrimDistSq <= gDist50)) {
 			amplitude1 = 0;
 			amplitude2 = 0;
-		} else if (closestGrimDistSq < gDist05) {
+		} else if ((closestGrimDistSq >= gDist05) && (closestGrimDistSq < gDist16)) {
 			amplitude1 = 0;
 			amplitude2 = 1;
+			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
+				le.removeEffect(MobEffects.SLOW_FALLING);
+			}
+		}  else if (closestGrimDistSq < gDist05) {
+			amplitude1 = 0;
+			amplitude2 = 0;
 			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
 				le.removeEffect(MobEffects.SLOW_FALLING);
 			}

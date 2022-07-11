@@ -24,7 +24,7 @@ public class LootManager {
 	
 	public static ItemStack getLootItem (String Rarity, Random rand) {
 
-		Item lootItem;
+
 		int workroll = 0;
 		int worksides = 0;
 		if (Rarity.equals("r")) {
@@ -60,6 +60,14 @@ public class LootManager {
 		return new ItemStack(Items.PAPER, 1);
 	}
 	
+	public static String report ( ) {
+		String lootList = "LootList:\n";
+
+		for (LootItem hi : lootHashtable.values()) {
+			lootList += asString(hi) + "\n";
+		}
+		return lootList;
+	}
 	public static void initLootItems(String [] lootItems) {
 
 		lootHashtable.clear();
@@ -119,13 +127,25 @@ public class LootManager {
 		return ret;
 	}
 	
+	
+	
+	public static String asString (LootItem li) {
+		return ("("+li.lootRarityKey + ":" 
+	+ li.lootWeight + ") " 
+	+ li.lootItem.getDescription().getString().toString() + ", " 
+	+ li.lootMin + " to " 
+	+ li.lootMax );
+	}
+	
+	
+	
 	public static class LootItem {
 
-		String lootRarityKey; // com,unc,rar
-		int lootWeight;
-		Item lootItem;
-		int lootMin;
-		int lootMax;
+		 String lootRarityKey; // com,unc,rar
+		 int lootWeight;
+		 Item lootItem;
+		 int lootMin;
+		 int lootMax;
 
 		public LootItem(String lootRarityKey, int lootWeight, Item lootItem, int lootMin, int lootMax) {
 			this.lootRarityKey = lootRarityKey;
@@ -134,6 +154,7 @@ public class LootManager {
 			this.lootMin = lootMin;
 			this.lootMax = lootMax;
 		}
+		
 
 	}
 

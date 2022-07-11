@@ -167,7 +167,9 @@ public class MonsterDropEventHandler {
 		}
 		
 		int randomLootItemRoll = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
-		randomLootItemRoll += odds/2;
+		if (randomLootItemRoll < 640) {
+			randomLootItemRoll += odds;
+		}
 		
 		ItemStack itemStackToDrop;
 		float itemPowerModifier = distanceModifier;
@@ -274,7 +276,7 @@ public class MonsterDropEventHandler {
     	if (distanceFromSpawn > MyConfig.getModifierMaxDistance()) {
     		distanceFromSpawn = MyConfig.getModifierMaxDistance();
     	}
-    	int debug = 3;
+
 //    	int safe = MyConfig.getSafeDistance();
 //    	int mdist = MyConfig.getModifierMaxDistance();
 //    	int mval = MyConfig.getModifierValue();

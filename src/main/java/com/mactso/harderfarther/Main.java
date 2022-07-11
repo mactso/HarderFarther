@@ -12,7 +12,6 @@ import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
-import com.mactso.harderfarther.events.PlayerInteractionEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.item.ModItems;
@@ -22,6 +21,7 @@ import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -38,7 +38,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkConstants;
-import net.minecraftforge.api.distmarker.Dist;
 
 
 @Mod("harderfarther")

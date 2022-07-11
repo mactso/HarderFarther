@@ -270,11 +270,16 @@ public class MyConfig {
 		COMMON.grimFogGreenPercent.set (grimFogGreenPercent);
 	}
 	
+	public static void setGrimCitadels(boolean newValue) {
+		COMMON.grimCitadels.set(newValue);
+		grimCitadels = COMMON.grimCitadels.get();
+	}
+
+	
 	public static void setBonusRange(int newRange) {
 		COMMON.grimCitadelBonusDistance.set(newRange);
 		COMMON.grimCitadelPlayerCurseDistance.set((int)(newRange*0.7f));
 		bakeGrimRanges();
-
 	}
 
 	private static void bakeGrimRanges() {
@@ -282,6 +287,11 @@ public class MyConfig {
 		grimCitadelBonusDistanceSq = grimCitadelBonusDistance*grimCitadelBonusDistance;
 		grimCitadelPlayerCurseDistance = COMMON.grimCitadelPlayerCurseDistance.get();
 		grimCitadelPlayerCurseDistanceSq = grimCitadelPlayerCurseDistance * grimCitadelPlayerCurseDistance;
+	}
+
+	public static void setOddsDropExperienceBottle(int newOdds) {
+		COMMON.oddsDropExperienceBottle.set(newOdds);
+		oddsDropExperienceBottle = newOdds;
 	}
 	
 	// remember need to push each of these values separately once we have commands.
@@ -439,31 +449,30 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "oddsDropExperienceBottle")
 					.defineInRange("oddsDropExperienceBottle", () -> 33, 0, 100);
 			
-			
 			lootItemsList = builder
 					.comment("Loot Items List")
 					.translation(Main.MODID + ".config" + "lootItemsList")
 					.defineList("lootItemsList", defLootItemsList, Common::isString);
 
 			hpMaxMod = builder
-					.comment("Modify Max Hit Points (Percent) ")
+					.comment("Boost Max Hit Points (Percent) ")
 					.translation(Main.MODID + ".config." + "hpMaxMod")
 					.defineInRange("hpMaxMod", () -> 200, 0, 999);
 
 			speedMod = builder
-					.comment("Modify Movement Speed (Percent) ")
+					.comment("Boost Movement Speed (Percent) ")
 					.translation(Main.MODID + ".config." + "speedMod")
 					.defineInRange("speedMod", () -> 50, 0, 999);
 			
 			atkDmgMod = builder
-					.comment("Modify Max Hit Points (percent)")
+					.comment("Boost Attack Damage (percent)")
 					.translation(Main.MODID + ".config." + "atkDmgMod")
 					.defineInRange("atkDmgMod", () -> 100, 0, 999);
 			
 			knockbackMod = builder
-					.comment("Modify Knockback Resistance (Percent) ")
+					.comment("Boost Knockback Resistance (Percent) ")
 					.translation(Main.MODID + ".config." + "knockbackMod")
-					.defineInRange("atkDmgMod", () -> 100, 0, 999);
+					.defineInRange("knockbackMod", () -> 100, 0, 999);
 			
 			builder.push("Grim Citadel Settings");
 			
@@ -524,6 +533,8 @@ public class MyConfig {
 			return (o instanceof String);
 		}
 	}
+
+
 
 
 	

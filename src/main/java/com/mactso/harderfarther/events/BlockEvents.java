@@ -81,7 +81,7 @@ public class BlockEvents {
 		killWaterPos.add(newKillWaterPos);
 	}
 	
-	public static void killWaterPos(Level l) {
+	public static void killFluidPos(Level l) {
 		for (int i = 0; i < killWaterPos.size();i++ ) {
 			l.setBlock(killWaterPos.get(i), Blocks.AIR.defaultBlockState(), 3);
 		}
@@ -106,9 +106,12 @@ public class BlockEvents {
 			}
 			// cancel block placement grim tower airspace
 			if ((xAbs <= protectedDistance) && (zAbs <= protectedDistance) && (eventPos.getY() > grimPos.getY() + -8)) {
-				return true;
+				if ((xAbs > GrimCitadelManager.getGrimRadius()) || (zAbs > GrimCitadelManager.getGrimRadius())) {
+					return true;
+				}
 			}
 		}
+		int x = 3;
 		return false;
 	}
 
