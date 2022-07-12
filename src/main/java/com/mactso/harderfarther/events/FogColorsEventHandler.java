@@ -29,7 +29,7 @@ public class FogColorsEventHandler {
 
 		float range = GrimCitadelManager.getClosestGrimCitadelDistanceSq(p.blockPosition());
 
-		if ((range > grimBonusDistanceSq) || (!MyConfig.isGrimCitadels())) {
+		if ((range > grimBonusDistanceSq) || (!MyConfig.isUseGrimCitadels())) {
 			if (sliderColorPercent == 1.0f)
 				return;
 			if ( (colorTick != gametick)) {

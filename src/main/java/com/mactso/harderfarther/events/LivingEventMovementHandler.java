@@ -19,19 +19,25 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.TallGrassBlock;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -41,47 +47,345 @@ import net.minecraftforge.fml.common.Mod;;
 @Mod.EventBusSubscriber()
 public class LivingEventMovementHandler {
 
+	static List<SoundEvent> gSoundEvents = Arrays.asList(SoundEvents.ZOMBIFIED_PIGLIN_ANGRY,
+			SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT, SoundEvents.LAVA_AMBIENT, SoundEvents.ZOMBIE_VILLAGER_STEP,
+			SoundEvents.HOGLIN_ANGRY, SoundEvents.BLAZE_AMBIENT, SoundEvents.HOGLIN_AMBIENT,
+			SoundEvents.AMBIENT_NETHER_WASTES_MOOD, SoundEvents.FIRE_AMBIENT, SoundEvents.WITHER_SKELETON_STEP);
+	static List<SoundEvent> gAmbientSoundEvents = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT,
+			SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE, SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
+	static List<Block> gHungerBlocks = Arrays.asList(Blocks.WATER, Blocks.DEEPSLATE, Blocks.TUFF, Blocks.SAND,
+			Blocks.NETHERRACK);
+	
 	private int duration = 80; // four seconds.
-	int gDist100 = 0; // default: 2000 meters (100%)
-	int gDist70 = 0; // default: 1414 meters (70%)
-	int gDist50 = 0; // default: 1000 meters (50%)
-	int gDist30 = 0; // default: 707 meters (30%)
-	int gDist25 = 0; // default: 500 meters (25%)
-	int gDist16 = 0; // default: 352 meters (16%)
-	int gDist12 = 0; // default: 250 meters (12%)
-	int gDist09 = 0; // default: 176 meters (9%)
-	int gDist05 = 0; // default: 125 meters (5%)
+	
+	int gcDist100 = 0; // default: 2000 meters (100%)
+	int gcDist70 = 0; // default: 1414 meters (70%)
+	int gcDist50 = 0; // default: 1000 meters (50%)
+	int gcDist30 = 0; // default: 707 meters (30%)
+	int gcDist25 = 0; // default: 500 meters (25%)
+	int gcDist16 = 0; // default: 352 meters (16%)
+	int gcDist12 = 0; // default: 250 meters (12%)
+	int gcDist09 = 0; // default: 176 meters (9%)
+	int gcDist05 = 0; // default: 125 meters (5%)
+	
 	boolean clientSynced = false;
+	
+	long pigTimer = 0;
+	long villagerTimer = 0;
 	long phantomTimer = 0;
 	long invisTimer = 0;
 	long skeletonTimer = 0;
 	long spiderTimer = 0;
+	long zoglinTimer = 0;
+	long zombifiedPiglinTimer = 0;
 	long zombieTimer = 0;
 	long witherSkeletonTimer = 0;
 	long creeperTimer = 0;
-	static List<SoundEvent> gSoundEvents = Arrays.asList(SoundEvents.ZOMBIFIED_PIGLIN_ANGRY,SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT,SoundEvents.LAVA_AMBIENT, SoundEvents.ZOMBIE_VILLAGER_STEP,SoundEvents.HOGLIN_ANGRY,SoundEvents.BLAZE_AMBIENT,SoundEvents.HOGLIN_AMBIENT,SoundEvents.AMBIENT_NETHER_WASTES_MOOD,SoundEvents.FIRE_AMBIENT, SoundEvents.WITHER_SKELETON_STEP);
-	static List<SoundEvent> gAmbientSoundEvents = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT, SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE, SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
-	static List<Block> gHungerBlocks = Arrays.asList(Blocks.WATER, Blocks.DEEPSLATE, Blocks.TUFF, Blocks.SAND, Blocks.NETHERRACK);
+
+	private void doAnimalTransformGround(LivingEntity le, ServerLevel level) {
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
+			level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);
+		}
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
+			level.setBlock(le.blockPosition().below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
+		}
+	}
+
+	private void doApplyPlayerCurse(double closestGrimDistSq, int amplitude1, int amplitude2, ServerPlayer p) {
+		int curseDistSq = MyConfig.getGrimCitadelPlayerCurseDistanceSq();
+		if (closestGrimDistSq < curseDistSq) {
+			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
+			if (closestGrimDistSq > gcDist05)
+				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.MOVEMENT_SLOWDOWN, duration);
+			if (closestGrimDistSq < curseDistSq / 2)
+				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
+		}
+	}
+
+	private void doGrimEffectPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (MyConfig.isGrimEffectPigs()) {
+
+			if (pigTimer < gameTime) {
+				pigTimer = gameTime + 1800;
+				float pitch = 0.8f;
+				int roll = serverLevel.getRandom().nextInt(100);
+				if (roll < 10) {
+					Utility.updateEffect(pig, 3, MobEffects.WITHER, 120);
+					serverLevel.playSound(null, pos, SoundEvents.PIGLIN_ADMIRING_ITEM, SoundSource.AMBIENT, 2.20f,
+							pitch);
+					Utility.populateEntityType(EntityType.PIGLIN, serverLevel, pos, 1, 0, pig.isBaby());
+				} else if (roll < 80) {
+					Utility.updateEffect(pig, 3, MobEffects.WITHER, 120);
+					serverLevel.playSound(null, pos, SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.AMBIENT, 2.20f,
+							pitch);
+					Utility.populateEntityType(EntityType.HOGLIN, serverLevel, pos, 1, 0, pig.isBaby());
+				} else {
+					serverLevel.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.AMBIENT, 4.20f,
+							pitch);
+					Utility.populateEntityType(EntityType.ZOMBIFIED_PIGLIN, serverLevel, pos, 1, 0,
+							pig.isBaby());
+				}
+			}
+		}
+	}
+
+	private void doGrimEffectsAnimals(LivingEntity le, BlockPos pos, long gameTime, ServerLevel level) {
+
+		if (level.getRandom().nextInt(400) < 9) {
+			if (le.getHealth() > 3) {
+				Utility.updateEffect((LivingEntity) le, 0, MobEffects.POISON, 10);
+				level.setBlock(le.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
+			}
+			doAnimalTransformGround(le, level);
+		}
+		if (level.getRandom().nextInt(9000) == 51) {
+			BlockPos firePos = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos.north(2));
+			level.setBlock(firePos, Blocks.FIRE.defaultBlockState(), 3);
+		}
+		if (le instanceof Pig) {
+			doGrimEffectPigs((Pig) le, pos, gameTime, level);
+		}
+	}
+
+	private void doGrimEffectsMobCreepers(LivingEntity le, long gameTime, ServerLevel serverLevel) {
+		if (creeperTimer < gameTime) {
+			creeperTimer = gameTime + 240;
+			Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 960);
+		}
+	}
+
+	private void doGrimEffectsMobPhantoms(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (phantomTimer < gameTime) {
+			phantomTimer = gameTime + 160;
+			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 640);
+			if (serverLevel.getRandom().nextInt(6) == 1) {
+				PrimedTnt tnt = EntityType.TNT.spawn(serverLevel, null, null, null, pos, MobSpawnType.NATURAL, true,
+						true);
+				tnt.setFuse(80);
+			}
+		}
+	}
+	
+
+	private void doGrimEffectsMobSkeletons(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (skeletonTimer < gameTime) {
+			skeletonTimer = gameTime + 120;
+//			Block b = serverLevel.getBlockState(pos).getBlock(); possible buff based on block standing on feature.
+			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
+			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 480);
+			if (le instanceof WitherSkeleton) {
+				Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 480);
+			} else {
+				if (serverLevel.getMaxLocalRawBrightness(pos) < 9) {
+					if (witherSkeletonTimer < gameTime) {
+						witherSkeletonTimer = gameTime + 1800;
+						Utility.populateEntityType(EntityType.WITHER_SKELETON, serverLevel,
+								le.blockPosition(), 1, 0);
+					}
+				}
+			}
+		}
+	}
+
+	private void doGrimEffectsMobSpiders(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (spiderTimer < gameTime) {
+			spiderTimer = gameTime + 80;
+			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
+			Utility.updateEffect(le, 0, MobEffects.ABSORPTION, 480);
+		}
+	}
+
+	private void doGrimEffectsMobZoglins(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (Utility.isOutside(pos, serverLevel)) {
+			if (zoglinTimer < gameTime){
+				zoglinTimer = gameTime + 500;
+				doNetherGrassTransform(pos, serverLevel);
+				doAnimalTransformGround(le, serverLevel);
+			} else {
+				zoglinTimer--; // when lots of zoglin speed up timer
+			}
+		}
+	}
+
+	private void doGrimEffectsMobZombies(LivingEntity le, long gameTime, ServerLevel serverLevel) {
+		if (zombieTimer < gameTime) {
+			zombieTimer = gameTime + 240;
+			Utility.updateEffect(le, 1, MobEffects.REGENERATION, duration);
+			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 720);
+		}
+	}
+
+	private void doGrimEffectsMobZombifiedPiglin(LivingEntity le, BlockPos pos, long gameTime,
+			ServerLevel serverLevel) {
+		if (Utility.isOutside(pos, serverLevel)) {
+			if (zombifiedPiglinTimer < gameTime) {
+				zombifiedPiglinTimer = gameTime + 600;
+				doNetherGrassTransform(pos, serverLevel);
+				doAnimalTransformGround(le, serverLevel);
+			} else {
+				zombifiedPiglinTimer--; // when lots of zoglin speed up timer
+			}
+		}
+	}
+
+	private void doGrimEffectsMonsters(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (le instanceof AbstractSkeleton) {
+			doGrimEffectsMobSkeletons(le, pos, gameTime, serverLevel);
+		} else if (le instanceof Zombie) {
+			doGrimEffectsMobZombies(le, gameTime, serverLevel);
+		} else if (le instanceof Creeper) {
+			doGrimEffectsMobCreepers(le, gameTime, serverLevel);
+		} else if (le instanceof Phantom) {
+			doGrimEffectsMobPhantoms(le, pos, gameTime, serverLevel);
+		} else if (le instanceof Spider) {
+			doGrimEffectsMobSpiders(le, pos, gameTime, serverLevel);
+		} else if (le instanceof Zoglin) {
+			doGrimEffectsMobZoglins(le, pos, gameTime, serverLevel);
+		} else if (le instanceof ZombifiedPiglin) {
+			doGrimEffectsMobZombifiedPiglin(le, pos, gameTime, serverLevel);
+		}
+	}
+
+	private void doGrimEffectsPlayer(LivingEntity le, BlockPos pos, Level level, double closestGrimDistSq,
+			int amplitude1, int amplitude2, ServerLevel serverLevel) {
+
+		if (!(le instanceof ServerPlayer)) {
+			return;
+		}
+
+		ServerPlayer p = (ServerPlayer) le;
+		Block b = level.getBlockState(pos).getBlock();
+		Block bBelow = level.getBlockState(pos.below()).getBlock();
+		if (gHungerBlocks.contains(b) || gHungerBlocks.contains(bBelow)) {
+			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.HUNGER, duration);
+		}
+		doApplyPlayerCurse(closestGrimDistSq, amplitude1, amplitude2, p);
+		if (isTooCloseToFly(closestGrimDistSq)) {
+			slowFlyingMotion(le);
+			if (p.isFallFlying()) {
+				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.POISON, duration);
+			}
+		}
+		if ((closestGrimDistSq > gcDist09) && (level.getRandom().nextInt(36000) == 42)) {
+			BlockPos phantomPos = new BlockPos(pos.getX(),
+					level.getHeightmapPos(Types.MOTION_BLOCKING, pos).getY() + 12, pos.getZ());
+			Utility.populateEntityType(EntityType.PHANTOM, serverLevel, phantomPos, 1, 0);
+		}
+	}
+
+	private void doGrimEffectVillagers(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (MyConfig.isGrimEffectVillagers() && (le instanceof Villager)) {
+			if (villagerTimer < gameTime) {
+				villagerTimer = gameTime + 2400;
+				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);
+				Utility.updateEffect(le, 9, MobEffects.WITHER, 240);
+			}
+		}
+	}
+
+	private void doNetherGrassTransform(BlockPos pos, ServerLevel serverLevel) {
+		BlockPos workPos = pos;
+		if (serverLevel.getBlockState(pos.below()).getBlock() == Blocks.AIR) {
+			workPos = pos.below();
+		}
+		if ((serverLevel.getBlockState(pos).getBlock() instanceof TallGrassBlock)
+				|| (serverLevel.getBlockState(workPos).getBlock() instanceof DoublePlantBlock)) {
+
+			Block b = Blocks.NETHER_SPROUTS;
+			if (serverLevel.getBlockState(workPos).getBlock() == Blocks.TALL_GRASS) {
+				b = Blocks.CRIMSON_ROOTS;
+			} else if (serverLevel.getBlockState(workPos).getBlock() == Blocks.LARGE_FERN) {
+				b = Blocks.WARPED_ROOTS;
+			}
+			serverLevel.setBlock(pos, b.defaultBlockState(), 3);
+		}
+
+	}
+
+	private void doSpreadDeadBranches(LivingEntity le, BlockPos pos, Level level) {
+		if (level.getBrightness(LightLayer.SKY, pos) > 10) {
+			BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
+			Block b = level.getBlockState(deadBranchPos.below()).getBlock();
+			if (b instanceof LeavesBlock || b == Blocks.NETHER_WART_BLOCK) {
+				if (b == ModBlocks.DEAD_BRANCHES || b == Blocks.NETHER_WART_BLOCK) {
+					BlockPos workPos = deadBranchPos;
+					for (int i = 0; i <= 3; i++) {
+						workPos = doSpreadOneDeadBranch(level, deadBranchPos);
+					}
+				} else {
+					if (level.getRandom().nextInt(100) == 42) {
+						level.setBlock(deadBranchPos, Blocks.NETHER_WART_BLOCK.defaultBlockState(), 3);
+					} else {
+						level.setBlock(deadBranchPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
+					}
+				}
+			}
+		}
+	}
+
+	private BlockPos doSpreadOneDeadBranch(Level level, BlockPos pos) {
+		Block b;
+		BlockPos workPos = pos;
+		int i = level.getRandom().nextInt(7);
+		switch (i) {
+		case 0:
+			workPos = pos.north();
+			break;
+		case 1:
+			workPos = pos.south();
+			break;
+		case 2:
+			workPos = pos.east();
+			break;
+		case 3:
+			workPos = pos.west();
+			break;
+		default:
+			int r = 1 + level.getRandom().nextInt(2);
+			workPos = pos.below(r);
+		}
+		b = level.getBlockState(workPos).getBlock();
+		if ((b instanceof LeavesBlock) && (b != ModBlocks.DEAD_BRANCHES)) {
+			level.setBlock(workPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
+		}
+		return workPos;
+	}
+
+	private void initializeDistanceConstants() {
+		if (gcDist100 == 0) {
+			gcDist100 = MyConfig.getGrimCitadelBonusDistanceSq();
+			gcDist70 = gcDist100 / 2;
+			gcDist50 = gcDist100 / 4;
+			gcDist30 = gcDist100 / 8;
+			gcDist25 = gcDist100 / 16;
+			gcDist16 = gcDist100 / 32;
+			gcDist12 = gcDist100 / 64;
+			gcDist09 = gcDist100 / 128;
+			gcDist05 = gcDist100 / 256;
+		}
+	}
+
+	private boolean isTooCloseToFly(double closestGrimDistSq) {
+		return closestGrimDistSq < gcDist09;
+	}
 
 	@SubscribeEvent
 	public void livingEntityHandler(LivingUpdateEvent event) {
-		
+
 		// everything below here is grim citadel code
-		if (!MyConfig.isGrimCitadels()) {
+		if (!MyConfig.isUseGrimCitadels()) {
 			return;
 		}
 
 		LivingEntity le = event.getEntityLiving();
 		BlockPos pos = le.blockPosition();
 		Level level = le.level;
-		BlockEvents.killFluidPos(level); 
+//		BlockEvents.killIllegalFluidBlocks(level);
 		long gameTime = level.getGameTime();
 		initializeDistanceConstants();
 		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
 
-
-		
-		if ((closestGrimDistSq > gDist100)) { // note also MAXINTEGER in here.
+		if ((closestGrimDistSq > gcDist100)) { // note also MAXINTEGER in here.
 			return;
 		}
 
@@ -106,16 +410,16 @@ public class LivingEventMovementHandler {
 
 		ServerLevel serverLevel = (ServerLevel) level;
 
-		if ((closestGrimDistSq >= gDist16) && (closestGrimDistSq <= gDist50)) {
+		if ((closestGrimDistSq >= gcDist16) && (closestGrimDistSq <= gcDist50)) {
 			amplitude1 = 0;
 			amplitude2 = 0;
-		} else if ((closestGrimDistSq >= gDist05) && (closestGrimDistSq < gDist16)) {
+		} else if ((closestGrimDistSq >= gcDist05) && (closestGrimDistSq < gcDist16)) {
 			amplitude1 = 0;
 			amplitude2 = 1;
 			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
 				le.removeEffect(MobEffects.SLOW_FALLING);
 			}
-		}  else if (closestGrimDistSq < gDist05) {
+		} else if (closestGrimDistSq < gcDist05) {
 			amplitude1 = 0;
 			amplitude2 = 0;
 			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
@@ -123,77 +427,14 @@ public class LivingEventMovementHandler {
 			}
 		}
 
-		int d = 6;
-
-		if (le instanceof ServerPlayer) {
-			ServerPlayer p = (ServerPlayer) le;
-			Block b = level.getBlockState(pos).getBlock();
-			Block bb = level.getBlockState(pos.below()).getBlock();
-			if (gHungerBlocks.contains(b) || gHungerBlocks.contains(bb)) {
-				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.HUNGER, duration);
-			}
-			if (closestGrimDistSq<MyConfig.getGrimCitadelPlayerCurseDistanceSq()) {
-				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.MOVEMENT_SLOWDOWN, duration);
-				Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
-				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
-			}
-			if (isTooCloseToFly(closestGrimDistSq)) {
-				slowFlyingMotion(le);
-				if (p.isFallFlying()) {
-					Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.POISON, duration);
-				}
-			}
-			
-			if ((closestGrimDistSq > gDist09) && (level.getRandom().nextInt(36000) == 42)) {
-				BlockPos phantomPos = new BlockPos (pos.getX(),level.getHeightmapPos(Types.MOTION_BLOCKING, pos).getY()+12,pos.getZ());
-				GrimCitadelManager.populateEntityType(EntityType.PHANTOM, serverLevel,
-						phantomPos, 1, 0);
-			}
-		} else if ((le instanceof Animal) && (MyConfig.isGrimHarmPassiveCreatures())) {
-			doGrimEffectsAnimals(le, pos, level);
-		} else if (le instanceof AbstractSkeleton) {
-			doGrimEffectsSkeletons(le, pos, gameTime, serverLevel);
-		} else if (le instanceof Zombie) {
-			doGrimEffectsZombies(le, gameTime);
-		} else if (le instanceof Creeper) {
-			doGrimEffectsCreepers(le, gameTime);
-		} else if (le instanceof Phantom) {
-			doGrimEffectsPhantoms(le, pos, gameTime, serverLevel);
-		} else if (le instanceof Spider) {
-			doGrimEffectsSpiders(le, pos, gameTime, serverLevel);
-		}
+		doGrimEffectsPlayer(le, pos, level, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
+		doGrimEffectVillagers(le, pos, gameTime, serverLevel);
+		if ((le instanceof Animal) && (MyConfig.isGrimEffectAnimals())) {
+			doGrimEffectsAnimals(le, pos, gameTime, serverLevel);
+		} else
+			doGrimEffectsMonsters(le, pos, gameTime, serverLevel);
 		doSpreadDeadBranches(le, pos, level);
 
-	}
-
-	private void playOptionalSoundCues(BlockPos pos, Level level, double closestGrimDistSq, Player pe) {
-		BlockPos grPos;
-
-		float volume = 1.0f;
-		float pitch = 0.67f;
-		boolean playDirectionalSound = true;
-		boolean playambientsound = true;
-		if (closestGrimDistSq < gDist100) {
-			volume = 0.35f;
-		} 
-		if (closestGrimDistSq < gDist70) {
-			volume = 0.45f;
-		} 
-		if (closestGrimDistSq < gDist50) {
-			volume = 0.55f;
-		} 
-		if (closestGrimDistSq < gDist30) {
-			volume = 0.65f;
-		} 
-		if (closestGrimDistSq < gDist25) {
-			volume = 0.7f;
-		} 
-		if (closestGrimDistSq < gDist05) {
-			playDirectionalSound = false;
-		}
-		if (playDirectionalSound) {
-			playDirectionalSoundCue(pos, level, pe, volume, pitch, playDirectionalSound, playambientsound);
-		}
 	}
 
 	private void playDirectionalSoundCue(BlockPos pos, Level level, Player pe, float volume, float pitch,
@@ -221,134 +462,42 @@ public class LivingEventMovementHandler {
 		}
 	}
 
-	private void doGrimEffectsPhantoms(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (phantomTimer < gameTime) {
-			phantomTimer = gameTime + 160;
-			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 640);
-			if (serverLevel.getRandom().nextInt(6) == 1) {
-				PrimedTnt tnt = EntityType.TNT.spawn(serverLevel, null, null, null, pos, MobSpawnType.NATURAL, true,
-						true);
-				tnt.setFuse(80);
-			}
+	private void playOptionalSoundCues(BlockPos pos, Level level, double closestGrimDistSq, Player pe) {
+
+		float volume = 1.0f;
+		float pitch = 0.67f;
+		boolean playDirectionalSound = true;
+		boolean playambientsound = true;
+		if (closestGrimDistSq < gcDist100) {
+			volume = 0.35f;
+		}
+		if (closestGrimDistSq < gcDist70) {
+			volume = 0.45f;
+		}
+		if (closestGrimDistSq < gcDist50) {
+			volume = 0.55f;
+		}
+		if (closestGrimDistSq < gcDist30) {
+			volume = 0.65f;
+		}
+		if (closestGrimDistSq < gcDist25) {
+			volume = 0.7f;
+		}
+		if (closestGrimDistSq < gcDist05) {
+			playDirectionalSound = false;
+		}
+		if (playDirectionalSound) {
+			playDirectionalSoundCue(pos, level, pe, volume, pitch, playDirectionalSound, playambientsound);
 		}
 	}
 
-	private void doGrimEffectsCreepers(LivingEntity le, long gameTime) {
-		if (creeperTimer < gameTime) {
-			creeperTimer = gameTime + 240;
-			Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 960);
-		}
-	}
-
-	private void doGrimEffectsZombies(LivingEntity le, long gameTime) {
-		if (zombieTimer < gameTime) {
-			zombieTimer = gameTime + 240;
-			Utility.updateEffect(le, 1, MobEffects.REGENERATION, duration);
-			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 240);
-		}
-	}
-
-	private void doGrimEffectsSkeletons(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (skeletonTimer < gameTime) {
-			skeletonTimer = gameTime + 120;
-			Block b = serverLevel.getBlockState(pos).getBlock();
-			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
-			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 480);
-			if (le instanceof WitherSkeleton) {
-				Utility.updateEffect(le, 0, MobEffects.INVISIBILITY, 480);
-			} else {
-				if (serverLevel.getMaxLocalRawBrightness(pos) < 9) {
-					if (witherSkeletonTimer < gameTime) {
-						witherSkeletonTimer = gameTime + 1800;
-						GrimCitadelManager.populateEntityType(EntityType.WITHER_SKELETON, serverLevel,
-								le.blockPosition(), 1, 0);
-					}
-				}
-			}
-		}
-	}
-
-	private void doGrimEffectsSpiders(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (spiderTimer < gameTime) {
-			spiderTimer = gameTime + 60;
-			Block b = serverLevel.getBlockState(pos).getBlock();
-			Utility.updateEffect(le, 0, MobEffects.DAMAGE_BOOST, 480);
-			Utility.updateEffect(le, 0, MobEffects.ABSORPTION, 480);
-		}
-	}
-	
-	private void doGrimEffectsAnimals(LivingEntity le, BlockPos pos, Level level) {
-		if (level.getRandom().nextInt(400) < 9) {
-			if (le.getHealth() > 3) {
-				Utility.updateEffect((LivingEntity) le, 0, MobEffects.POISON, 10);
-				level.setBlock(le.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
-			}
-			if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
-				level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);
-			}
-			if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
-				level.setBlock(le.blockPosition().below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
-			}
-		}
-		if (level.getRandom().nextInt(9000) == 51) {
-			BlockPos firePos = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos.north(2));
-			level.setBlock(firePos, Blocks.FIRE.defaultBlockState(), 3);
-		}
-//		if (le instanceof Pig) {
-//			if (level.getRandom().nextInt(4800) == 42) {
-//				 e = LightningBolt.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL,
-//						true, true);
-//			}
-//		}
-	}
-
-	private void doSpreadDeadBranches(LivingEntity le, BlockPos pos, Level level) {
-		if (level.getBrightness(LightLayer.SKY, pos) > 10) {
-			BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
-			Block b = level.getBlockState(deadBranchPos.below()).getBlock();
-			if (b instanceof LeavesBlock) {
-				if (b == ModBlocks.DEAD_BRANCHES) {
-					BlockPos workPos = deadBranchPos;
-					for (int i = 0;  i <= 3; i++) {
-						workPos = doSpreadOneDeadBranch(level, deadBranchPos);
-					}
-				} else {
-					level.setBlock(deadBranchPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
-				}
-			}
-		}
-	}
-
-	private BlockPos doSpreadOneDeadBranch(Level level, BlockPos pos) {
-		Block b;
-		BlockPos workPos = pos;
-		int i = level.getRandom().nextInt(7);
-		switch (i) {
-		case 0:
-			workPos = pos.north();
-			break;
-		case 1:
-			workPos = pos.south();
-			break;
-		case 2:
-			workPos = pos.east();
-			break;
-		case 3:
-			workPos = pos.west();
-			break;
-		default:
-			int r = 1 + level.getRandom().nextInt(2) ;
-			workPos = pos.below(r);
-		}
-		b = level.getBlockState(workPos).getBlock();
-		if ((b instanceof LeavesBlock) && (b != ModBlocks.DEAD_BRANCHES)) {
-			level.setBlock(workPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
-		}
-		return workPos;
-	}
-
-	private boolean isTooCloseToFly(double closestGrimDistSq) {
-		return closestGrimDistSq < gDist09;
+	public void shutdown() {
+		phantomTimer = 0;
+		invisTimer = 0;
+		skeletonTimer = 0;
+		zombieTimer = 0;
+		witherSkeletonTimer = 0;
+		creeperTimer = 0;
 	}
 
 	private void slowFlyingMotion(LivingEntity le) {
@@ -364,28 +513,5 @@ public class LivingEventMovementHandler {
 			}
 			cp.setDeltaMovement(slowedVec);
 		}
-	}
-
-	private void initializeDistanceConstants() {
-		if (gDist100 == 0) {
-			gDist100 = MyConfig.getGrimCitadelBonusDistanceSq();
-			gDist70 = gDist100 / 2;
-			gDist50 = gDist100 / 4;
-			gDist30 = gDist100 / 8;
-			gDist25 = gDist100 / 16;
-			gDist16 = gDist100 / 32;
-			gDist12 = gDist100 / 64;
-			gDist09 = gDist100 / 128;
-			gDist05 = gDist100 / 256;
-		}
-	}
-
-	public void shutdown() {
-		phantomTimer = 0;
-		invisTimer = 0;
-		skeletonTimer = 0;
-		zombieTimer = 0;
-		witherSkeletonTimer = 0;
-		creeperTimer = 0;
 	}
 }

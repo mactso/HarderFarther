@@ -47,7 +47,7 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostEntityAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private void boostAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 		if (MyConfig.isAtkDmgBoosted()) {
 			if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
 				float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
@@ -63,7 +63,7 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostEntityHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private void boostHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 		if (MyConfig.isHpMaxBoosted()) {
 			if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
 				float startHealth = entity.getHealth();
@@ -80,7 +80,8 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostEntityKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
+	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
+	private void boostKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
 			float distanceModifier) {
 		if (MyConfig.isKnockBackBoosted()) {
 			if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
@@ -102,7 +103,7 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostEntitySpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private void boostSpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 
 		if (MyConfig.isSpeedBoosted()) {
 			if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
@@ -246,34 +247,42 @@ public class SpawnEventHandler {
 		}
 
 		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
+		distanceFromSpawn = doGrimDistanceAdjustment(level, entity, distanceFromSpawn);
+		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
 
-		if (MyConfig.isGrimCitadels()) {
-			GrimCitadelManager.checkCleanUpCitadels(level);
+		boostHealth(entity, ePos, eDsc, distanceModifier);
+		boostSpeed(entity, ePos, eDsc, distanceModifier);
+		boostAtkDmg(entity, ePos, eDsc, distanceModifier);
+		boostKnockbackResistance(entity, ePos, eDsc, distanceModifier);
+		boostXp(entity, ePos, eDsc, distanceModifier);
 
+	}
+
+	private boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
+		try {
+			int preXp = fieldXpReward.getInt(entity);
+			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
+			Utility.debugMsg(2, ePos, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(entity)+")");
+		} catch (Exception e) {
+			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
+			return false;
+		}
+		return true;
+	}
+
+	private float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
+		GrimCitadelManager.checkCleanUpCitadels(level);
+
+		if (MyConfig.isUseGrimCitadels()) {
 			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
 			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-
 			if (closestGrimDistSq <= bonusGrimDistSq) {
 				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
 				grimMod *= MyConfig.getModifierMaxDistance();
 				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
 			}
 		}
-
-		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
-
-		try {
-			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
-		} catch (Exception e) {
-			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
-			return;
-		}
-
-		boostEntityHealth(entity, ePos, eDsc, distanceModifier);
-		boostEntitySpeed(entity, ePos, eDsc, distanceModifier);
-		boostEntityAtkDmg(entity, ePos, eDsc, distanceModifier);
-		boostEntityKnockbackResistance(entity, ePos, eDsc, distanceModifier);
-
+		return distanceFromSpawn;
 	}
 
 }

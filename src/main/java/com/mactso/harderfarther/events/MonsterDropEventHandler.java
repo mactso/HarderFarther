@@ -7,6 +7,7 @@ import com.mactso.harderfarther.config.LootManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 import com.mactso.harderfarther.timer.IChunkLastMobDeathTime;
+import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -84,22 +85,15 @@ public class MonsterDropEventHandler {
 				lastMobDeathTime = cap.getLastKillTime();
 				long nextLootTime = lastMobDeathTime + MyConfig.getMobFarmingLimitingTimer();
 				if (worldTime < nextLootTime) {
-					
-					if (MyConfig.getDebugLevel() > 0) {
-						System.out
-								.println("Mobs Dying Too Quickly at: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
+					Utility.debugMsg(2, pos, "Mobs Dying Too Quickly at: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
 										+ ", " + (int) eventEntity.getZ() + ", " + " loot and xp denied.  Current Time:" +worldTime+ " nextLoot Time: "+nextLootTime+".");
-					}
 					event.setCanceled(true);
 					return;
-				}
-				if (MyConfig.getDebugLevel() > 0) {
-					System.out
-							.println("Mobs Dropping Loot at : " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
-									+ ", " + (int) eventEntity.getZ() + " Current Time:" +worldTime+ " nextLoot Time: "+nextLootTime+".");
+				} else {
+					Utility.debugMsg(1, pos, "Mobs Dropping Loot at : " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
+					+ ", " + (int) eventEntity.getZ() + " Current Time:" +worldTime+ " nextLoot Time: "+nextLootTime+".");
 				}
 				cap.setLastKillTime(worldTime);
-				
 			}
 		}
 
@@ -204,13 +198,7 @@ public class MonsterDropEventHandler {
 				eventEntity.getZ(), itemStackToDrop);
 		eventItems.add(myItemEntity);
 
-		if (MyConfig.getDebugLevel() > 0) {
-			System.out.println("Harder Farther: A " + eventEntity.getName().getString() + " Died at: "
-
-					+ (int) eventEntity.getX() + ", " + (int) eventEntity.getY() + ", "
-					+ (int) eventEntity.getZ() + ", " + "and dropped loot # " + randomLootItemRoll + ": ("
-					+ itemStackToDrop.getItem().getRegistryName() + ").");
-		}
+		Utility.debugMsg(2, pos, eventEntity.getName().getString() + " died and dropped loot: " +itemStackToDrop.getItem().getRegistryName() );
 	}
 
 	private ItemStack makeOgreStrengthPotion(float oddsMultiplier) {
@@ -277,16 +265,11 @@ public class MonsterDropEventHandler {
     		distanceFromSpawn = MyConfig.getModifierMaxDistance();
     	}
 
-//    	int safe = MyConfig.getSafeDistance();
-//    	int mdist = MyConfig.getModifierMaxDistance();
-//    	int mval = MyConfig.getModifierValue();
+
     	float maxModifierDistance = MyConfig.getModifierMaxDistance();
        	float distanceModifier = distanceFromSpawn/maxModifierDistance ;
-
     	double spawnHeight = eY;
-//    	int minSafeAltitude = MyConfig.getMinimumSafeAltitude();
-//    	int maxSafeAltitude = MyConfig.getMaximumSafeAltitude();
-    	
+
 		if (spawnHeight < MyConfig.getMinimumSafeAltitude()) {
 			distanceModifier = distanceModifier + 2.0f;
 		}

@@ -10,12 +10,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
 public class HarderFartherCommands {
-	String subcommand = "";
-	String value = "";
-	
+
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
 	{
 		dispatcher.register(Commands.literal("harderfarther").requires((source) -> 
@@ -43,7 +41,8 @@ public class HarderFartherCommands {
 						Commands.argument("setXpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
 							return setOddsDropExperienceBottle(p, IntegerArgumentType.getInteger(ctx, "setXpBottleChance"));
-						})))				.then(Commands.literal("report").executes(ctx -> {
+						})))				
+				.then(Commands.literal("report").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					String report = "Grim Citadels at : " + GrimCitadelManager.getCitadelListAsString();
 					Utility.sendChat(p, report, ChatFormatting.GREEN);
@@ -57,6 +56,11 @@ public class HarderFartherCommands {
 				})).then(Commands.literal("info").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					printInfo(p);
+					return 1;
+					// return 1;
+				})).then(Commands.literal("grimEffectsInfo").executes(ctx -> {
+					ServerPlayer p = ctx.getSource().getPlayerOrException();
+					printGrimEffectsInfo(p);
 					return 1;
 					// return 1;
 				})).then(Commands.literal("grimInfo").executes(ctx -> {
@@ -74,43 +78,59 @@ public class HarderFartherCommands {
 					String chatMessage = "\nHarder Farther Maximum Monster Boosts";
 					Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
 
-					chatMessage = "  Monster Health ..........................: " + MyConfig.getHpMaxMod() + " %."
-							+ "\n  Damage ..............................................: " + MyConfig.getAtkDmgMod()
+					chatMessage = "  Monster Health ..........................: " + MyConfig.getHpMaxBoost() + " %."
+							+ "\n  Damage ..............................................: " + MyConfig.getAtkDmgBoost()
 							+ " %." + "\n  Movement .........................................: "
-							+ MyConfig.getSpeedMod() + " %." + "\n  KnockBack Resistance .........: "
+							+ MyConfig.getSpeedBoost() + " %." + "\n  KnockBack Resistance .........: "
 							+ MyConfig.getKnockBackMod() + " %.";
 					Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
-
 					return 1;
-				})));
+				}))
+				.then(Commands.literal("setFogColors")
+						.then(Commands.argument("R", IntegerArgumentType.integer(0,100))
+						.then(Commands.argument("G", IntegerArgumentType.integer(0,100))
+						.then(Commands.argument("B", IntegerArgumentType.integer(0,100))
+						.executes(ctx -> {
+							ServerPlayer p = ctx.getSource().getPlayerOrException();
+							int r = IntegerArgumentType.getInteger(ctx,"R");
+							int g = IntegerArgumentType.getInteger(ctx,"G");
+							int b = IntegerArgumentType.getInteger(ctx,"B");
+							return setFogColors(p, r, g, b);
+						}))))
+				));
 
 	}
 
-	private static void reportOddsXpBottleDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.DARK_AQUA);
-	}
+	private static void printColorInfo(ServerPlayer p) {
 
-	private static void printInfo(ServerPlayer p) {
-		BlockPos pPos = p.blockPosition();
-		String dimensionName = p.level.dimension().location().toString();
-
-		String chatMessage = "\nDimension: " + dimensionName + "\n Current Values";
+		String chatMessage = "\nFog Color Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
-
-		chatMessage = "  Harder Max Distance From Spawn....: " + MyConfig.getModifierMaxDistance() + " blocks."
-				+ "\n  Spawn Safe Distance ..................................: " + MyConfig.getSafeDistance()
-				+ " blocks." + "\n  Debug Level .......................................................: "
-				+ MyConfig.getDebugLevel() + "\n  Only In Overworld .........................................: "
-				+ MyConfig.isOnlyOverworld() + "\n  Grim Citadels Active .....................................: "
-				+ MyConfig.isGrimCitadels();
+		chatMessage = "R (" + MyConfig.getGrimFogRedPercent() + ")" + " G (" + MyConfig.getGrimFogGreenPercent() + ")"
+				+ " B (" + MyConfig.getGrimFogBluePercent() + ")";
 		Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 
 	}
+	private static void printGrimEffectsInfo(ServerPlayer p) {
 
+		Utility.sendBoldChat(p, "\nGrim Effects Info", ChatFormatting.DARK_GREEN);
+		if (MyConfig.isUseGrimCitadels()) {
+			String chatMessage = (
+					"  Effect Villagers ..................................: " + MyConfig.isGrimEffectVillagers()
+				+	"  Effect Animals ..................................: " + MyConfig.isGrimEffectAnimals()
+				+	"  Effect Pigs................................: " + MyConfig.isGrimEffectPigs()
+				);
+
+			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
+		} else {
+			Utility.sendChat(p, "\n  Grim Citadels Disabled", ChatFormatting.DARK_GREEN);
+		}
+
+	}
+	
 	private static void printGrimInfo(ServerPlayer p) {
 		BlockPos pPos = p.blockPosition();
 		Utility.sendBoldChat(p, "\nGrim Citadel Information", ChatFormatting.DARK_GREEN);
-		if (MyConfig.isGrimCitadels()) {
+		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = ("   Nearest Grim Citadel ..................................: "
 					+ (int) Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pPos)) + " meters at "
 					+ "\n   " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
@@ -126,14 +146,31 @@ public class HarderFartherCommands {
 
 	}
 
-	private static void printColorInfo(ServerPlayer p) {
+	private static void printInfo(ServerPlayer p) {
 
-		String chatMessage = "\nFog Color Current Values";
+		String dimensionName = p.level.dimension().location().toString();
+
+		String chatMessage = "\nDimension: " + dimensionName + "\n Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
-		chatMessage = "R (" + MyConfig.getGrimFogRedPercent() + ")" + " G (" + MyConfig.getGrimFogGreenPercent() + ")"
-				+ " B (" + MyConfig.getGrimFogBluePercent() + ")";
+
+		chatMessage = "  Harder Max Distance From Spawn....: " + MyConfig.getModifierMaxDistance() + " blocks."
+				+ "\n  Spawn Safe Distance ..................................: " + MyConfig.getSafeDistance()
+				+ " blocks." + "\n  Debug Level .......................................................: "
+				+ MyConfig.getDebugLevel() + "\n  Only In Overworld .........................................: "
+				+ MyConfig.isOnlyOverworld() + "\n  Grim Citadels Active .....................................: "
+				+ MyConfig.isUseGrimCitadels();
 		Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 
+	}
+	
+	private static void reportOddsXpBottleDrop(ServerPlayer p) {
+		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.DARK_AQUA);
+	}
+
+	public static int setBonusRange(ServerPlayer p, int newRange) {
+		MyConfig.setBonusRange(newRange);
+		printGrimInfo(p);
+		return 1;
 	}
 
 	public static int setDebugLevel(ServerPlayer p, int newDebugLevel) {
@@ -142,6 +179,14 @@ public class HarderFartherCommands {
 		return 1;
 	}
 	
+	private static int setFogColors(ServerPlayer p, int r, int g, int b) {
+		MyConfig.setGrimFogRedPercent(r);
+		MyConfig.setGrimFogGreenPercent(g);
+		MyConfig.setGrimFogBluePercent(b);
+		printColorInfo(p);
+		return 1;
+	}
+
 	public static int setGrimCitadels(ServerPlayer p, boolean newValue) {
 		MyConfig.setGrimCitadels(newValue);
 		printGrimInfo(p);
@@ -154,10 +199,8 @@ public class HarderFartherCommands {
 		return 1;
 	}
 	
-	public static int setBonusRange(ServerPlayer p, int newRange) {
-		MyConfig.setBonusRange(newRange);
-		printGrimInfo(p);
-		return 1;
-	}
+	String subcommand = "";
+	
+	String value = "";
 
 }

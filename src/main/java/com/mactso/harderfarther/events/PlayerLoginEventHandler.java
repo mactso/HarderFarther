@@ -16,7 +16,7 @@ public class PlayerLoginEventHandler {
     	Player sp = event.getPlayer();
     	if ( sp == null ) return;
     	if (!(sp instanceof ServerPlayer)) return;
-    	if (MyConfig.isGrimCitadels()) {
+    	if (MyConfig.isUseGrimCitadels()) {
     			GrimCitadelManager.sendAllGCPosToClient((ServerPlayer) sp );
     	}
     }

@@ -55,11 +55,11 @@ public class MyConfig {
 	}
 
 	public static int getModifierMaxDistance() {
-		return modifierMaxDistance;
+		return boostMaxDistance;
 	}
 
 	public static void setModifierMaxDistance(int modifierMaxDistance) {
-		MyConfig.modifierMaxDistance = modifierMaxDistance;
+		MyConfig.boostMaxDistance = modifierMaxDistance;
 	}
 
 	public static int getSafeDistance() {
@@ -71,55 +71,55 @@ public class MyConfig {
 	}
 
 	public static boolean isHpMaxBoosted() {
-		if (hpMaxMod > 0) return true;
+		if (hpMaxBoost > 0) return true;
 		return false;
 	}
 
 	public static boolean isSpeedBoosted() {
-		if (speedMod > 0) return true;
+		if (speedBoost > 0) return true;
 		return false;
 	}
 
 	public static boolean isAtkDmgBoosted() {
-		if (atkDmgMod > 0) return true;
+		if (atkDmgBoost > 0) return true;
 		return false;
 	}
 
 	public static boolean isKnockBackBoosted() {
-		if (knockbackMod > 0) return true;
+		if (knockbackBoost > 0) return true;
 		return false;
 	}
 
-	public static int getHpMaxMod() {
-		return hpMaxMod;
+	public static int getHpMaxBoost() {
+		return hpMaxBoost;
 	}
 
-	public static int getSpeedMod() {
-		return speedMod;
+	public static int getSpeedBoost() {
+		return speedBoost;
 	}
 
-	public static int getAtkDmgMod() {
-		return atkDmgMod;
+	public static int getAtkDmgBoost() {
+		return atkDmgBoost;
 	}
 
 	public static int getKnockBackMod() {
-		return knockbackMod;
+		return knockbackBoost;
 	}
 
 	public static float getHpMaxPercent() {
-		return (float) (hpMaxMod/100);
+		return (float) (hpMaxBoost/100);
 	}
 
 	public static float getSpeedPercent()  {
-		return ((float)speedMod/100);
+		return ((float)speedBoost/100);
 	}
 
 	public static float getAtkPercent()  {
-		return (float) (atkDmgMod/100);
+		return (float) (atkDmgBoost/100);
 	}
 
 	public static float getKnockBackPercent() {
-		return (float) (knockbackMod/100);
+		return (float) (knockbackBoost/100);
 	}
 	
 	public static int getMobFarmingLimitingTimer() {
@@ -144,8 +144,8 @@ public class MyConfig {
 		return oddsDropExperienceBottle;
 	}
 
-	public static boolean isGrimCitadels() {
-		return grimCitadels;
+	public static boolean isUseGrimCitadels() {
+		return useGrimCitadels;
 	}
 	
 	public static int getGrimCitadelsCount() {
@@ -176,8 +176,16 @@ public class MyConfig {
 		MyConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
 	}
 	
-	public static boolean isGrimHarmPassiveCreatures() {
-		return grimHarmAnimals;
+	public static boolean isGrimEffectAnimals() {
+		return grimEffectAnimals;
+	}
+	
+	public static boolean isGrimEffectPigs() {
+		return grimEffectPigs;
+	}
+
+	public static boolean isGrimEffectVillagers() {
+		return grimEffectVillagers;
 	}
 	
 	public static double getGrimFogRedPercent() {
@@ -192,34 +200,51 @@ public class MyConfig {
 		return grimFogGreenPercent;
 	}
 	
+	public static void setGrimFogRedPercent(double grimFogRedPercent) {
+		MyConfig.grimFogRedPercent = grimFogRedPercent/100;
+		COMMON.grimFogRedPercent.set(grimFogRedPercent/100);
+	}
+	public static void setGrimFogGreenPercent(double grimFogGreenPercent) {
+		MyConfig.grimFogGreenPercent = grimFogGreenPercent/100;
+		COMMON.grimFogGreenPercent.set(grimFogGreenPercent/100);
+	}
+
+	public static void setGrimFogBluePercent(double grimFogBluePercent) {
+		MyConfig.grimFogBluePercent = grimFogBluePercent/100;
+		COMMON.grimFogBluePercent.set(grimFogBluePercent/100);
+	}
+
+
 	private static int      aDebugLevel;
 	private static boolean  onlyOverworld;
 	private static int 	    limitMobFarmsTimer;
 	private static boolean  makeMonstersHarderFarther;
 	private static List<? extends String> dimensionOmitList;
-	private static int 	    modifierMaxDistance;
+	private static int 	    boostMaxDistance;
 	private static List<? extends String> lootItemsList;
 	private static int      safeDistance;
 	private static int      oddsDropExperienceBottle;
 
-	private static int  hpMaxMod;
-	private static int  speedMod;
-	private static int atkDmgMod;
-	private static int knockbackMod;
+	private static int hpMaxBoost;
+	private static int speedBoost;
+	private static int atkDmgBoost;
+	private static int knockbackBoost;
 
-	private static boolean  grimCitadels;
+	private static boolean  useGrimCitadels;
 	private static int      grimCitadelsCount;
 	private static int 	    grimCitadelBonusDistance;
 	private static int 	    grimCitadelBonusDistanceSq;
 	private static int 		grimCitadelPlayerCurseDistance;
 	private static int 		grimCitadelPlayerCurseDistanceSq;
 
-	private static boolean  grimHarmAnimals;
+	private static boolean  grimEffectAnimals;
+	private static boolean  grimEffectPigs;
+	private static boolean  grimEffectVillagers;
 
 	private static double 	grimFogRedPercent;
-	private static double 	grimFogBluePercent;
 	private static double 	grimFogGreenPercent;
-
+	private static double 	grimFogBluePercent;
+	
 	private static List<? extends String> grimCitadelsList;
 	private static List<BlockPos> grimCitadelsBlockPosList;
 	
@@ -244,35 +269,42 @@ public class MyConfig {
 
 	public static void pushValues() {
 		COMMON.debugLevel.set(aDebugLevel);
-		COMMON.onlyOverworld.set(onlyOverworld);
+
 		COMMON.limitMobFarmsTimer.set(limitMobFarmsTimer);
+		
+		COMMON.onlyOverworld.set(onlyOverworld);
 		COMMON.dimensionOmitList.set(dimensionOmitList);
 		COMMON.makeMonstersHarderFarther.set(makeMonstersHarderFarther);
-		COMMON.modifierMaxDistance.set(modifierMaxDistance);
-		COMMON.lootItemsList.set(lootItemsList);
+
+		COMMON.modifierMaxDistance.set(boostMaxDistance);
 		COMMON.safeDistance.set(safeDistance);
-		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
-		COMMON.hpMaxMod.set(hpMaxMod);
-		COMMON.speedMod.set(speedMod);
-		COMMON.atkDmgMod.set(atkDmgMod);
-		COMMON.knockbackMod.set(knockbackMod);
-		COMMON.grimCitadels.set(grimCitadels);
+
+		COMMON.lootItemsList.set(lootItemsList);
+		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
+		
+		COMMON.hpMaxBoost.set(hpMaxBoost);
+		COMMON.speedBoost.set(speedBoost);
+		COMMON.atkDmgBoost.set(atkDmgBoost);
+		COMMON.knockbackBoost.set(knockbackBoost);
+		
+		COMMON.useGrimCitadels.set(useGrimCitadels);
+		COMMON.grimCitadelsCount.set(grimCitadelsCount);
+		COMMON.grimCitadelsList.set(grimCitadelsList);
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
 		COMMON.grimCitadelPlayerCurseDistance.set(grimCitadelPlayerCurseDistance);
-		COMMON.grimCitadelsCount.set(grimCitadelsCount);
-
-		COMMON.grimCitadelsList.set(grimCitadelsList);
-		COMMON.grimHarmAnimals.set(grimHarmAnimals);
+		COMMON.grimEffectAnimals.set(grimEffectAnimals);
+		COMMON.grimEffectPigs.set(grimEffectPigs);
+		COMMON.grimEffectVillagers.set(grimEffectVillagers);
 		COMMON.grimFogRedPercent.set (grimFogRedPercent);
 		COMMON.grimFogBluePercent.set (grimFogBluePercent);
 		COMMON.grimFogGreenPercent.set (grimFogGreenPercent);
 	}
 	
 	public static void setGrimCitadels(boolean newValue) {
-		COMMON.grimCitadels.set(newValue);
-		grimCitadels = COMMON.grimCitadels.get();
+		COMMON.useGrimCitadels.set(newValue);
+		useGrimCitadels = COMMON.useGrimCitadels.get();
 	}
 
 	
@@ -297,36 +329,45 @@ public class MyConfig {
 	// remember need to push each of these values separately once we have commands.
 	public static void bakeConfig()
 	{
-
 		aDebugLevel = COMMON.debugLevel.get();
-		onlyOverworld = COMMON.onlyOverworld.get();
+
 		limitMobFarmsTimer = COMMON.limitMobFarmsTimer.get();
+		
+		onlyOverworld = COMMON.onlyOverworld.get();
+
 		dimensionOmitList = COMMON.dimensionOmitList.get();
 		makeMonstersHarderFarther = COMMON.makeMonstersHarderFarther.get();
-		modifierMaxDistance = COMMON.modifierMaxDistance.get();
-		lootItemsList = COMMON.lootItemsList.get();
-		LootManager.initLootItems(extract(lootItemsList));
-		safeDistance =COMMON.safeDistance.get();
-		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
-		hpMaxMod=COMMON.hpMaxMod.get();
-		speedMod=COMMON.speedMod.get();
-		atkDmgMod=COMMON.atkDmgMod.get();
-		knockbackMod=COMMON.knockbackMod.get();
+		boostMaxDistance = COMMON.modifierMaxDistance.get();
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
-		grimCitadels = COMMON.grimCitadels.get();
+		safeDistance =COMMON.safeDistance.get();
+
+		lootItemsList = COMMON.lootItemsList.get();
+		LootManager.initLootItems(extract(lootItemsList));
+		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
+		
+		hpMaxBoost=COMMON.hpMaxBoost.get();
+		speedBoost=COMMON.speedBoost.get();
+		atkDmgBoost=COMMON.atkDmgBoost.get();
+		knockbackBoost=COMMON.knockbackBoost.get();
+		
+		useGrimCitadels = COMMON.useGrimCitadels.get();
+		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
+		grimCitadelsList = COMMON.grimCitadelsList.get();
 		grimCitadelsCount = COMMON.grimCitadelsCount.get();
 		bakeGrimRanges();
-		grimHarmAnimals = COMMON.grimHarmAnimals.get();
+		
+		grimEffectAnimals = COMMON.grimEffectAnimals.get();
+		grimEffectPigs = COMMON.grimEffectPigs.get();
+		grimEffectVillagers = COMMON.grimEffectVillagers.get();
+		
 		grimFogRedPercent = COMMON.grimFogRedPercent.get();
 		grimFogBluePercent = COMMON.grimFogBluePercent.get();
 		grimFogGreenPercent = COMMON.grimFogGreenPercent.get();
-		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
-		grimCitadelsList = COMMON.grimCitadelsList.get();
+		
 		if (aDebugLevel > 0) {
 			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
 		}
-
 	}
 	
 
@@ -364,17 +405,19 @@ public class MyConfig {
 		public final IntValue maximumSafeAltitude;
 		
 		public final ConfigValue<List<? extends String>> lootItemsList;
-		public final IntValue hpMaxMod;
-		public final IntValue speedMod;
-		public final IntValue atkDmgMod;
-		public final IntValue knockbackMod;
+		public final IntValue hpMaxBoost;
+		public final IntValue speedBoost;
+		public final IntValue atkDmgBoost;
+		public final IntValue knockbackBoost;
 		
-		public final BooleanValue grimCitadels;
+		public final BooleanValue useGrimCitadels;
 		public final IntValue grimCitadelsCount;
 		public final IntValue grimCitadelBonusDistance;
 		public final IntValue grimCitadelPlayerCurseDistance;
 		
-		public final BooleanValue grimHarmAnimals;
+		public final BooleanValue grimEffectAnimals;
+		public final BooleanValue grimEffectPigs;
+		public final BooleanValue grimEffectVillagers;
 		public final DoubleValue grimFogRedPercent;
 		public final DoubleValue grimFogBluePercent;
 		public final DoubleValue grimFogGreenPercent;
@@ -383,10 +426,13 @@ public class MyConfig {
 		
 		public Common(ForgeConfigSpec.Builder builder) {
 			List<String> defLootItemsList = Arrays.asList(
-					"r,20,minecraft:netherite_scrap,1,1", 
-					"u,20,minecraft:diamond,1,1", "u,5,minecraft:emerald,1,3", 
-					"c,20,minecraft:glowstone,1,2", "c,3,minecraft:leather_boots,1,1", 
-					"c,3,minecraft:emerald,1,1",	"c,3,minecraft:book,1,2");
+					"r,20,minecraft:netherite_scrap,1,1","r,1,minecraft:netherwort,1,1",
+					"r,1,minecraft:music_disc_far,1,1","r,1,minecraft:netherwort,1,1",
+					"u,20,minecraft:diamond,1,1", "u,05,minecraft:emerald,1,3",
+					"u,01,minecraft:gold_ingot,1,1", "u,02,minecraft:chicken,1,2", 
+					"c,15,minecraft:glowstone,1,2", "c,1,minecraft:leather_boots,1,1", 
+					"c,3,minecraft:string,1,2",	"c,3,minecraft:gold_nugget,1,5",
+					"c,3,minecraft:emerald,1,1","c,1,minecraft:book,1,2");
 			
 			List<String> defGrimCitadelsList = Arrays.asList(
 					"3100,3000","3000,-100", "3000,-3050",
@@ -397,12 +443,19 @@ public class MyConfig {
 					"minecraft:the_nether","minecraft:the_end");
 			
 			builder.push("Harder Farther Control Values");
-			
+			builder.push("Debug Settings");			
 			debugLevel = builder
 					.comment("Debug Level: 0 = Off, 1 = Log, 2 = Chat+Log")
 					.translation(Main.MODID + ".config." + "debugLevel")
 					.defineInRange("debugLevel", () -> 0, 0, 2);
-
+			builder.pop();
+			builder.push("Farm Limiter Settings");
+			limitMobFarmsTimer = builder
+					.comment("Limit Mob Farm XP and Drops (0 == disabled).  5 ticks (quarter second) is enough. ")
+					.translation(Main.MODID + ".config." + "limitMobFarmsTimer")
+					.defineInRange("limitMobFarmsTimer", () -> 5, 0, 600);
+			builder.pop();
+			builder.push("HarderFarther Settings");
 			onlyOverworld= builder
 					.comment("Only in minecraft Overworld (true) ")
 					.translation(Main.MODID + ".config." + "onlyOverworld")
@@ -412,12 +465,6 @@ public class MyConfig {
 					.comment("Dimension Omit List")
 					.translation(Main.MODID + ".config" + "dimensionOmitList")
 					.defineList("dimensionOmitList", defDimensionOmitList, Common::isString);			
-			
-			
-			limitMobFarmsTimer = builder
-					.comment("Limit Mob Farm XP and Drops (0 == no limit).  5 ticks (quarter second) is enough. ")
-					.translation(Main.MODID + ".config." + "limitMobFarmsTimer")
-					.defineInRange("limitMobFarmsTimer", () -> 5, 0, 120);
 
 			makeMonstersHarderFarther= builder
 					.comment("Make Monsters Harder Farther From Spawn (true) ")
@@ -427,23 +474,24 @@ public class MyConfig {
 			modifierMaxDistance = builder
 					.comment("modifierMaxDistance: Distance til Maximum Modifier Values Applied")
 					.translation(Main.MODID + ".config." + "modifierMaxDistance")
-					.defineInRange("modifierMaxDistance", () -> 30000, 2000, 100000);
+					.defineInRange("modifierMaxDistance", () -> 30000, 1000, 6000000);
 			
 			safeDistance = builder
 					.comment("Worldspawn Safe Distance: No Mobs Will Spawn In this Range")
 					.translation(Main.MODID + ".config." + "safeDistance")
-					.defineInRange("safeDistance", () -> 200, 1, 364);			
+					.defineInRange("safeDistance", () -> 256, 1, 1000);			
 
 			minimumSafeAltitude = builder
 					.comment("minimumSafeAltitude: Mobs are 6% tougher below this altitude. ")
 					.translation(Main.MODID + ".config." + "minimumSafeAltitude")
-					.defineInRange("minimumSafeAltitude", () -> 32, 1, 48);			
+					.defineInRange("minimumSafeAltitude", () -> 32, -32, 64);			
 
 			maximumSafeAltitude = builder
 					.comment("maximumSafeAltitude: Mobs are 9% tougher above this altitude.")
 					.translation(Main.MODID + ".config." + "maximumSafeAltitude")
-					.defineInRange("maximumSafeAltitude", () -> 99, 76, 160);			
-
+					.defineInRange("maximumSafeAltitude", () -> 99, 65, 256);			
+			builder.pop();
+			builder.push("Loot Settings");
 			oddsDropExperienceBottle = builder
 					.comment("oddsDropExperienceBottle: Chance to drop 1 experience bottle.")
 					.translation(Main.MODID + ".config." + "oddsDropExperienceBottle")
@@ -453,34 +501,46 @@ public class MyConfig {
 					.comment("Loot Items List")
 					.translation(Main.MODID + ".config" + "lootItemsList")
 					.defineList("lootItemsList", defLootItemsList, Common::isString);
-
-			hpMaxMod = builder
+			builder.pop();
+			builder.push("Boost Settings");
+			hpMaxBoost = builder
 					.comment("Boost Max Hit Points (Percent) ")
-					.translation(Main.MODID + ".config." + "hpMaxMod")
-					.defineInRange("hpMaxMod", () -> 200, 0, 999);
+					.translation(Main.MODID + ".config." + "hpMaxBoost")
+					.defineInRange("hpMaxBoost", () -> 200, 0, 999);
 
-			speedMod = builder
+			speedBoost = builder
 					.comment("Boost Movement Speed (Percent) ")
-					.translation(Main.MODID + ".config." + "speedMod")
-					.defineInRange("speedMod", () -> 50, 0, 999);
+					.translation(Main.MODID + ".config." + "speedBoost")
+					.defineInRange("speedBoost", () -> 50, 0, 999);
 			
-			atkDmgMod = builder
+			atkDmgBoost = builder
 					.comment("Boost Attack Damage (percent)")
-					.translation(Main.MODID + ".config." + "atkDmgMod")
-					.defineInRange("atkDmgMod", () -> 100, 0, 999);
+					.translation(Main.MODID + ".config." + "atkDmgBoost")
+					.defineInRange("atkDmgBoost", () -> 100, 0, 999);
 			
-			knockbackMod = builder
+			knockbackBoost = builder
 					.comment("Boost Knockback Resistance (Percent) ")
-					.translation(Main.MODID + ".config." + "knockbackMod")
-					.defineInRange("knockbackMod", () -> 100, 0, 999);
+					.translation(Main.MODID + ".config." + "knockbackBoost")
+					.defineInRange("knockbackBoost", () -> 100, 0, 999);
 			
+			builder.pop();
 			builder.push("Grim Citadel Settings");
 			
-			grimCitadels = builder
+			useGrimCitadels = builder
 					.comment("Use Grim Citadels (true) ")
-					.translation(Main.MODID + ".config." + "grimCitadels")
-					.define ("grimCitadels", () -> false);
+					.translation(Main.MODID + ".config." + "useGrimCitadels")
+					.define ("useGrimCitadels", () -> true);
+			
+			grimCitadelsList = builder
+					.comment("Grim Citadels List")
+					.translation(Main.MODID + ".config" + "grimCitadelsList")
+					.defineList("grimCitadelsList", defGrimCitadelsList, Common::isString);
 
+			grimCitadelsCount = builder
+					.comment("grimCitadelsCount : number of grim Citadels kept in the game (if 0 will count down til none left)")
+					.translation(Main.MODID + ".config." + "grimCitadelsCount")
+					.defineInRange("grimCitadelsCount", () -> 5, 0, 16);	
+			
 			grimCitadelBonusDistance = builder
 					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")
 					.translation(Main.MODID + ".config." + "grimCitadelBonusDistance")
@@ -490,18 +550,23 @@ public class MyConfig {
 					.comment("grimCitadelPlayerCurseDistance : Players get penalties this far from a grim citadel")
 					.translation(Main.MODID + ".config." + "grimCitadelPlayerCurseDistance")
 					.defineInRange("grimCitadelPlayerCurseDistance", () -> 1250, 255, 6000);	
-					
-			grimCitadelsCount = builder
-					.comment("grimCitadelsCount : number of grim Citadels kept in the game (if 0 will count down til none left)")
-					.translation(Main.MODID + ".config." + "grimCitadelsCount")
-					.defineInRange("grimCitadelsCount", () -> 5, 0, 16);	
+			builder.pop();
+			builder.push("Grim Effects Settings");					
+			grimEffectAnimals = builder
+					.comment("grimEffectAnimals : Master Switch Animals suffer grim effects. ")
+					.translation(Main.MODID + ".config." + "grimEffectsAnimals")
+					.define ("grimEffectAnimals", () -> true);
 
-			grimHarmAnimals = builder
-					.comment("grimHarmAnimals : Animals near grim citadels get sick. ")
-					.translation(Main.MODID + ".config." + "grimHarmAnimals")
-					.define ("grimHarmAnimals", () -> true);
-			
-			
+			grimEffectPigs = builder
+					.comment("grimEffectPig : Pigs in grim area become Piglins, Zombified Piglins, or Hoglins over time. ")
+					.translation(Main.MODID + ".config." + "grimEffectPigs")
+					.define ("grimEffectPigs", () -> true);
+
+			grimEffectVillagers = builder
+					.comment("grimEffectVillagers : Villagers in grim area become witches. ")
+					.translation(Main.MODID + ".config." + "grimEffectVillagers")
+					.define ("grimEffectVillagers", () -> true);
+			builder.push("Grim Fog Color Settings");			
 			grimFogRedPercent = builder
 					.comment("grimFogRedPercent : Grim Fog Red Component Multiplier")
 					.translation(Main.MODID + ".config." + "grimFogRedPercent")
@@ -517,12 +582,8 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "grimFogGreenPercent")
 					.defineInRange("grimFogGreenPercent", () -> 0.05, 0.0, 1.0);	
 
-			grimCitadelsList = builder
-					.comment("Loot Items List")
-					.translation(Main.MODID + ".config" + "grimCitadelsList")
-					.defineList("grimCitadelsList", defGrimCitadelsList, Common::isString);
 			builder.pop();
-
+			builder.pop();
 			builder.pop();
 			
 		}
@@ -533,32 +594,6 @@ public class MyConfig {
 			return (o instanceof String);
 		}
 	}
-
-
-
-
-	
-
-	
-//	// support for any color chattext
-//	public static void sendChat(Player p, String chatMessage, TextColor color) {
-//		TextComponent component = new TextComponent (chatMessage);
-//		component.getStyle().withColor(color);
-//		p.sendMessage(component, p.getUUID());
-//	}
-//	
-//	// support for any color, optionally bold text.
-//	public static void sendBoldChat(Player p, String chatMessage, TextColor color) {
-//		TextComponent component = new TextComponent (chatMessage);
-//
-//		component.getStyle().withBold(true);
-//		component.getStyle().withColor(color);
-//		
-//		p.sendMessage(component, p.getUUID());
-//	}
-//
-
-
 	
 }
 

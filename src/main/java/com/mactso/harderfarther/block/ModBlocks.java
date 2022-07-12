@@ -17,7 +17,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public class ModBlocks
 {
 	public static final Block GRIM_HEART = new GrimHeartBlock(BlockBehaviour.Properties.of(Material.CLAY).instabreak().sound(SoundType.METAL)).setRegistryName("grim_heart");
-	public static final Block GRIM_GATE = new GrimGateBlock(BlockBehaviour.Properties.of(Material.CLAY).instabreak().noOcclusion().sound(SoundType.METAL)).setRegistryName("grim_gate");
+	public static final Block GRIM_GATE = new GrimGateBlock(BlockBehaviour.Properties.of(Material.GLASS).instabreak().noOcclusion().sound(SoundType.GLASS)).setRegistryName("grim_gate");
 	public static final Block DEAD_BRANCHES = new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never)).setRegistryName("dead_branches");
 
 	
