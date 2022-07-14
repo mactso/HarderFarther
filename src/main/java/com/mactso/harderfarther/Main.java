@@ -132,7 +132,7 @@ public class Main {
 
 			@SubscribeEvent 		
 			public static void onCommandsRegistry(final RegisterCommandsEvent event) {
-				System.out.println("Happy Trails: Registering Command Dispatcher");
+				Utility.debugMsg(0,"Harder Farther: Registering Command Dispatcher");
 				HarderFartherCommands.register(event.getDispatcher());			
 			}
 

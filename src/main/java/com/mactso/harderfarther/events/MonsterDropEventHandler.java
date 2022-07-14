@@ -115,7 +115,7 @@ public class MonsterDropEventHandler {
 		// Has to have been killed by a player to drop bonus loot.
 		if ( dS.getEntity() == null) { return; }
 		 
-		Entity mobKillerEntity = dS.getEntity(); // TODO was "gettruesource" need to verify this.
+		Entity mobKillerEntity = dS.getEntity(); 
 		if (!(mobKillerEntity instanceof ServerPlayer)) {
 			return;
 		}
@@ -204,7 +204,7 @@ public class MonsterDropEventHandler {
 	private ItemStack makeOgreStrengthPotion(float oddsMultiplier) {
 		ItemStack itemStackToDrop;
 		TextComponent potionName = new TextComponent("Ogre Power Potion");
-		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName); // TODO: Verify this 
+		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName); 
 		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
 		int durationAbsorb = (int) (4800 * oddsMultiplier);
 		int effectAbsorb = (int) (4 * oddsMultiplier);

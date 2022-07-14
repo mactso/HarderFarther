@@ -23,6 +23,7 @@ import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.WitherSkeleton;
@@ -129,21 +130,24 @@ public class LivingEventMovementHandler {
 		}
 	}
 
-	private void doGrimEffectsAnimals(LivingEntity le, BlockPos pos, long gameTime, ServerLevel level) {
+	private void doGrimEffectsAnimals(Animal ae, BlockPos pos, long gameTime, ServerLevel level) {
 
+		if (!(MyConfig.isGrimEffectAnimals())) 
+			return;
+		
 		if (level.getRandom().nextInt(400) < 9) {
-			if (le.getHealth() > 3) {
-				Utility.updateEffect((LivingEntity) le, 0, MobEffects.POISON, 10);
-				level.setBlock(le.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
+			if (ae.getHealth() > 3) {
+				Utility.updateEffect((LivingEntity) ae, 0, MobEffects.POISON, 10);
+				level.setBlock(ae.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
 			}
-			doAnimalTransformGround(le, level);
+			doAnimalTransformGround(ae, level);
 		}
 		if (level.getRandom().nextInt(9000) == 51) {
 			BlockPos firePos = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos.north(2));
 			level.setBlock(firePos, Blocks.FIRE.defaultBlockState(), 3);
 		}
-		if (le instanceof Pig) {
-			doGrimEffectPigs((Pig) le, pos, gameTime, level);
+		if (ae instanceof Pig) {
+			doGrimEffectPigs((Pig) ae, pos, gameTime, level);
 		}
 	}
 
@@ -246,12 +250,8 @@ public class LivingEventMovementHandler {
 		}
 	}
 
-	private void doGrimEffectsPlayer(LivingEntity le, BlockPos pos, Level level, double closestGrimDistSq,
+	private void doGrimEffectsPlayer(ServerPlayer le, BlockPos pos, Level level, double closestGrimDistSq,
 			int amplitude1, int amplitude2, ServerLevel serverLevel) {
-
-		if (!(le instanceof ServerPlayer)) {
-			return;
-		}
 
 		ServerPlayer p = (ServerPlayer) le;
 		Block b = level.getBlockState(pos).getBlock();
@@ -273,12 +273,12 @@ public class LivingEventMovementHandler {
 		}
 	}
 
-	private void doGrimEffectVillagers(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (MyConfig.isGrimEffectVillagers() && (le instanceof Villager)) {
+	private void doGrimEffectVillagers(Villager ve, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		if (MyConfig.isGrimEffectVillagers()) {
 			if (villagerTimer < gameTime) {
 				villagerTimer = gameTime + 2400;
 				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);
-				Utility.updateEffect(le, 9, MobEffects.WITHER, 240);
+				Utility.updateEffect(ve, 9, MobEffects.WITHER, 240);
 			}
 		}
 	}
@@ -303,6 +303,7 @@ public class LivingEventMovementHandler {
 	}
 
 	private void doSpreadDeadBranches(LivingEntity le, BlockPos pos, Level level) {
+		Utility.debugMsg(1, pos, "doSpreadDeadBranches");
 		if (level.getBrightness(LightLayer.SKY, pos) > 10) {
 			BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
 			Block b = level.getBlockState(deadBranchPos.below()).getBlock();
@@ -376,13 +377,13 @@ public class LivingEventMovementHandler {
 		if (!MyConfig.isUseGrimCitadels()) {
 			return;
 		}
+		initializeDistanceConstants();
 
 		LivingEntity le = event.getEntityLiving();
 		BlockPos pos = le.blockPosition();
 		Level level = le.level;
-//		BlockEvents.killIllegalFluidBlocks(level);
+
 		long gameTime = level.getGameTime();
-		initializeDistanceConstants();
 		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
 
 		if ((closestGrimDistSq > gcDist100)) { // note also MAXINTEGER in here.
@@ -396,6 +397,8 @@ public class LivingEventMovementHandler {
 		if (gameTime % 10 != le.getId() % 10)
 			return;
 
+		Utility.debugMsg(1, pos, "Living Event " + event.getEntity().getType().getRegistryName().toString());
+		
 		// note: Synced when a player logs in and when hearts destroyed.
 
 		int amplitude1 = 0;
@@ -427,14 +430,24 @@ public class LivingEventMovementHandler {
 			}
 		}
 
-		doGrimEffectsPlayer(le, pos, level, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
-		doGrimEffectVillagers(le, pos, gameTime, serverLevel);
-		if ((le instanceof Animal) && (MyConfig.isGrimEffectAnimals())) {
-			doGrimEffectsAnimals(le, pos, gameTime, serverLevel);
-		} else
-			doGrimEffectsMonsters(le, pos, gameTime, serverLevel);
+		
+		doGrimEffects(le, pos, level, gameTime, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
+		
 		doSpreadDeadBranches(le, pos, level);
 
+	}
+
+	private void doGrimEffects(LivingEntity le, BlockPos pos, Level level, long gameTime, double closestGrimDistSq,
+			int amplitude1, int amplitude2, ServerLevel serverLevel) {
+		if (le instanceof ServerPlayer se) {
+			doGrimEffectsPlayer(se, pos, level, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
+		} else if (le instanceof Villager ve) {
+			doGrimEffectVillagers(ve, pos, gameTime, serverLevel);
+		} else if (le instanceof Animal ae) {
+			doGrimEffectsAnimals(ae, pos, gameTime, serverLevel);
+		} else if (le instanceof Enemy) {
+			doGrimEffectsMonsters(le, pos, gameTime, serverLevel);
+		}
 	}
 
 	private void playDirectionalSoundCue(BlockPos pos, Level level, Player pe, float volume, float pitch,

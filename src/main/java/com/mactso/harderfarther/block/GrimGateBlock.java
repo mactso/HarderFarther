@@ -1,10 +1,7 @@
 package com.mactso.harderfarther.block;
 
-import com.mactso.harderfarther.utility.Utility;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HalfTransparentBlock;

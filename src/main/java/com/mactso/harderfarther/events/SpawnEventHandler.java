@@ -127,6 +127,7 @@ public class SpawnEventHandler {
 	private float calcDistanceModifier(float distanceFromSpawn, int y) {
 
 		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
+		// TODO set up independent Grim Citadel modifier (so might be half as storng as 30000meters
 		if (y < MyConfig.getMinimumSafeAltitude()) {
 			pctMax *= 1.06f;
 		} else if (y > MyConfig.getMaximumSafeAltitude()) {
@@ -186,12 +187,13 @@ public class SpawnEventHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
 
-		// note may need to put this in "EntityJoinWorld" instead. But be careful to
-		// restrict
+		// note may need to put this in "EntityJoinWorld" instead. But be careful to restrict
 		// to mobs since that method includes all entities like xp orbs and so on.
-		// TODO check nasty mobs and check for non overworld dimension.
+		// EntityJoinWorld applies on reloading from save too tho.
+		// So would need to check attributes before applying them.
 
-		if (!(MyConfig.isMakeMonstersHarderFarther()))
+		if (!(MyConfig.isMakeMonstersHarderFarther()) 
+				&& (!MyConfig.isUseGrimCitadels())) 
 			return;
 
 		if (!(event.getWorld() instanceof ServerLevel)) {
@@ -236,7 +238,8 @@ public class SpawnEventHandler {
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
-
+		GrimCitadelManager.checkCleanUpCitadels(level);
+		
 		if (level.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
 				event.setResult(Result.DENY);
@@ -245,7 +248,7 @@ public class SpawnEventHandler {
 				return;
 			}
 		}
-
+		
 		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
 		distanceFromSpawn = doGrimDistanceAdjustment(level, entity, distanceFromSpawn);
 		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
@@ -271,7 +274,6 @@ public class SpawnEventHandler {
 	}
 
 	private float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
-		GrimCitadelManager.checkCleanUpCitadels(level);
 
 		if (MyConfig.isUseGrimCitadels()) {
 			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());

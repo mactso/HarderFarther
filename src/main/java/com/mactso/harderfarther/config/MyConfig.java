@@ -214,7 +214,6 @@ public class MyConfig {
 		COMMON.grimFogBluePercent.set(grimFogBluePercent/100);
 	}
 
-
 	private static int      aDebugLevel;
 	private static boolean  onlyOverworld;
 	private static int 	    limitMobFarmsTimer;
@@ -378,7 +377,7 @@ public class MyConfig {
 		for (String pos : list) {
 			 String[] posParts = pos.split(",");
 			 int x = Integer.valueOf(posParts[0]);
-			 int y = 90;
+			 int y = -1;
 			 int z = Integer.valueOf(posParts[1]);
 			 returnList.add(new BlockPos(x,y,z));
 		}
@@ -426,8 +425,8 @@ public class MyConfig {
 		
 		public Common(ForgeConfigSpec.Builder builder) {
 			List<String> defLootItemsList = Arrays.asList(
-					"r,20,minecraft:netherite_scrap,1,1","r,1,minecraft:netherwort,1,1",
-					"r,1,minecraft:music_disc_far,1,1","r,1,minecraft:netherwort,1,1",
+					"r,23,minecraft:netherite_scrap,1,1","r,1,minecraft:nether_wart,1,1",
+					"r,1,minecraft:music_disc_far,1,1",
 					"u,20,minecraft:diamond,1,1", "u,05,minecraft:emerald,1,3",
 					"u,01,minecraft:gold_ingot,1,1", "u,02,minecraft:chicken,1,2", 
 					"c,15,minecraft:glowstone,1,2", "c,1,minecraft:leather_boots,1,1", 

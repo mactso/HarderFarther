@@ -19,5 +19,6 @@ public class PlayerLoginEventHandler {
     	if (MyConfig.isUseGrimCitadels()) {
     			GrimCitadelManager.sendAllGCPosToClient((ServerPlayer) sp );
     	}
+    	
     }
 }

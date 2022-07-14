@@ -22,6 +22,7 @@ import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncAllGCWithClientPacket;
 import com.mactso.harderfarther.utility.Utility;
 
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
@@ -70,7 +72,7 @@ public class GrimCitadelManager {
 	private static UUID ITEM_SPEED_UUID = UUID.fromString("4ce59996-ed35-11ec-8ea0-0242ac120002");
 
 	private static void makeGrimCitadel(ServerLevel level, int bottom, BlockPos pos) {
-		Utility.debugMsg(2, pos, "Creating a GrimCitadel at : " + pos);
+		Utility.debugMsg(1, pos, "Creating a GrimCitadel at : " + pos);
 
 		Random rand = level.getRandom();
 		BlockPos bottomPos = new BlockPos(pos.getX(), bottom, pos.getZ());
@@ -453,15 +455,32 @@ public class GrimCitadelManager {
 
 	public static void checkCleanUpCitadels(ServerLevel level) {
 
+		if (level.dimension() != Level.OVERWORLD) {
+			return;
+		}
+
 		if (level.isClientSide)
 			return;
+		
+		if (!MyConfig.isUseGrimCitadels())
+			return;
+		
 		long gameTime = level.getGameTime();
 		if (checkTimer == 0) {  // delay creating grim citadels for 1 minute when game started.
-			checkTimer = gameTime+1200;
+			checkTimer = gameTime+900;
 		}
 		
 		if (checkTimer > gameTime)
 			return;
+		
+    	Utility.debugMsg(1, "Checking if Grim Citadel still exists in Overworld.");
+		long ntt = level.getServer().getNextTickTime();
+        long i = Util.getMillis() - ntt;
+        if (i > 250L) {
+        	Utility.debugMsg(1, "Server Slow - Skipped Checking Citadels");
+        	checkTimer += 15;
+        	return;
+        }	
 
 
 		addOptionalNewHearts(level, null);
@@ -482,6 +501,7 @@ public class GrimCitadelManager {
 
 		BlockPos pos = realGCList.get(currentCitadelIndex);
 		ChunkAccess chunk = level.getChunk(pos);
+		checkTimer = gameTime + 600;
 		Set<BlockPos> ePosSet = chunk.getBlockEntitiesPos();
 		boolean foundHeart = false;
 		for (BlockPos ePos : ePosSet) {
@@ -494,7 +514,7 @@ public class GrimCitadelManager {
 		}
 		if (chunk.getInhabitedTime() < 600) { // heart not created yet
 			if (!foundHeart) {
-				Utility.debugMsg(2, pos, "Creating New Grim Citadel.");
+				Utility.debugMsg(1, pos, "Creating New Grim Citadel.");
 				int bottom = getCitadelBottom(level, pos);
 				makeGrimCitadel(level, bottom, pos);
 				BlockPos heartPos = new BlockPos(pos.getX(), bottom + 30, pos.getZ());
@@ -502,7 +522,6 @@ public class GrimCitadelManager {
 				realGCList.set(currentCitadelIndex, heartPos);
 				save();
 				updateGCLocationsToClients(level);
-				checkTimer = gameTime + 600; // wait a 30 seconds before building another.
 			}
 		} else { // heart destroyed / gone / taken.
 			if (!foundHeart) {
@@ -511,9 +530,10 @@ public class GrimCitadelManager {
 				save();
 				updateGCLocationsToClients(level);
 				currentCitadelIndex -= 1;
-				checkTimer = gameTime + 300; // wait a 15 seconds before checking another.
 			}
-		}
+		} 
+		
+
 
 	}
 

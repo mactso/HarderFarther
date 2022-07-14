@@ -18,30 +18,36 @@ public class HarderFartherCommands {
 	{
 		dispatcher.register(Commands.literal("harderfarther").requires((source) -> 
 			{
-				return source.hasPermission(2);
+				return source.hasPermission(3);
 			}
 		)
-		.then(Commands.literal("debugLevel").then(
+		.then(Commands.literal("setDebugLevel").then(
 				Commands.argument("debugLevel", IntegerArgumentType.integer(0,2)).executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					return setDebugLevel(p, IntegerArgumentType.getInteger(ctx, "debugLevel"));
 				})))
 				// update or add a speed value for the block the player is standing on.
 				.then(Commands.literal("setBonusRange").then(
-						Commands.argument("setBonusRange", IntegerArgumentType.integer(500, 6000)).executes(ctx -> {
+						Commands.argument("bonusRange", IntegerArgumentType.integer(500, 6000)).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
-							return setBonusRange(p, IntegerArgumentType.getInteger(ctx, "setBonusRange"));
+							return setBonusRange(p, IntegerArgumentType.getInteger(ctx, "bonusRange"));
 						})))
 				.then(Commands.literal("setGrimCitadels").then(
-						Commands.argument("setGrimCitadels", BoolArgumentType.bool()).executes(ctx -> {
+						Commands.argument("grimCitadels", BoolArgumentType.bool()).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
-							return setGrimCitadels(p, BoolArgumentType.getBool(ctx, "setGrimCitadels"));
+							return setGrimCitadels(p, BoolArgumentType.getBool(ctx, "grimCitadels"));
 						})))
 				.then(Commands.literal("setXpBottleChance").then(
-						Commands.argument("setXpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
+						Commands.argument("xpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
-							return setOddsDropExperienceBottle(p, IntegerArgumentType.getInteger(ctx, "setXpBottleChance"));
-						})))				
+							return setOddsDropExperienceBottle(p, IntegerArgumentType.getInteger(ctx, "xpBottleChance"));
+						})))
+				.then(Commands.literal("chunkReport").executes(ctx -> {
+					ServerPlayer p = ctx.getSource().getPlayerOrException();
+					p.level.gatherChunkSourceStats();
+					Utility.sendChat(p, "\nChunk\n" + p.level.gatherChunkSourceStats(), ChatFormatting.GREEN);
+					return 1;
+				}))
 				.then(Commands.literal("report").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					String report = "Grim Citadels at : " + GrimCitadelManager.getCitadelListAsString();
@@ -115,9 +121,9 @@ public class HarderFartherCommands {
 		Utility.sendBoldChat(p, "\nGrim Effects Info", ChatFormatting.DARK_GREEN);
 		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = (
-					"  Effect Villagers ..................................: " + MyConfig.isGrimEffectVillagers()
-				+	"  Effect Animals ..................................: " + MyConfig.isGrimEffectAnimals()
-				+	"  Effect Pigs................................: " + MyConfig.isGrimEffectPigs()
+					"\n  Effect Villagers ..................................: " + MyConfig.isGrimEffectVillagers()
+				+	"\n  Effect Animals ..................................: " + MyConfig.isGrimEffectAnimals()
+				+	"\n  Effect Pigs................................: " + MyConfig.isGrimEffectPigs()
 				);
 
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
@@ -131,7 +137,8 @@ public class HarderFartherCommands {
 		BlockPos pPos = p.blockPosition();
 		Utility.sendBoldChat(p, "\nGrim Citadel Information", ChatFormatting.DARK_GREEN);
 		if (MyConfig.isUseGrimCitadels()) {
-			String chatMessage = ("   Nearest Grim Citadel ..................................: "
+			String chatMessage = ("   Grim Citadels are Enabled" 
+					+ "\n   Nearest Grim Citadel ..................................: "
 					+ (int) Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pPos)) + " meters at "
 					+ "\n   " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
 					+ "\n   Grim Citadel Aura Range ...............................: "
