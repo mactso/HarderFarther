@@ -18,7 +18,11 @@ public class FogColorsEventHandler {
 	private static float sliderFogPercent = 1.0f;
 	private long fogTick = 0;
 	private static float sliderStartFogPercent = 1.0f;
-
+	
+	private static double serverRed = .85f;
+	private static double serverGreen = 0.2f;
+	private static double serverBlue = 0.3f;
+	
 	@SubscribeEvent
 	public void onFogColorCheck(FogColors event) {
 
@@ -44,7 +48,9 @@ public class FogColorsEventHandler {
 
 		if (percent < 0.05f)
 			percent = 0.05f;
-
+		if (percent > 1.0f)
+			percent = 1.0f;
+		
 		if (colorTick != gametick) {
 			colorTick = gametick;
 			sliderColorPercent = adjustSlider(sliderColorPercent, percent);
@@ -68,32 +74,25 @@ public class FogColorsEventHandler {
 	
 	
 	private void slideFogColor(FogColors event, float slider) {
-		float redSlider = slider;
-		if (redSlider < MyConfig.getGrimFogRedPercent()) {
-			redSlider = (float) MyConfig.getGrimFogRedPercent();
-		}
-		float greenSlider = slider;
-		if (greenSlider < MyConfig.getGrimFogGreenPercent()) {
-			greenSlider = (float) MyConfig.getGrimFogGreenPercent();
-		}
-		float blueSlider = slider;
-		if (blueSlider < MyConfig.getGrimFogBluePercent()) {
-			blueSlider = (float) MyConfig.getGrimFogBluePercent();
-		}
-		float r = event.getRed();
-		event.setRed(r * redSlider);
-		float g = event.getGreen();
-		event.setGreen(g * greenSlider);
-		float b = event.getBlue();
-		event.setBlue(b * blueSlider);
+		
+		double redSlider = slider;
+		double greenSlider = slider;
+		double blueSlider = slider;
+		
+		redSlider = Math.max(serverRed, redSlider);
+		greenSlider = Math.max(serverGreen, greenSlider);
+		blueSlider = Math.max(serverBlue, blueSlider);
+		
+		event.setRed(event.getRed() * (float)redSlider);
+		event.setGreen(event.getGreen() * (float)greenSlider);
+		event.setBlue(event.getBlue() * (float)blueSlider);
+		
 	}
 
-	
-	
 	// Density of Fog- not Color
 	@SubscribeEvent
 	public void handleFogRender(RenderFogEvent event) {
-
+//		FogMode sky = FogMode.FOG_SKY;
 		if (event.getMode() == FogMode.FOG_TERRAIN) {
 			Minecraft m = Minecraft.getInstance();
 			LocalPlayer p = m.player;
@@ -150,6 +149,18 @@ public class FogColorsEventHandler {
 		RenderSystem.setShaderFogEnd(f2);
 		
 	}
+
+	// r,g,b should always be 0 to 1.0f   
+	public static void setServerFogRGB (double r, double g, double b) {
+		serverRed = r;
+		serverGreen = g;
+		serverBlue= b;
+	}
+
+
+	
+
+
 
 
 }

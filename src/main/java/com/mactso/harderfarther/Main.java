@@ -14,10 +14,13 @@ import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
+import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.Register;
+import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Utility;
 
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -78,11 +81,14 @@ public class Main {
 				System.out.println(MODID + ": Registering Handlers");
 //				MinecraftForge.EVENT_BUS.register(new SpawnerBreakEvent ());
 				MinecraftForge.EVENT_BUS.register(new SpawnEventHandler());
+				MinecraftForge.EVENT_BUS.register(new WorldTickHandler());
 				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
-//				MinecraftForge.EVENT_BUS.register(new PlayerInteractionEventHandler());
+
+//  https://www.youtube.com/watch?v=_uC28W_aasg
+//				MinecraftForge.EVENT_BUS.register(new ModSoundsRegistry());
 				lem = new LivingEventMovementHandler();
 				MinecraftForge.EVENT_BUS.register(lem);
 				MinecraftForge.EVENT_BUS.register(new BlockEvents());
@@ -94,6 +100,12 @@ public class Main {
 	    public static class ModEvents
 	    {
 
+			@SubscribeEvent
+			public static void onSoundEventsRegistry (final RegistryEvent.Register<SoundEvent> event)
+			{
+				ModSounds.register(event.getRegistry());
+			}
+			
 		    @SubscribeEvent
 		    public static void onItemsRegistry(final RegistryEvent.Register<Item> event)
 		    {

@@ -3,6 +3,7 @@ package com.mactso.harderfarther.block;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -16,8 +17,19 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModBlocks
 {
-	public static final Block GRIM_HEART = new GrimHeartBlock(BlockBehaviour.Properties.of(Material.CLAY).instabreak().sound(SoundType.METAL)).setRegistryName("grim_heart");
-	public static final Block GRIM_GATE = new GrimGateBlock(BlockBehaviour.Properties.of(Material.GLASS).instabreak().noOcclusion().sound(SoundType.GLASS)).setRegistryName("grim_gate");
+	public static final Block GRIM_HEART = 
+			new GrimHeartBlock(BlockBehaviour
+					.Properties.of(Material.CLAY).lightLevel((state) -> { return 7;}).sound(SoundType.METAL), ParticleTypes.FLAME
+					).setRegistryName("grim_heart");
+	
+	public static final Block GRIM_GATE = 
+			new GrimGateBlock(BlockBehaviour
+					.Properties.of(Material.GLASS).instabreak().noOcclusion().lightLevel((state) -> { return 3;}).sound(SoundType.GLASS)
+					).setRegistryName("grim_gate");
+	
+//	   public static final Block WALL_TORCH = register("wall_torch", new WallTorchBlock(BlockBehaviour
+//			   .Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_152607_) -> {
+//		      return 14;   }).sound(SoundType.WOOD).dropsLike(TORCH), ParticleTypes.FLAME));
 	public static final Block DEAD_BRANCHES = new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never)).setRegistryName("dead_branches");
 
 	

@@ -1,0 +1,17 @@
+{
+  "dust": {
+    "sounds": [
+      "harderfarther:music/dustymemories"
+    ]
+  },
+  "laby": {
+    "sounds": [
+      "harderfarther:music/labyrinthlostdreams"
+    ]
+  },
+  "lake": {
+    "sounds": [
+      "harderfarther:music/lakeofdestiny"
+    ]
+  }
+}

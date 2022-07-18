@@ -13,14 +13,13 @@ import net.minecraftforge.network.NetworkEvent;
 public class SyncAllGCWithClientPacket {
 	
 	private List<BlockPos> GCLocations;
-
 	
 	public SyncAllGCWithClientPacket ( List<BlockPos> gl)
 	{
 		this.GCLocations = gl;
 	}
 	
-	public static void processSyncAllGCWithClientPacket(SyncAllGCWithClientPacket message, Supplier<NetworkEvent.Context> ctx)
+	public static void processPacket(SyncAllGCWithClientPacket message, Supplier<NetworkEvent.Context> ctx)
 	{
 		ctx.get().enqueueWork( () -> 
 			{
@@ -37,7 +36,6 @@ public class SyncAllGCWithClientPacket {
 		for(int i=0; i<numGCLocations;i++) {
 			readGCLocations.add(buf.readBlockPos());
 		}
-	
 		return new SyncAllGCWithClientPacket(readGCLocations);
 	}
 

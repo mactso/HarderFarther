@@ -11,6 +11,16 @@ public class Register {
 		Network.registerMessage(SyncAllGCWithClientPacket.class,
 	    		SyncAllGCWithClientPacket::writePacketData,
 	    		SyncAllGCWithClientPacket::readPacketData,
-	    		SyncAllGCWithClientPacket::processSyncAllGCWithClientPacket);
+	    		SyncAllGCWithClientPacket::processPacket);
+
+		Network.registerMessage(SyncFogToClientsPacket.class,
+				SyncFogToClientsPacket::writePacketData,
+				SyncFogToClientsPacket::readPacketData,
+				SyncFogToClientsPacket::processPacket);
+
+		Network.registerMessage(GrimClientSongPacket.class,
+				GrimClientSongPacket::writePacketData,
+				GrimClientSongPacket::readPacketData,
+				GrimClientSongPacket::processPacket);
 	}
 }

@@ -86,6 +86,12 @@ public class Utility {
 
 	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range,
 			int modifier, boolean isBaby) {
+		boolean persistant = false;
+		return populateEntityType(et, level, savePos, range, modifier, persistant, isBaby);
+	}
+	
+	public static boolean populateEntityType(EntityType<?> et, ServerLevel level, BlockPos savePos, int range,
+			int modifier, boolean persistant, boolean isBaby) {
 		int numZP;
 		Mob e;
 		numZP = level.random.nextInt(range) - modifier;
@@ -97,7 +103,9 @@ public class Utility {
 			} else {
 				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL, true, true);
 			}
-			e.setPersistenceRequired();
+			if (persistant) {
+				e.setPersistenceRequired();
+			}
 			if (et == EntityType.ZOMBIFIED_PIGLIN) {
 				e.setAggressive(true);
 			}

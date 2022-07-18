@@ -124,6 +124,18 @@ public class SpawnEventHandler {
 		}
 	}
 
+	private boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
+		try {
+			int preXp = fieldXpReward.getInt(entity);
+			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
+			Utility.debugMsg(2, ePos, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(entity)+")");
+		} catch (Exception e) {
+			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
+			return false;
+		}
+		return true;
+	}
+
 	private float calcDistanceModifier(float distanceFromSpawn, int y) {
 
 		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
@@ -135,6 +147,20 @@ public class SpawnEventHandler {
 		}
 		return pctMax;
 
+	}
+
+	private float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
+
+		if (MyConfig.isUseGrimCitadels()) {
+			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
+			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
+			if (closestGrimDistSq <= bonusGrimDistSq) {
+				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
+				grimMod *= MyConfig.getModifierMaxDistance();
+				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
+			}
+		}
+		return distanceFromSpawn;
 	}
 
 	private float getKBRBoostByMob(LivingEntity entity) {
@@ -238,7 +264,7 @@ public class SpawnEventHandler {
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
-		GrimCitadelManager.checkCleanUpCitadels(level);
+//		GrimCitadelManager.checkCleanUpCitadels(level);  (trying out in worldtickhandler)
 		
 		if (level.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
@@ -259,32 +285,6 @@ public class SpawnEventHandler {
 		boostKnockbackResistance(entity, ePos, eDsc, distanceModifier);
 		boostXp(entity, ePos, eDsc, distanceModifier);
 
-	}
-
-	private boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
-		try {
-			int preXp = fieldXpReward.getInt(entity);
-			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
-			Utility.debugMsg(2, ePos, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(entity)+")");
-		} catch (Exception e) {
-			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
-			return false;
-		}
-		return true;
-	}
-
-	private float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
-
-		if (MyConfig.isUseGrimCitadels()) {
-			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
-			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-			if (closestGrimDistSq <= bonusGrimDistSq) {
-				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
-				grimMod *= MyConfig.getModifierMaxDistance();
-				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
-			}
-		}
-		return distanceFromSpawn;
 	}
 
 }

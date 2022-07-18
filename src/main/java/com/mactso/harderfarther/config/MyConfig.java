@@ -148,6 +148,14 @@ public class MyConfig {
 		return useGrimCitadels;
 	}
 	
+	public static int getGrimCitadelsRadius() {
+		return grimCitadelsRadius;
+	}
+
+	public static void setGrimCitadelsRadius(int grimCitadelsRadius) {
+		MyConfig.grimCitadelsRadius = grimCitadelsRadius;
+	}
+	
 	public static int getGrimCitadelsCount() {
 		return grimCitadelsCount;
 	}
@@ -229,7 +237,13 @@ public class MyConfig {
 	private static int atkDmgBoost;
 	private static int knockbackBoost;
 
+	private static boolean  useHarderOverTime;
+	private static boolean  fadeHarderOverTime;
+	private static int      maxHarderTimeSeconds;
+	private static int      minHarderTimeSeconds;
+	
 	private static boolean  useGrimCitadels;
+	private static int      grimCitadelsRadius;
 	private static int      grimCitadelsCount;
 	private static int 	    grimCitadelBonusDistance;
 	private static int 	    grimCitadelBonusDistanceSq;
@@ -289,6 +303,7 @@ public class MyConfig {
 		COMMON.knockbackBoost.set(knockbackBoost);
 		
 		COMMON.useGrimCitadels.set(useGrimCitadels);
+		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 		COMMON.grimCitadelsCount.set(grimCitadelsCount);
 		COMMON.grimCitadelsList.set(grimCitadelsList);
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
@@ -326,6 +341,8 @@ public class MyConfig {
 	}
 	
 	// remember need to push each of these values separately once we have commands.
+	// this copies file changes into the running program variables.
+	
 	public static void bakeConfig()
 	{
 		aDebugLevel = COMMON.debugLevel.get();
@@ -349,11 +366,18 @@ public class MyConfig {
 		speedBoost=COMMON.speedBoost.get();
 		atkDmgBoost=COMMON.atkDmgBoost.get();
 		knockbackBoost=COMMON.knockbackBoost.get();
+
+		useHarderOverTime = COMMON.useHarderOverTime.get() ;
+		fadeHarderOverTime = COMMON.fadeHarderOverTime.get() ;
+		maxHarderTimeSeconds = COMMON.maxHarderTimeSeconds.get() ;
+		minHarderTimeSeconds = COMMON.minHarderTimeSeconds.get() ;
 		
 		useGrimCitadels = COMMON.useGrimCitadels.get();
 		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
 		grimCitadelsList = COMMON.grimCitadelsList.get();
 		grimCitadelsCount = COMMON.grimCitadelsCount.get();
+		grimCitadelsRadius= COMMON.grimCitadelsRadius.get();
+
 		bakeGrimRanges();
 		
 		grimEffectAnimals = COMMON.grimEffectAnimals.get();
@@ -408,8 +432,14 @@ public class MyConfig {
 		public final IntValue speedBoost;
 		public final IntValue atkDmgBoost;
 		public final IntValue knockbackBoost;
+
+		public final BooleanValue  useHarderOverTime;
+		public final BooleanValue  fadeHarderOverTime;
+		public final IntValue      maxHarderTimeSeconds;
+		public final IntValue      minHarderTimeSeconds;
 		
 		public final BooleanValue useGrimCitadels;
+		public final IntValue grimCitadelsRadius;
 		public final IntValue grimCitadelsCount;
 		public final IntValue grimCitadelBonusDistance;
 		public final IntValue grimCitadelPlayerCurseDistance;
@@ -425,13 +455,19 @@ public class MyConfig {
 		
 		public Common(ForgeConfigSpec.Builder builder) {
 			List<String> defLootItemsList = Arrays.asList(
-					"r,23,minecraft:netherite_scrap,1,1","r,1,minecraft:nether_wart,1,1",
-					"r,1,minecraft:music_disc_far,1,1",
+					"r,23,minecraft:netherite_scrap,1,1","r,1,minecraft:nether_wart,1,2",
+					"r,1,minecraft:music_disc_far,1,1", 
+					"u,2,minecraft:nether_wart,1,1", "u,3,minecraft:golden_carrot,1,1",
 					"u,20,minecraft:diamond,1,1", "u,05,minecraft:emerald,1,3",
+					"u,3,minecraft:oak_planks,1,5","u,1,minecraft:book,1,1",
 					"u,01,minecraft:gold_ingot,1,1", "u,02,minecraft:chicken,1,2", 
-					"c,15,minecraft:glowstone,1,2", "c,1,minecraft:leather_boots,1,1", 
-					"c,3,minecraft:string,1,2",	"c,3,minecraft:gold_nugget,1,5",
-					"c,3,minecraft:emerald,1,1","c,1,minecraft:book,1,2");
+					"u,5,minecraft:glowstone_dust,1,2", "u,1,minecraft:lead,1,1",
+					"u,5,minecraft:stone_axe,1,2", 
+					"c,3,minecraft:leather_boots,1,1", "c,2,minecraft:gold_nugget,1,3",
+					"c,2,minecraft:candle,1,2", "c,5,minecraft:baked_potato,1,2",
+					"c,2,minecraft:fishing_rod,1,1", "c,5,minecraft:cooked_cod,1,3",
+					"c,3,minecraft:string,1,2",	"c,3,minecraft:iron_nugget,1,3",
+					"c,1,minecraft:emerald,1,1","c,1,minecraft:paper,1,2");
 			
 			List<String> defGrimCitadelsList = Arrays.asList(
 					"3100,3000","3000,-100", "3000,-3050",
@@ -490,6 +526,7 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "maximumSafeAltitude")
 					.defineInRange("maximumSafeAltitude", () -> 99, 65, 256);			
 			builder.pop();
+			
 			builder.push("Loot Settings");
 			oddsDropExperienceBottle = builder
 					.comment("oddsDropExperienceBottle: Chance to drop 1 experience bottle.")
@@ -523,6 +560,31 @@ public class MyConfig {
 					.defineInRange("knockbackBoost", () -> 100, 0, 999);
 			
 			builder.pop();
+			builder.push("Harder Over Time Settings");
+//			public final BooleanValue  useHarderOverTime;
+			useHarderOverTime= builder
+					.comment("use Harder Over Time (false) ")
+					.translation(Main.MODID + ".config." + "useHarderOverTime")
+					.define ("useHarderOverTime", () -> false);
+
+			//			public final BooleanValue  fadeHarderOverTime;
+			fadeHarderOverTime= builder
+					.comment("Do areas get easier while uninhabited? (true) ")
+					.translation(Main.MODID + ".config." + "fadeHarderOverTime")
+					.define ("fadeHarderOverTime", () -> true);
+			//			public final IntValue      minHarderTimeSeconds;	
+			minHarderTimeSeconds = builder
+					.comment("How many seconds before area starts getting harder (6000s/5 gamedays)")
+					.translation(Main.MODID + ".config." + "minHarderTimeSeconds")
+					.defineInRange("minHarderTimeSeconds", () -> 6000, 60, 24000);	// 1 minute to 20 game days.
+//			public final IntValue       maxHarderTimeSeconds;
+			maxHarderTimeSeconds = builder
+					.comment("How many seconds before area is max difficulty (12000s/10 gamedays)")
+					.translation(Main.MODID + ".config." + "maxHarderTimeSeconds")
+					.defineInRange("maxHarderTimeSeconds", () -> 12000, 60, 144000);	
+
+			builder.pop();
+
 			builder.push("Grim Citadel Settings");
 			
 			useGrimCitadels = builder
@@ -539,6 +601,11 @@ public class MyConfig {
 					.comment("grimCitadelsCount : number of grim Citadels kept in the game (if 0 will count down til none left)")
 					.translation(Main.MODID + ".config." + "grimCitadelsCount")
 					.defineInRange("grimCitadelsCount", () -> 5, 0, 16);	
+
+			grimCitadelsRadius= builder
+					.comment("grimCitadelsRadius: Sug.  4-5 for one player, 5-7 for multiplayer.  Higher may slow server briefly while building.")
+					.translation(Main.MODID + ".config." + "grimCitadelsCount")
+					.defineInRange("grimCitadelsCount", () -> 5, 4, 11);	
 			
 			grimCitadelBonusDistance = builder
 					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")
