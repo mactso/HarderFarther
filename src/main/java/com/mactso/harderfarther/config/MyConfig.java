@@ -154,6 +154,7 @@ public class MyConfig {
 
 	public static void setGrimCitadelsRadius(int grimCitadelsRadius) {
 		MyConfig.grimCitadelsRadius = grimCitadelsRadius;
+		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 	}
 	
 	public static int getGrimCitadelsCount() {
@@ -604,8 +605,8 @@ public class MyConfig {
 
 			grimCitadelsRadius= builder
 					.comment("grimCitadelsRadius: Sug.  4-5 for one player, 5-7 for multiplayer.  Higher may slow server briefly while building.")
-					.translation(Main.MODID + ".config." + "grimCitadelsCount")
-					.defineInRange("grimCitadelsCount", () -> 5, 4, 11);	
+					.translation(Main.MODID + ".config." + "grimCitadelsRadius")
+					.defineInRange("grimCitadelsRadius", () -> 5, 4, 11);	
 			
 			grimCitadelBonusDistance = builder
 					.comment("grimCitadelBonusDistance : Mobs get increasing bonuses when closer to grim citadel")

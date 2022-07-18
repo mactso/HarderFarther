@@ -58,6 +58,8 @@ public class HarderFartherCommands {
 					+ "\n   Grim Citadel Aura Range ...............................: "
 					+ MyConfig.getGrimCitadelBonusDistance() + " blocks." + "\n   Grim Citadel Player Curse Range ...: "
 					+ MyConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
+					+ "\n   Grim Citadel Counts ......................................: "
+					+ MyConfig.getGrimCitadelsCount()
 					+ "\n   Grim Citadel Radius ......................................: "
 					+ GrimCitadelManager.getGrimRadius());
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);

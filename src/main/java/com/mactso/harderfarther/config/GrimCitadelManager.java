@@ -140,11 +140,8 @@ public class GrimCitadelManager {
 
 	public static void buildAFloor(ServerLevel level, Random rand, MutableBlockPos floorPos, int fy, int height,
 			boolean roof) {
-		int updateFlag = 0;
-		if (roof) {
-			updateFlag = 3;
-		}
-		updateFlag = 3;
+
+		int updateFlag = 131; // 3+128 = also update light.
 		int posX = floorPos.getX();
 		int posZ = floorPos.getZ();
 		for (int fx = -getGrimRadius(); fx <= getGrimRadius(); fx++) {
@@ -194,7 +191,8 @@ public class GrimCitadelManager {
 		mPos.setY(posY + 1);
 		level.setBlock(mPos, NETHERRACK, 0);
 		mPos.setY(posY + 2);
-		level.setBlock(mPos, FIRE, 3);
+		level.setBlock(mPos, FIRE, 131); // update light also 3+128
+
 	}
 
 	private static void buildCitadelFloors(ServerLevel level, int bottom, int top, Random rand, BlockPos bottomPos) {
@@ -214,8 +212,8 @@ public class GrimCitadelManager {
 				if (roof)
 					roof = false;
 
-				if (fy > 8) {
-					buildFloorBalcony(level, bottomPos, fy, rand.nextInt(6));
+				if ((fy > 8) && (rand.nextInt(100) > 20)){
+					buildFloorBalcony(level, bottomPos, fy, rand);
 				}
 			} else if (fy < bottom+8) {
 				floorPos.setY(bottomPos.getY() + fy);
@@ -273,13 +271,10 @@ public class GrimCitadelManager {
 
 	}
 
-	private static void buildFloorBalcony(ServerLevel level, BlockPos bottomPos, int fy, int side) {
+	private static void buildFloorBalcony(ServerLevel level, BlockPos bottomPos, int fy, Random rand) {
 
 		BlockPos tempPos;
-		Random rand = level.getRandom();
-		if (side > 3)
-			return;
-
+		int side = rand.nextInt(4);
 		int balconyRadius = getGrimRadius() + 2;
 		switch (side) {
 		default:
@@ -682,8 +677,8 @@ public class GrimCitadelManager {
 			}
 			// check grim tower protected airspace
 			if ((xAbs <= protectedDistance) && (zAbs <= protectedDistance) && (eventPos.getY() > grimPos.getY() + -8)) {
-				if ((xAbs > getGrimRadius()) || (zAbs > getGrimRadius())) {
-					return true;
+				if ((xAbs > getGrimRadius()+1) || (zAbs > getGrimRadius()+1)) {
+					return true; // TODO retest protected space outside on walls.
 				}
 			}
 		}
