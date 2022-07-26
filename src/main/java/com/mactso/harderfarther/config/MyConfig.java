@@ -25,6 +25,14 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class MyConfig {
 
+	public static int getGrimCitadelBoostPercentOfMax() {
+		return grimCitadelBoostPercentOfMax;
+	}
+
+	public static void setGrimCitadelBoostPercentOfMax(int grimCitadelBoostPercentOfMax) {
+		MyConfig.grimCitadelBoostPercentOfMax = grimCitadelBoostPercentOfMax;
+	}
+
 	private static final Logger LOGGER = LogManager.getLogger();
 	public static final Common COMMON;
 	public static final ForgeConfigSpec COMMON_SPEC;
@@ -246,6 +254,7 @@ public class MyConfig {
 	private static boolean  useGrimCitadels;
 	private static int      grimCitadelsRadius;
 	private static int      grimCitadelsCount;
+	private static int 		grimCitadelBoostPercentOfMax;
 	private static int 	    grimCitadelBonusDistance;
 	private static int 	    grimCitadelBonusDistanceSq;
 	private static int 		grimCitadelPlayerCurseDistance;
@@ -307,11 +316,14 @@ public class MyConfig {
 		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 		COMMON.grimCitadelsCount.set(grimCitadelsCount);
 		COMMON.grimCitadelsList.set(grimCitadelsList);
+		COMMON.grimCitadelBoostPercentOfMax.set(grimCitadelBoostPercentOfMax);
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
 		COMMON.grimCitadelPlayerCurseDistance.set(grimCitadelPlayerCurseDistance);
+		
 		COMMON.grimEffectAnimals.set(grimEffectAnimals);
 		COMMON.grimEffectPigs.set(grimEffectPigs);
 		COMMON.grimEffectVillagers.set(grimEffectVillagers);
+		
 		COMMON.grimFogRedPercent.set (grimFogRedPercent);
 		COMMON.grimFogBluePercent.set (grimFogBluePercent);
 		COMMON.grimFogGreenPercent.set (grimFogGreenPercent);
@@ -378,7 +390,7 @@ public class MyConfig {
 		grimCitadelsList = COMMON.grimCitadelsList.get();
 		grimCitadelsCount = COMMON.grimCitadelsCount.get();
 		grimCitadelsRadius= COMMON.grimCitadelsRadius.get();
-
+		grimCitadelBoostPercentOfMax = COMMON.grimCitadelBoostPercentOfMax.get();
 		bakeGrimRanges();
 		
 		grimEffectAnimals = COMMON.grimEffectAnimals.get();
@@ -444,6 +456,7 @@ public class MyConfig {
 		public final IntValue grimCitadelsCount;
 		public final IntValue grimCitadelBonusDistance;
 		public final IntValue grimCitadelPlayerCurseDistance;
+		public final IntValue grimCitadelBoostPercentOfMax;
 		
 		public final BooleanValue grimEffectAnimals;
 		public final BooleanValue grimEffectPigs;
@@ -459,15 +472,17 @@ public class MyConfig {
 					"r,23,minecraft:netherite_scrap,1,1","r,1,minecraft:nether_wart,1,2",
 					"r,1,minecraft:music_disc_far,1,1", 
 					"u,2,minecraft:nether_wart,1,1", "u,3,minecraft:golden_carrot,1,1",
-					"u,20,minecraft:diamond,1,1", "u,05,minecraft:emerald,1,3",
+					"u,12,minecraft:diamond,1,1", "u,5,minecraft:emerald,1,3",
 					"u,3,minecraft:oak_planks,1,5","u,1,minecraft:book,1,1",
-					"u,01,minecraft:gold_ingot,1,1", "u,02,minecraft:chicken,1,2", 
+					"u,1,minecraft:gold_ingot,1,1", "u,2,minecraft:chicken,1,2", 
 					"u,5,minecraft:glowstone_dust,1,2", "u,1,minecraft:lead,1,1",
-					"u,5,minecraft:stone_axe,1,2", 
+					"u,5,minecraft:stone_axe,1,2", "u,3,minecraft:stone_pickaxe,1,1", 
+					"u,1,minecraft:iron_axe,1,1", "u,1,minecraft:beetroot_seeds,1,1", 
 					"c,3,minecraft:leather_boots,1,1", "c,2,minecraft:gold_nugget,1,3",
 					"c,2,minecraft:candle,1,2", "c,5,minecraft:baked_potato,1,2",
 					"c,2,minecraft:fishing_rod,1,1", "c,5,minecraft:cooked_cod,1,3",
 					"c,3,minecraft:string,1,2",	"c,3,minecraft:iron_nugget,1,3",
+					"c,3,minecraft:honey_bottle,1,2",	"c,3,minecraft:stick,1,3",
 					"c,1,minecraft:emerald,1,1","c,1,minecraft:paper,1,2");
 			
 			List<String> defGrimCitadelsList = Arrays.asList(
@@ -515,7 +530,7 @@ public class MyConfig {
 			safeDistance = builder
 					.comment("Worldspawn Safe Distance: No Mobs Will Spawn In this Range")
 					.translation(Main.MODID + ".config." + "safeDistance")
-					.defineInRange("safeDistance", () -> 256, 1, 1000);			
+					.defineInRange("safeDistance", () -> 64, 1, 1000);			
 
 			minimumSafeAltitude = builder
 					.comment("minimumSafeAltitude: Mobs are 6% tougher below this altitude. ")
@@ -617,6 +632,12 @@ public class MyConfig {
 					.comment("grimCitadelPlayerCurseDistance : Players get penalties this far from a grim citadel")
 					.translation(Main.MODID + ".config." + "grimCitadelPlayerCurseDistance")
 					.defineInRange("grimCitadelPlayerCurseDistance", () -> 1250, 255, 6000);	
+			
+			grimCitadelBoostPercentOfMax = builder
+					.comment("grimCitadelBoostPercentOfMax : Grim Citadel Boost percent of Boost from Maximum Distance")
+					.translation(Main.MODID + ".config." + "grimCitadelBoostPercentOfMax")
+					.defineInRange("grimCitadelBoostPercentOfMax", () -> 96, 0, 100);
+			
 			builder.pop();
 			builder.push("Grim Effects Settings");					
 			grimEffectAnimals = builder

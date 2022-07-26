@@ -158,6 +158,7 @@ public class SpawnEventHandler {
 				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
 				grimMod *= MyConfig.getModifierMaxDistance();
 				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
+				distanceFromSpawn *= MyConfig.getGrimCitadelBoostPercentOfMax();
 			}
 		}
 		return distanceFromSpawn;
@@ -264,8 +265,6 @@ public class SpawnEventHandler {
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
-//		GrimCitadelManager.checkCleanUpCitadels(level);  (trying out in worldtickhandler)
-		
 		if (level.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
 				event.setResult(Result.DENY);

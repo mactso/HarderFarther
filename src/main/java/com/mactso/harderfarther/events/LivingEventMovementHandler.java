@@ -93,41 +93,78 @@ public class LivingEventMovementHandler {
 	long witherSkeletonTimer = 0;
 	long creeperTimer = 0;
 
-	public void doResetTimers() {
-		pigTimer = 0;
-		fishTimer = 0;
+	@SubscribeEvent
+	public void aLivingUpdateHandler(LivingUpdateEvent event) {
 
-		villagerTimer = 0;
-		phantomTimer = 0;
-		invisTimer = 0;
-		skeletonTimer = 0;
-		spiderTimer = 0;
-		spiderWebTimer = 0;
-		zoglinTimer = 0;
-		zombifiedPiglinTimer = 0;
-		zombieTimer = 0;
-		witherSkeletonTimer = 0;
-		creeperTimer = 0;
-	}
+		// everything below here is grim citadel code
+		if (!MyConfig.isUseGrimCitadels()) {
+			return;
+		}
+		initializeDistanceConstants();
 
-	private void doGrimGroundTransform(LivingEntity le, ServerLevel level) {
-		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
-			level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);
-		}
-		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
-			level.setBlock(le.blockPosition().below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
-		}
-	}
+		LivingEntity le = event.getEntityLiving();
+		BlockPos pos = le.blockPosition();
+		Level level = le.level;
 
-	private void doGrimPlayerCurse(double closestGrimDistSq, int amplitude1, int amplitude2, ServerPlayer p) {
-		int curseDistSq = MyConfig.getGrimCitadelPlayerCurseDistanceSq();
-		if (closestGrimDistSq < curseDistSq) {
-			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
-			if (closestGrimDistSq > gcDist05)
-				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.MOVEMENT_SLOWDOWN, duration);
-			if (closestGrimDistSq < curseDistSq / 2)
-				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
+		long gameTime = level.getGameTime();
+		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
+
+		if ((closestGrimDistSq > gcDist100)) { // note also MAXINTEGER in here.
+			return;
 		}
+
+		if (isTooCloseToFly(closestGrimDistSq)) {
+			slowFlyingMotion(le);
+		}
+
+		if (gameTime % 10 != le.getId() % 10)
+			return;
+
+		Utility.debugMsg(1, pos, "Living Event " + event.getEntity().getType().getRegistryName().toString());
+
+		// note: Synced when a player logs in and when hearts destroyed.
+
+		int amplitude1 = 0;
+		int amplitude2 = 0;
+
+		if (level.isClientSide()) {
+			if (le instanceof Player pe) {
+				playOptionalSoundCues(pos, level, closestGrimDistSq, pe);
+			}
+			// TODO *might* be able to play Dusty directly here.
+			return;
+		}
+
+		ServerLevel serverLevel = (ServerLevel) level;
+		if (le instanceof ServerPlayer sp) {
+			if ((level.getRandom().nextInt(144000) == 4242) && (closestGrimDistSq > gcDist09)) {
+				int song = level.getRandom().nextInt(ModSounds.NUM_SONGS) + 1;
+				// note client has a song spam timer.
+				Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
+			}
+		}
+
+		if ((closestGrimDistSq >= gcDist16) && (closestGrimDistSq <= gcDist50)) {
+			amplitude1 = 0;
+			amplitude2 = 0;
+		} else if ((closestGrimDistSq >= gcDist05) && (closestGrimDistSq < gcDist16)) {
+			amplitude1 = 0;
+			amplitude2 = 1;
+			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
+				le.removeEffect(MobEffects.SLOW_FALLING);
+			}
+		} else if (closestGrimDistSq < gcDist05) {
+			amplitude1 = 0;
+			amplitude2 = 0;
+			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
+				le.removeEffect(MobEffects.SLOW_FALLING);
+			}
+		}
+
+		doGrimEffects(le, pos, level, gameTime, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
+
+		doSpreadDeadBranches(le, pos, level);
+
 	}
 
 	private void doGrimEffectPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
@@ -166,26 +203,18 @@ public class LivingEventMovementHandler {
 		}
 	}
 
-	private void doGrimEffectsWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		// May later break this into different kinds of water animals or fish.
-		doGrimEffectWaterAnimal(we, pos, gameTime, serverLevel);
-	}
-
-	private void doGrimEffectWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-
-		if (we.level.getBiome(pos).getBiomeCategory() != BiomeCategory.OCEAN)
-			return;
-		if (fishTimer < gameTime) {
-			fishTimer = gameTime + 600;
-
-			List<Guardian> listG = serverLevel.getEntitiesOfClass(Guardian.class,
-					new AABB(pos.north(16).west(16), pos.south(16).east(16)));
-			if (listG.size() > 5)
-				return;
-
-			float pitch = 0.7f;
-			serverLevel.playSound(null, pos, SoundEvents.BUBBLE_COLUMN_BUBBLE_POP, SoundSource.AMBIENT, 2.20f, pitch);
-			Utility.populateEntityType(EntityType.GUARDIAN, serverLevel, pos, 1, 0);
+	private void doGrimEffects(LivingEntity le, BlockPos pos, Level level, long gameTime, double closestGrimDistSq,
+			int amplitude1, int amplitude2, ServerLevel serverLevel) {
+		if (le instanceof ServerPlayer se) {
+			doGrimEffectsPlayer(se, pos, level, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
+		} else if (le instanceof Villager ve) {
+			doGrimEffectVillagers(ve, pos, gameTime, serverLevel);
+		} else if (le instanceof WaterAnimal we) {
+			doGrimEffectsWaterAnimal(we, pos, gameTime, serverLevel);
+		} else if (le instanceof Animal ae) {
+			doGrimEffectsAnimals(ae, pos, gameTime, serverLevel);
+		} else if (le instanceof Enemy) {
+			doGrimEffectsMonsters(le, pos, gameTime, serverLevel);
 		}
 	}
 
@@ -259,31 +288,10 @@ public class LivingEventMovementHandler {
 		}
 		if (spiderWebTimer < gameTime) {
 			spiderWebTimer = gameTime + 1200; // 1 per two minutes.
-			if (isNoNearWebs(pos, serverLevel)) {
+			if (isNotNearWebs(pos, serverLevel)) {
 				le.level.setBlock(pos, Blocks.COBWEB.defaultBlockState(), 3);
 			}
 		}
-	}
-
-	// this only runs once per minute;
-	private boolean isNoNearWebs(BlockPos pos, ServerLevel serverLevel) {
-
-		if (serverLevel.getBlockState(pos).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.above()).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.below()).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.north()).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.south()).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.east()).getBlock() == Blocks.COBWEB)
-			return true;
-		if (serverLevel.getBlockState(pos.west()).getBlock() == Blocks.COBWEB)
-			return true;
-
-		return false;
 	}
 
 	private void doGrimEffectsMobZoglins(LivingEntity le, BlockPos pos, long gameTime, ServerLevel serverLevel) {
@@ -364,6 +372,11 @@ public class LivingEventMovementHandler {
 		}
 	}
 
+	private void doGrimEffectsWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+		// May later break this into different kinds of water animals or fish.
+		doGrimEffectWaterAnimal(we, pos, gameTime, serverLevel);
+	}
+
 	private void doGrimEffectVillagers(Villager ve, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (MyConfig.isGrimEffectVillagers()) {
 			if (villagerTimer < gameTime) {
@@ -371,6 +384,25 @@ public class LivingEventMovementHandler {
 				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);
 				Utility.updateEffect(ve, 9, MobEffects.WITHER, 240);
 			}
+		}
+	}
+
+	private void doGrimEffectWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
+
+		if (we.level.getBiome(pos).getBiomeCategory() != BiomeCategory.OCEAN)
+			return;
+		if (fishTimer < gameTime) {
+			fishTimer = gameTime + 600;
+
+			// added above and below parms.  This probably wasn't working.
+			List<Guardian> listG = serverLevel.getEntitiesOfClass(Guardian.class,
+					new AABB(pos.north(16).west(16).above(8), pos.south(16).east(16).below(8)));
+			if (listG.size() > 5)
+				return;
+
+			float pitch = 0.7f;
+			serverLevel.playSound(null, pos, SoundEvents.BUBBLE_COLUMN_BUBBLE_POP, SoundSource.AMBIENT, 2.20f, pitch);
+			Utility.populateEntityType(EntityType.GUARDIAN, serverLevel, pos, 1, 0);
 		}
 	}
 
@@ -391,6 +423,43 @@ public class LivingEventMovementHandler {
 			serverLevel.setBlock(pos, b.defaultBlockState(), 3);
 		}
 
+	}
+
+	private void doGrimGroundTransform(LivingEntity le, ServerLevel level) {
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.COARSE_DIRT) {
+			level.setBlock(le.blockPosition().below(), Blocks.NETHERRACK.defaultBlockState(), 3);
+		}
+		if (level.getBlockState(le.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
+			level.setBlock(le.blockPosition().below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
+		}
+	}
+
+	private void doGrimPlayerCurse(double closestGrimDistSq, int amplitude1, int amplitude2, ServerPlayer p) {
+		int curseDistSq = MyConfig.getGrimCitadelPlayerCurseDistanceSq();
+		if (closestGrimDistSq < curseDistSq) {
+			Utility.updateEffect((LivingEntity) p, amplitude1, MobEffects.WEAKNESS, duration);
+			if (closestGrimDistSq > gcDist05)
+				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.MOVEMENT_SLOWDOWN, duration);
+			if (closestGrimDistSq < curseDistSq / 2)
+				Utility.updateEffect((LivingEntity) p, amplitude2, MobEffects.DIG_SLOWDOWN, duration);
+		}
+	}
+
+	public void doResetTimers() {
+		pigTimer = 0;
+		fishTimer = 0;
+
+		villagerTimer = 0;
+		phantomTimer = 0;
+		invisTimer = 0;
+		skeletonTimer = 0;
+		spiderTimer = 0;
+		spiderWebTimer = 0;
+		zoglinTimer = 0;
+		zombifiedPiglinTimer = 0;
+		zombieTimer = 0;
+		witherSkeletonTimer = 0;
+		creeperTimer = 0;
 	}
 
 	private void doSpreadDeadBranches(LivingEntity le, BlockPos pos, Level level) {
@@ -457,97 +526,29 @@ public class LivingEventMovementHandler {
 		}
 	}
 
+	// this only runs once per minute;
+	private boolean isNotNearWebs(BlockPos pos, ServerLevel serverLevel) {
+
+		if (serverLevel.getBlockState(pos).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.above()).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.below()).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.north()).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.south()).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.east()).getBlock() == Blocks.COBWEB)
+			return true;
+		if (serverLevel.getBlockState(pos.west()).getBlock() == Blocks.COBWEB)
+			return true;
+
+		return false;
+	}
+
 	private boolean isTooCloseToFly(double closestGrimDistSq) {
 		return closestGrimDistSq < gcDist09;
-	}
-
-	@SubscribeEvent
-	public void livingEntityHandler(LivingUpdateEvent event) {
-
-		// everything below here is grim citadel code
-		if (!MyConfig.isUseGrimCitadels()) {
-			return;
-		}
-		initializeDistanceConstants();
-
-		LivingEntity le = event.getEntityLiving();
-		BlockPos pos = le.blockPosition();
-		Level level = le.level;
-
-		long gameTime = level.getGameTime();
-		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
-
-		if ((closestGrimDistSq > gcDist100)) { // note also MAXINTEGER in here.
-			return;
-		}
-
-		if (isTooCloseToFly(closestGrimDistSq)) {
-			slowFlyingMotion(le);
-		}
-
-		if (gameTime % 10 != le.getId() % 10)
-			return;
-
-		Utility.debugMsg(1, pos, "Living Event " + event.getEntity().getType().getRegistryName().toString());
-
-		// note: Synced when a player logs in and when hearts destroyed.
-
-		int amplitude1 = 0;
-		int amplitude2 = 0;
-
-		if (level.isClientSide()) {
-			if (le instanceof Player pe) {
-				playOptionalSoundCues(pos, level, closestGrimDistSq, pe);
-			}
-			// TODO *might* be able to play Dusty directly here.
-			return;
-		}
-
-		ServerLevel serverLevel = (ServerLevel) level;
-		if (le instanceof ServerPlayer sp) {
-			if ((level.getRandom().nextInt(144000) == 4242) && (closestGrimDistSq > gcDist09)) {
-				int song = level.getRandom().nextInt(ModSounds.NUM_SONGS) + 1;
-				// note client has a song spam timer.
-				Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
-			}
-		}
-
-		if ((closestGrimDistSq >= gcDist16) && (closestGrimDistSq <= gcDist50)) {
-			amplitude1 = 0;
-			amplitude2 = 0;
-		} else if ((closestGrimDistSq >= gcDist05) && (closestGrimDistSq < gcDist16)) {
-			amplitude1 = 0;
-			amplitude2 = 1;
-			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
-				le.removeEffect(MobEffects.SLOW_FALLING);
-			}
-		} else if (closestGrimDistSq < gcDist05) {
-			amplitude1 = 0;
-			amplitude2 = 0;
-			if (le.hasEffect(MobEffects.SLOW_FALLING)) {
-				le.removeEffect(MobEffects.SLOW_FALLING);
-			}
-		}
-
-		doGrimEffects(le, pos, level, gameTime, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
-
-		doSpreadDeadBranches(le, pos, level);
-
-	}
-
-	private void doGrimEffects(LivingEntity le, BlockPos pos, Level level, long gameTime, double closestGrimDistSq,
-			int amplitude1, int amplitude2, ServerLevel serverLevel) {
-		if (le instanceof ServerPlayer se) {
-			doGrimEffectsPlayer(se, pos, level, closestGrimDistSq, amplitude1, amplitude2, serverLevel);
-		} else if (le instanceof Villager ve) {
-			doGrimEffectVillagers(ve, pos, gameTime, serverLevel);
-		} else if (le instanceof WaterAnimal we) {
-			doGrimEffectsWaterAnimal(we, pos, gameTime, serverLevel);
-		} else if (le instanceof Animal ae) {
-			doGrimEffectsAnimals(ae, pos, gameTime, serverLevel);
-		} else if (le instanceof Enemy) {
-			doGrimEffectsMonsters(le, pos, gameTime, serverLevel);
-		}
 	}
 
 	private void playDirectionalSoundCue(BlockPos pos, Level level, Player pe, float volume, float pitch,
@@ -605,12 +606,7 @@ public class LivingEventMovementHandler {
 	}
 
 	public void shutdown() {
-		phantomTimer = 0;
-		invisTimer = 0;
-		skeletonTimer = 0;
-		zombieTimer = 0;
-		witherSkeletonTimer = 0;
-		creeperTimer = 0;
+		doResetTimers();
 	}
 
 	private void slowFlyingMotion(LivingEntity le) {

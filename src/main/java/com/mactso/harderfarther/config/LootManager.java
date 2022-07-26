@@ -46,7 +46,7 @@ public class LootManager {
 		for (LootItem hi : lootHashtable.values()) {
 			if (Rarity.equals(hi.lootRarityKey)) {
 				worktotal += hi.lootWeight;
-				if (workroll < worktotal) {
+				if (workroll <= worktotal) {
 					int amt = rand.nextInt(hi.lootMax)+1;
 					if (amt < hi.lootMin ) {
 						amt = hi.lootMin;
