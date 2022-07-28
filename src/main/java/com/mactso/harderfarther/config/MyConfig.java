@@ -25,13 +25,6 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
 public class MyConfig {
 
-	public static int getGrimCitadelBoostPercentOfMax() {
-		return grimCitadelBoostPercentOfMax;
-	}
-
-	public static void setGrimCitadelBoostPercentOfMax(int grimCitadelBoostPercentOfMax) {
-		MyConfig.grimCitadelBoostPercentOfMax = grimCitadelBoostPercentOfMax;
-	}
 
 	private static final Logger LOGGER = LogManager.getLogger();
 	public static final Common COMMON;
@@ -164,6 +157,19 @@ public class MyConfig {
 		MyConfig.grimCitadelsRadius = grimCitadelsRadius;
 		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 	}
+
+	public static int getGrimCitadelMaxBoostValue() {
+		return grimCitadelMaxBoostPercent;
+	}
+
+	public static float getGrimCitadelMaxBoostPercent() {
+		return (float)(grimCitadelMaxBoostPercent)/100;
+	}
+	
+	public static void setGrimCitadelMaxBoostPercent(int newValue) {
+		MyConfig.grimCitadelMaxBoostPercent = newValue;
+		COMMON.grimCitadelMaxBoostPercent.set(newValue);
+	}
 	
 	public static int getGrimCitadelsCount() {
 		return grimCitadelsCount;
@@ -254,7 +260,7 @@ public class MyConfig {
 	private static boolean  useGrimCitadels;
 	private static int      grimCitadelsRadius;
 	private static int      grimCitadelsCount;
-	private static int 		grimCitadelBoostPercentOfMax;
+	private static int 		grimCitadelMaxBoostPercent;
 	private static int 	    grimCitadelBonusDistance;
 	private static int 	    grimCitadelBonusDistanceSq;
 	private static int 		grimCitadelPlayerCurseDistance;
@@ -316,7 +322,7 @@ public class MyConfig {
 		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 		COMMON.grimCitadelsCount.set(grimCitadelsCount);
 		COMMON.grimCitadelsList.set(grimCitadelsList);
-		COMMON.grimCitadelBoostPercentOfMax.set(grimCitadelBoostPercentOfMax);
+		COMMON.grimCitadelMaxBoostPercent.set(grimCitadelMaxBoostPercent);
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
 		COMMON.grimCitadelPlayerCurseDistance.set(grimCitadelPlayerCurseDistance);
 		
@@ -390,7 +396,7 @@ public class MyConfig {
 		grimCitadelsList = COMMON.grimCitadelsList.get();
 		grimCitadelsCount = COMMON.grimCitadelsCount.get();
 		grimCitadelsRadius= COMMON.grimCitadelsRadius.get();
-		grimCitadelBoostPercentOfMax = COMMON.grimCitadelBoostPercentOfMax.get();
+		grimCitadelMaxBoostPercent = COMMON.grimCitadelMaxBoostPercent.get();
 		bakeGrimRanges();
 		
 		grimEffectAnimals = COMMON.grimEffectAnimals.get();
@@ -456,7 +462,7 @@ public class MyConfig {
 		public final IntValue grimCitadelsCount;
 		public final IntValue grimCitadelBonusDistance;
 		public final IntValue grimCitadelPlayerCurseDistance;
-		public final IntValue grimCitadelBoostPercentOfMax;
+		public final IntValue grimCitadelMaxBoostPercent;
 		
 		public final BooleanValue grimEffectAnimals;
 		public final BooleanValue grimEffectPigs;
@@ -563,7 +569,7 @@ public class MyConfig {
 			speedBoost = builder
 					.comment("Boost Movement Speed (Percent) ")
 					.translation(Main.MODID + ".config." + "speedBoost")
-					.defineInRange("speedBoost", () -> 50, 0, 999);
+					.defineInRange("speedBoost", () -> 25, 0, 999);
 			
 			atkDmgBoost = builder
 					.comment("Boost Attack Damage (percent)")
@@ -633,10 +639,10 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "grimCitadelPlayerCurseDistance")
 					.defineInRange("grimCitadelPlayerCurseDistance", () -> 1250, 255, 6000);	
 			
-			grimCitadelBoostPercentOfMax = builder
-					.comment("grimCitadelBoostPercentOfMax : Grim Citadel Boost percent of Boost from Maximum Distance")
-					.translation(Main.MODID + ".config." + "grimCitadelBoostPercentOfMax")
-					.defineInRange("grimCitadelBoostPercentOfMax", () -> 96, 0, 100);
+			grimCitadelMaxBoostPercent = builder
+					.comment("grimCitadelMaxBoostPercent : max Boost a grim citadel can give")
+					.translation(Main.MODID + ".config." + "grimCitadelMaxBoostPercent")
+					.defineInRange("grimCitadelMaxBoostPercent", () -> 96, 0, 100);
 			
 			builder.pop();
 			builder.push("Grim Effects Settings");					

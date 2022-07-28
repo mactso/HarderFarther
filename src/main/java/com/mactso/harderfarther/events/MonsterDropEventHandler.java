@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
+import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.LootManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
@@ -19,12 +20,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cod;
-import net.minecraft.world.entity.animal.Salmon;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CaveSpider;
 import net.minecraft.world.entity.monster.Slime;
@@ -33,6 +33,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,6 +46,19 @@ public class MonsterDropEventHandler {
 	public static float minUncommonDistancePct = 0.1f;  // (10% of max distance before uncommon loot)
 	public static float minRareDistancePct = 0.95f;  // (95% of max distance before rare loot)
 
+	private float calcDistanceModifier(float distanceFromSpawn, int y) {
+
+		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
+		// TODO set up independent Grim Citadel modifier (so might be half as storng as 30000meters
+		if (y < MyConfig.getMinimumSafeAltitude()) {
+			pctMax *= 1.06f;
+		} else if (y > MyConfig.getMaximumSafeAltitude()) {
+			pctMax *= 1.09f;
+		}
+		return pctMax;
+
+	}
+	
 	private float calcDistanceModifier(LivingDropsEvent event, ServerLevel serverLevel) {
 		int eX = (int) event.getEntity().getX();
 		int eY = (int) event.getEntity().getY();
@@ -77,38 +91,36 @@ public class MonsterDropEventHandler {
 		double spawnHeight = eY;
 
 		if (spawnHeight < MyConfig.getMinimumSafeAltitude()) {
-			distanceModifier = distanceModifier + 2.0f;
+			distanceModifier =  distanceModifier * 1.04f;
 		}
 
 		if (spawnHeight > MyConfig.getMaximumSafeAltitude()) {
-			distanceModifier = distanceModifier + 3.0f;
+			distanceModifier =  distanceModifier * 1.06f;
 		}
 
 		return distanceModifier;
 	}
 
-	private ItemStack doGetLootStack(Entity eventEntity, Mob me, float distanceModifier, int randomLootItemRoll) {
+	private ItemStack doGetLootStack(Entity eventEntity, Mob me, float distanceModifier, int lootRoll) {
 		ItemStack itemStackToDrop;
 		BlockPos pos = me.blockPosition();
-		Utility.debugMsg(1, pos, "doGetLootStack: Roll " + randomLootItemRoll + " . " );
+		Utility.debugMsg(1, pos, "doGetLootStack: Roll " + lootRoll + ". " + "distanceModifier = " + distanceModifier  );
 		
 		if (me instanceof Bat) {
 			itemStackToDrop = new ItemStack(Items.LEATHER, (int) 1);
 		} else {
 			float itemPowerModifier = distanceModifier;
-			
-			if (randomLootItemRoll < 690) {
+			if (lootRoll < 690) {
 				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level.getRandom());
-			} else if (randomLootItemRoll < 750) {
+			} else if (lootRoll < 750) {
 				itemStackToDrop = makeLifeSavingPotion(itemPowerModifier);
-			} else if (randomLootItemRoll < 830) {
+			} else if (lootRoll < 830) {
 				itemStackToDrop = makeOgreStrengthPotion(itemPowerModifier);
-			} else if (randomLootItemRoll < 975) {
+			} else if (lootRoll < 975) {
 				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
 					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
-
 				}
 			} else {
 				if (distanceModifier > 0.95) {
@@ -153,7 +165,7 @@ public class MonsterDropEventHandler {
 	@SubscribeEvent
 	public void handleMonsterDropsEvent(LivingDropsEvent event) {
 
-		Entity eventEntity = event.getEntityLiving();
+		LivingEntity eventEntity = event.getEntityLiving();
 
 		if (event.getEntity() == null) {
 			return;
@@ -190,6 +202,7 @@ public class MonsterDropEventHandler {
 
 
 		ServerLevel serverLevel = (ServerLevel) eventEntity.level;
+		LevelData winfo = serverLevel.getLevelData();
 		Random rand = serverLevel.getRandom();
 		DamageSource dS = event.getSource();
 		BlockPos pos = new BlockPos(eventEntity.getX(), eventEntity.getY(), eventEntity.getZ());
@@ -208,34 +221,34 @@ public class MonsterDropEventHandler {
 			return;
 		}
 
-		
-
-		Collection<ItemEntity> eventItems = event.getDrops();
-
 		// Has to have been killed by a player to drop bonus loot.
 		if (dS.getEntity() == null) {
 			return;
-		}
+		}		
 
 		Entity mobKillerEntity = dS.getEntity();
 		if (!(mobKillerEntity instanceof ServerPlayer)) {
 			return;
 		}
 
+		Collection<ItemEntity> eventItems = event.getDrops();
 
-		float distanceModifier = calcDistanceModifier(event, serverLevel);
-
-		if (eventEntity.getY() > MyConfig.getMaximumSafeAltitude()) {
-			distanceModifier = distanceModifier * 1.03f;
+		double xzf = serverLevel.dimensionType().coordinateScale();
+		if (xzf == 0.0) {
+			xzf = 1.0d;
 		}
+		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
+		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+		
+		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
+		distanceFromSpawn = GrimCitadelManager.doGrimDistanceAdjustment(serverLevel, eventEntity, distanceFromSpawn);
+		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) pos.getY());
 
-		if (eventEntity.getY() < MyConfig.getMinimumSafeAltitude()) {
-			distanceModifier = distanceModifier * 1.02f;
-		}
-
+		// float distanceModifier = calcDistanceModifier(event, serverLevel);
+		
 		doXPBottleDrop(eventEntity, eventItems, rand);
 		
-		float odds = 100 + (1000 * distanceModifier);
+		float odds = 100 + (333 * distanceModifier);
 
 		int d1000 = (int) (Math.ceil(rand.nextDouble() * 1000));
 
@@ -246,7 +259,7 @@ public class MonsterDropEventHandler {
 
 		d1000 = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
 		if (d1000 < 640) {
-			d1000 += odds/6;
+			d1000 += odds/10;
 		}
 
 
@@ -261,8 +274,9 @@ public class MonsterDropEventHandler {
 	}
 
 	private void doXPBottleDrop(Entity eventEntity, Collection<ItemEntity> eventItems, Random rand) {
-		int randomLootRolld100 = (int) (Math.ceil(rand.nextDouble() * 100));
-		if (randomLootRolld100 < MyConfig.getOddsDropExperienceBottle()) {
+		int d100 = (int) (Math.ceil(rand.nextDouble() * 100));
+		if (d100 < MyConfig.getOddsDropExperienceBottle()) {
+			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
 			ItemStack itemStackToDrop;
 			itemStackToDrop = new ItemStack(Items.EXPERIENCE_BOTTLE, (int) 1);
 			ItemEntity myItemEntity = new ItemEntity(eventEntity.level, eventEntity.getX(), eventEntity.getY(),
@@ -273,10 +287,10 @@ public class MonsterDropEventHandler {
 
 	private ItemStack makeLifeSavingPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
-		int durationAbsorb = (int) (6000 * distanceFactor);
+		int durationAbsorb = (int) (24000 * distanceFactor);
 		int effectAbsorb = (int) (2 + 4 * distanceFactor);
-		int durationRegen = (int) (200 * distanceFactor);
-		int effectRegen = (int) (4 * distanceFactor);
+		int durationRegen = (int) (20 + 200 * distanceFactor);
+		int effectRegen = (int) (1 + 4 * distanceFactor);
 
 		TextComponent potionName = new TextComponent("Life Saving Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
@@ -295,12 +309,12 @@ public class MonsterDropEventHandler {
 		TextComponent potionName = new TextComponent("Ogre Power Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
 		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
-		int durationAbsorb = (int) (4800 * distanceFactor);
-		int effectAbsorb = (int) (4 * distanceFactor);
+		int durationAbsorb = (int) (12000 * distanceFactor);
+		int effectAbsorb = (int)  (1 + (4 * distanceFactor));
 		if (effectAbsorb > 2)
 			effectAbsorb = 2;
 		col.add(new MobEffectInstance(MobEffects.DAMAGE_BOOST, durationAbsorb, effectAbsorb));
-		col.add(new MobEffectInstance(MobEffects.NIGHT_VISION, durationAbsorb / 2, 0));
+		col.add(new MobEffectInstance(MobEffects.NIGHT_VISION, 60 + durationAbsorb / 2, 0));
 		col.add(new MobEffectInstance(MobEffects.REGENERATION, 120, effectAbsorb));
 		PotionUtils.setCustomEffects(potion, col);
 		CompoundTag compoundnbt = potion.getTag();

@@ -2,9 +2,6 @@ package com.mactso.harderfarther.client;
 
 import com.mactso.harderfarther.sounds.ModSounds;
 
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-
 public class GrimSongManager {
 	
 	

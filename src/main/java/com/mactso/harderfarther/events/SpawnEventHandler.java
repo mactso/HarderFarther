@@ -149,20 +149,26 @@ public class SpawnEventHandler {
 
 	}
 
-	private float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
-
-		if (MyConfig.isUseGrimCitadels()) {
-			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
-			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-			if (closestGrimDistSq <= bonusGrimDistSq) {
-				float grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
-				grimMod *= MyConfig.getModifierMaxDistance();
-				distanceFromSpawn = Math.max(grimMod, distanceFromSpawn);
-				distanceFromSpawn *= MyConfig.getGrimCitadelBoostPercentOfMax();
-			}
-		}
-		return distanceFromSpawn;
-	}
+//	public float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
+//		float grimMod = 1.0f;
+//		float grimDistance = distanceFromSpawn;
+//		if (MyConfig.isUseGrimCitadels()) {
+//			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
+//			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
+//			if (closestGrimDistSq <= bonusGrimDistSq) {
+//				grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
+//				if (grimMod > MyConfig.getGrimCitadelMaxBoostPercent()) {
+//					grimMod = MyConfig.getGrimCitadelMaxBoostPercent();
+//				}
+//				grimDistance = grimMod * MyConfig.getModifierMaxDistance();
+//			}
+//			int x = 3;
+//			if (grimDistance > distanceFromSpawn) {
+//				distanceFromSpawn = grimDistance;
+//			}
+//		}
+//		return distanceFromSpawn;
+//	}
 
 	private float getKBRBoostByMob(LivingEntity entity) {
 		float kbrBoost = 0;
@@ -273,9 +279,9 @@ public class SpawnEventHandler {
 				return;
 			}
 		}
-		
+
 		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
-		distanceFromSpawn = doGrimDistanceAdjustment(level, entity, distanceFromSpawn);
+		distanceFromSpawn = GrimCitadelManager.doGrimDistanceAdjustment(level, entity, distanceFromSpawn);
 		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
 
 		boostHealth(entity, ePos, eDsc, distanceModifier);

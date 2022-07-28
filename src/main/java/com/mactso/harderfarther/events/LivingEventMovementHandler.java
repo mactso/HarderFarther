@@ -39,6 +39,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biome.BiomeCategory;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -120,7 +121,7 @@ public class LivingEventMovementHandler {
 		if (gameTime % 10 != le.getId() % 10)
 			return;
 
-		Utility.debugMsg(1, pos, "Living Event " + event.getEntity().getType().getRegistryName().toString());
+		Utility.debugMsg(2, pos, "Living Event " + event.getEntity().getType().getRegistryName().toString());
 
 		// note: Synced when a player logs in and when hearts destroyed.
 
@@ -389,17 +390,18 @@ public class LivingEventMovementHandler {
 
 	private void doGrimEffectWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 
-		if (we.level.getBiome(pos).getBiomeCategory() != BiomeCategory.OCEAN)
-			return;
+		Biome b = we.level.getBiome(pos);
+		if (b == null) return;
+		BiomeCategory bc = b.getBiomeCategory();
+		if (bc == null) return;
+		if (bc != BiomeCategory.OCEAN) return;
+		
 		if (fishTimer < gameTime) {
 			fishTimer = gameTime + 600;
-
-			// added above and below parms.  This probably wasn't working.
 			List<Guardian> listG = serverLevel.getEntitiesOfClass(Guardian.class,
 					new AABB(pos.north(16).west(16).above(8), pos.south(16).east(16).below(8)));
 			if (listG.size() > 5)
 				return;
-
 			float pitch = 0.7f;
 			serverLevel.playSound(null, pos, SoundEvents.BUBBLE_COLUMN_BUBBLE_POP, SoundSource.AMBIENT, 2.20f, pitch);
 			Utility.populateEntityType(EntityType.GUARDIAN, serverLevel, pos, 1, 0);
@@ -463,7 +465,7 @@ public class LivingEventMovementHandler {
 	}
 
 	private void doSpreadDeadBranches(LivingEntity le, BlockPos pos, Level level) {
-		Utility.debugMsg(1, pos, "doSpreadDeadBranches");
+		Utility.debugMsg(2, pos, "doSpreadDeadBranches");
 		if (level.getBrightness(LightLayer.SKY, pos) > 10) {
 			BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
 			Block b = level.getBlockState(deadBranchPos.below()).getBlock();
