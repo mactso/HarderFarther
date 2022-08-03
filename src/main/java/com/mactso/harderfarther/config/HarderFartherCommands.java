@@ -94,6 +94,9 @@ public class HarderFartherCommands {
 		Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 		
 	}
+	
+	
+	
 	private static void printInfo(ServerPlayer p) {
 
 		String dimensionName = p.level.dimension().location().toString();
@@ -129,15 +132,25 @@ public class HarderFartherCommands {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
 							return setBonusRange(p, IntegerArgumentType.getInteger(ctx, "bonusRange"));
 						})))
-				.then(Commands.literal("setGrimCitadels").then(
-						Commands.argument("grimCitadels", BoolArgumentType.bool()).executes(ctx -> {
+				.then(Commands.literal("setUseGrimCitadels").then(
+						Commands.argument("useGrimCitadels", BoolArgumentType.bool()).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
-							return setGrimCitadels(p, BoolArgumentType.getBool(ctx, "grimCitadels"));
+							return setUseGrimCitadels(p, BoolArgumentType.getBool(ctx, "useGrimCitadels"));
 						})))
 				.then(Commands.literal("setGrimCitadelsRadius").then(
 						Commands.argument("grimCitadelsRadius", IntegerArgumentType.integer(4,11)).executes(ctx -> {
 							ServerPlayer p = ctx.getSource().getPlayerOrException();
 							return setGrimCitadelsRadius(p, IntegerArgumentType.getInteger(ctx, "grimCitadelsRadius"));
+						})))
+				.then(Commands.literal("setMakeHarderOverTime").then(
+						Commands.argument("setMakeHarderOverTime", BoolArgumentType.bool()).executes(ctx -> {
+							ServerPlayer p = ctx.getSource().getPlayerOrException();
+							return setMakeHarderOverTime(p,  BoolArgumentType.getBool(ctx, "setMakeHarderOverTime"));
+						})))
+				.then(Commands.literal("setMaxHarderTimeMinutes").then(
+						Commands.argument("setMaxHarderTimeMinutes", IntegerArgumentType.integer(20, 28800)).executes(ctx -> {
+							ServerPlayer p = ctx.getSource().getPlayerOrException();
+							return setMaxHarderTimeMinutes(p, IntegerArgumentType.getInteger(ctx, "setMaxHarderTimeMinutes"));
 						})))
 				.then(Commands.literal("setXpBottleChance").then(
 						Commands.argument("xpBottleChance", IntegerArgumentType.integer(0, 33)).executes(ctx -> {
@@ -157,6 +170,7 @@ public class HarderFartherCommands {
 					return 1;
 				})).then(Commands.literal("reportLoot").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
+					reportUseLootDrop(p);
 					String report = LootManager.report();
 					Utility.sendChat(p, report, ChatFormatting.GREEN);
 					reportOddsXpBottleDrop(p);
@@ -173,6 +187,10 @@ public class HarderFartherCommands {
 				})).then(Commands.literal("grimInfo").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					printGrimInfo(p);
+					return 1;
+				})).then(Commands.literal("timeInfo").executes(ctx -> {
+					ServerPlayer p = ctx.getSource().getPlayerOrException();
+					printTimeInfo(p);
 					return 1;
 				})).then(Commands.literal("colorInfo").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
@@ -210,6 +228,34 @@ public class HarderFartherCommands {
 
 	}
 
+	
+	private static int setMakeHarderOverTime(ServerPlayer p, boolean b) {
+		MyConfig.setMakeHarderOverTime(b);
+		printTimeInfo(p);
+		return 1;
+	}
+
+	
+	private static int setMaxHarderTimeMinutes(ServerPlayer p, int newValue) {
+		MyConfig.setMaxHarderTimeMinutes(newValue);
+		printTimeInfo(p);
+		return 1;
+	}
+
+	private static void printTimeInfo(ServerPlayer p) {
+		long time = p.level.getChunk(p.blockPosition()).getInhabitedTime() / 1200;
+		Utility.sendBoldChat(p,"\nTime Info ", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Make Harder Over Time .........: " + MyConfig.isMakeHarderOverTime() +".", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Maximum Difficulty .......................: " + MyConfig.getMaxHarderTimeMinutes() +" minutes.", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Current Chunk Age ...................: " + time+" minutes.", ChatFormatting.AQUA);
+
+	}
+
+	
+	private static void reportUseLootDrop(ServerPlayer p) {
+		Utility.sendChat(p, "  Use Loot Drops .....................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.DARK_AQUA);
+	}
+	
 	private static void reportOddsXpBottleDrop(ServerPlayer p) {
 		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.DARK_AQUA);
 	}
@@ -236,8 +282,8 @@ public class HarderFartherCommands {
 		return 1;
 	}
 	
-	public static int setGrimCitadels(ServerPlayer p, boolean newValue) {
-		MyConfig.setGrimCitadels(newValue);
+	public static int setUseGrimCitadels(ServerPlayer p, boolean newValue) {
+		MyConfig.setUseGrimCitadels(newValue);
 		printGrimInfo(p);
 		return 1;
 	}

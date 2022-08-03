@@ -13,6 +13,7 @@ import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
+import com.mactso.harderfarther.events.PlayerTickEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
@@ -48,6 +49,7 @@ public class Main {
 
 	    public static final String MODID = "harderfarther"; 
 	    public static LivingEventMovementHandler lem;
+	    public static SpawnEventHandler sem;
 	    
 	    public Main()
 	    {
@@ -79,16 +81,16 @@ public class Main {
 		@SubscribeEvent 
 		public void preInit (final FMLCommonSetupEvent event) {
 				System.out.println(MODID + ": Registering Handlers");
-//				MinecraftForge.EVENT_BUS.register(new SpawnerBreakEvent ());
-				MinecraftForge.EVENT_BUS.register(new SpawnEventHandler());
+//				MinecraftForge.EVENT_BUS.register(new SpawnEventHandler()); // something wrong with this.
 				MinecraftForge.EVENT_BUS.register(new WorldTickHandler());
 				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
-
-//  https://www.youtube.com/watch?v=_uC28W_aasg
-//				MinecraftForge.EVENT_BUS.register(new ModSoundsRegistry());
+				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
+//  https://www.youtube.com/watch?v=_uC28W_aasg for this alternative method.
+				sem = new SpawnEventHandler();
+				MinecraftForge.EVENT_BUS.register(sem);
 				lem = new LivingEventMovementHandler();
 				MinecraftForge.EVENT_BUS.register(lem);
 				MinecraftForge.EVENT_BUS.register(new BlockEvents());

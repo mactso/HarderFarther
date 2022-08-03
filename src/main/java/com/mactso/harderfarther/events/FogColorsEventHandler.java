@@ -43,7 +43,7 @@ public class FogColorsEventHandler {
 			slideFogColor(event, sliderColorPercent);
 			return;
 		}
-
+		
  		float percent = (range / grimBonusDistanceSq) / 2;
 
 		if (percent < 0.05f)
@@ -91,7 +91,7 @@ public class FogColorsEventHandler {
 
 	// Density of Fog- not Color
 	@SubscribeEvent
-	public void handleFogRender(RenderFogEvent event) {
+	public void onFogRender(RenderFogEvent event) {
 //		FogMode sky = FogMode.FOG_SKY;
 		if (event.getMode() == FogMode.FOG_TERRAIN) {
 			Minecraft m = Minecraft.getInstance();

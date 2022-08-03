@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.GrimCitadelManager;
+import com.mactso.harderfarther.config.HarderFartherManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 
@@ -31,6 +31,7 @@ import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+
 public class SpawnEventHandler {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private static Field fieldXpReward = null;
@@ -47,14 +48,13 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 		if (MyConfig.isAtkDmgBoosted()) {
 			if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
 				float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
 				float damageBoost = (MyConfig.getAtkPercent() * distanceModifier);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
 				entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
-
 				Utility.debugMsg(2, pos,
 						"--Boost " + eDsc + " attack damage from " + baseAttackDamage + " to " + newAttackDamage + ".");
 			} else {
@@ -63,7 +63,7 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 		if (MyConfig.isHpMaxBoosted()) {
 			if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
 				float startHealth = entity.getHealth();
@@ -81,7 +81,7 @@ public class SpawnEventHandler {
 	}
 
 	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
-	private void boostKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
+	private static void boostKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
 			float distanceModifier) {
 		if (MyConfig.isKnockBackBoosted()) {
 			if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
@@ -103,7 +103,7 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private void boostSpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostSpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
 
 		if (MyConfig.isSpeedBoosted()) {
 			if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
@@ -124,53 +124,27 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
+	private static boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
 		try {
 			int preXp = fieldXpReward.getInt(entity);
 			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
 			Utility.debugMsg(2, ePos, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(entity)+")");
 		} catch (Exception e) {
-			System.out.println("XXX Unexpected Reflection Failure getting xpReward");
+			LOGGER.error("XXX Unexpected Reflection Failure getting xpReward");
 			return false;
 		}
 		return true;
 	}
 
-	private float calcDistanceModifier(float distanceFromSpawn, int y) {
-
-		float pctMax = (float) Math.min(1.0, distanceFromSpawn / MyConfig.getModifierMaxDistance());
-		// TODO set up independent Grim Citadel modifier (so might be half as storng as 30000meters
-		if (y < MyConfig.getMinimumSafeAltitude()) {
-			pctMax *= 1.06f;
-		} else if (y > MyConfig.getMaximumSafeAltitude()) {
-			pctMax *= 1.09f;
-		}
-		return pctMax;
-
+	private static void doBoostAbilities(LivingEntity entity, BlockPos ePos, String eDsc, float difficultyPct) {
+		boostHealth(entity, ePos, eDsc, difficultyPct);
+		boostSpeed(entity, ePos, eDsc, difficultyPct);
+		boostAtkDmg(entity, ePos, eDsc, difficultyPct);
+		boostKnockbackResistance(entity, ePos, eDsc, difficultyPct);
+		boostXp(entity, ePos, eDsc, difficultyPct);
 	}
 
-//	public float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
-//		float grimMod = 1.0f;
-//		float grimDistance = distanceFromSpawn;
-//		if (MyConfig.isUseGrimCitadels()) {
-//			double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
-//			double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-//			if (closestGrimDistSq <= bonusGrimDistSq) {
-//				grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
-//				if (grimMod > MyConfig.getGrimCitadelMaxBoostPercent()) {
-//					grimMod = MyConfig.getGrimCitadelMaxBoostPercent();
-//				}
-//				grimDistance = grimMod * MyConfig.getModifierMaxDistance();
-//			}
-//			int x = 3;
-//			if (grimDistance > distanceFromSpawn) {
-//				distanceFromSpawn = grimDistance;
-//			}
-//		}
-//		return distanceFromSpawn;
-//	}
-
-	private float getKBRBoostByMob(LivingEntity entity) {
+	private static float getKBRBoostByMob(LivingEntity entity) {
 		float kbrBoost = 0;
 		// give some mobs more bonus hit points.
 		if (entity instanceof Zombie) {
@@ -195,7 +169,7 @@ public class SpawnEventHandler {
 		return kbrBoost * 0.7f;
 	}
 
-	private float limitHealthBoostByMob(float healthBoost, LivingEntity entity) {
+	private static float limitHealthBoostByMob(float healthBoost, LivingEntity entity) {
 
 		// give some mobs more bonus hit points.
 		if (entity instanceof Zombie) {
@@ -218,7 +192,7 @@ public class SpawnEventHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
-	public void onCheckSpawnerSpawn(LivingSpawnEvent.CheckSpawn event) {
+	public static void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
 
 		// note may need to put this in "EntityJoinWorld" instead. But be careful to restrict
 		// to mobs since that method includes all entities like xp orbs and so on.
@@ -226,7 +200,9 @@ public class SpawnEventHandler {
 		// So would need to check attributes before applying them.
 
 		if (!(MyConfig.isMakeMonstersHarderFarther()) 
-				&& (!MyConfig.isUseGrimCitadels())) 
+				&& (!MyConfig.isMakeHarderOverTime())
+				&& (!MyConfig.isUseGrimCitadels())
+				) 
 			return;
 
 		if (!(event.getWorld() instanceof ServerLevel)) {
@@ -237,20 +213,21 @@ public class SpawnEventHandler {
 										// this field.
 			return;
 		}
-		ServerLevel level = (ServerLevel) event.getWorld();
+		ServerLevel slevel = (ServerLevel) event.getWorld();
 
 		LivingEntity entity = event.getEntityLiving();
 
+			
 		EntityType<?> type = entity.getType();
 		if (type.getCategory().isFriendly()) {
 			return;
 		}
 
-		if (MyConfig.isOnlyOverworld() && (level.dimension() != Level.OVERWORLD)) {
+		if (MyConfig.isOnlyOverworld() && (slevel.dimension() != Level.OVERWORLD)) {
 			return;
 		}
 
-		String dimensionName = level.dimension().location().toString();
+		String dimensionName = slevel.dimension().location().toString();
 		if (MyConfig.isDimensionOmitted(dimensionName)) {
 			return;
 		}
@@ -263,15 +240,16 @@ public class SpawnEventHandler {
 
 		// no spawns closer to worldspawn than safe distance
 
-		LevelData winfo = level.getLevelData();
-		double xzf = level.dimensionType().coordinateScale();
+		LevelData winfo = slevel.getLevelData();
+		double xzf = slevel.dimensionType().coordinateScale();
 		if (xzf == 0.0) {
 			xzf = 1.0d;
 		}
+		
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
-		if (level.dimension() == Level.OVERWORLD) {
+		if (slevel.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
 				event.setResult(Result.DENY);
 				BlockPos sPos = new BlockPos(event.getX(), event.getY(), event.getZ());
@@ -280,16 +258,12 @@ public class SpawnEventHandler {
 			}
 		}
 
-		float distanceFromSpawn = (float) (eventVec.distanceTo(spawnVec));
-		distanceFromSpawn = GrimCitadelManager.doGrimDistanceAdjustment(level, entity, distanceFromSpawn);
-		float distanceModifier = calcDistanceModifier(distanceFromSpawn, (int) event.getY());
-
-		boostHealth(entity, ePos, eDsc, distanceModifier);
-		boostSpeed(entity, ePos, eDsc, distanceModifier);
-		boostAtkDmg(entity, ePos, eDsc, distanceModifier);
-		boostKnockbackResistance(entity, ePos, eDsc, distanceModifier);
-		boostXp(entity, ePos, eDsc, distanceModifier);
+		float difficultyPct = HarderFartherManager.getDifficultyPct(entity, slevel, winfo, ePos);
+		
+		doBoostAbilities(entity, ePos, eDsc, difficultyPct);
 
 	}
+
+
 
 }

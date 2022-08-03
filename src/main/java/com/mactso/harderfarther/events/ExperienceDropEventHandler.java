@@ -19,7 +19,7 @@ public class ExperienceDropEventHandler {
 	public static long tickTimer = 0;
 
 	@SubscribeEvent
-	public void handleMonsterDropsEvent(LivingExperienceDropEvent event) {
+	public void onMonsterDrops(LivingExperienceDropEvent event) {
 
 		Entity e = event.getEntityLiving();
 		BlockPos ePos = e.blockPosition();

@@ -95,7 +95,9 @@ public class LivingEventMovementHandler {
 	long creeperTimer = 0;
 
 	@SubscribeEvent
-	public void aLivingUpdateHandler(LivingUpdateEvent event) {
+	public void onLivingUpdate(LivingUpdateEvent event) {
+
+		
 
 		// everything below here is grim citadel code
 		if (!MyConfig.isUseGrimCitadels()) {
@@ -106,6 +108,7 @@ public class LivingEventMovementHandler {
 		LivingEntity le = event.getEntityLiving();
 		BlockPos pos = le.blockPosition();
 		Level level = le.level;
+
 
 		long gameTime = level.getGameTime();
 		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(pos);
@@ -137,6 +140,7 @@ public class LivingEventMovementHandler {
 		}
 
 		ServerLevel serverLevel = (ServerLevel) level;
+
 		if (le instanceof ServerPlayer sp) {
 			if ((level.getRandom().nextInt(144000) == 4242) && (closestGrimDistSq > gcDist09)) {
 				int song = level.getRandom().nextInt(ModSounds.NUM_SONGS) + 1;
@@ -189,15 +193,6 @@ public class LivingEventMovementHandler {
 					serverLevel.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.AMBIENT, 4.20f,
 							pitch);
 					Utility.populateEntityType(EntityType.ZOMBIFIED_PIGLIN, serverLevel, pos, 1, 0, true, pig.isBaby()); // TODO
-																															// chance
-																															// of
-																															// runaway
-																															// Zoglin's
-																															// here.
-																															// maybe
-																															// put
-																															// in
-																															// population
 																															// test.
 				}
 			}
@@ -391,11 +386,14 @@ public class LivingEventMovementHandler {
 	private void doGrimEffectWaterAnimal(WaterAnimal we, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 
 		Biome b = we.level.getBiome(pos);
-		if (b == null) return;
+		if (b == null)
+			return;
 		BiomeCategory bc = b.getBiomeCategory();
-		if (bc == null) return;
-		if (bc != BiomeCategory.OCEAN) return;
-		
+		if (bc == null)
+			return;
+		if (bc != BiomeCategory.OCEAN)
+			return;
+
 		if (fishTimer < gameTime) {
 			fishTimer = gameTime + 600;
 			List<Guardian> listG = serverLevel.getEntitiesOfClass(Guardian.class,

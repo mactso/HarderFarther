@@ -79,7 +79,6 @@ public class GrimCitadelManager {
 	private static BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
 	private static BlockState BASALT = Blocks.BASALT.defaultBlockState();
 	private static BlockState POLISHEDBASALT = Blocks.POLISHED_BASALT.defaultBlockState();
-	private static BlockState POLISHED_BLACKSTONE_BRICKS = Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState();
 	private static BlockState BLACKSTONE = Blocks.BLACKSTONE.defaultBlockState();
 	private static BlockState GILDED_BLACKSTONE = Blocks.GILDED_BLACKSTONE.defaultBlockState();
 	private static BlockState WINDOW = Blocks.TINTED_GLASS.defaultBlockState();
@@ -300,6 +299,26 @@ public class GrimCitadelManager {
 
 	}
 
+	private static void buildHeartLevelWindows(ServerLevel level, MutableBlockPos mPos, boolean eastwest,
+			boolean northsouth) {
+		level.setBlock(mPos, WINDOW, 0);
+		level.setBlock(mPos.above(), WINDOW, 3);
+
+		if (eastwest) {
+			level.setBlock(mPos.east(), WINDOW, 0);
+			level.setBlock(mPos.east().above(), WINDOW, 3);
+			level.setBlock(mPos.west(), WINDOW, 0);
+			level.setBlock(mPos.west().above(), WINDOW, 3);
+
+		} else if (northsouth) {
+			level.setBlock(mPos.north(), WINDOW, 0);
+			level.setBlock(mPos.north().above(), WINDOW, 3);
+			level.setBlock(mPos.south(), WINDOW, 0);
+			level.setBlock(mPos.south().above(), WINDOW, 3);
+		}
+
+	}
+
 	private static void buildOutsideWall(ServerLevel level, BlockPos pos, int fy, int height) {
 		Random rand = level.getRandom();
 		BlockState bs1;
@@ -352,26 +371,6 @@ public class GrimCitadelManager {
 				}
 			}
 		}
-	}
-
-	private static void buildHeartLevelWindows(ServerLevel level, MutableBlockPos mPos, boolean eastwest,
-			boolean northsouth) {
-		level.setBlock(mPos, WINDOW, 0);
-		level.setBlock(mPos.above(), WINDOW, 3);
-
-		if (eastwest) {
-			level.setBlock(mPos.east(), WINDOW, 0);
-			level.setBlock(mPos.east().above(), WINDOW, 3);
-			level.setBlock(mPos.west(), WINDOW, 0);
-			level.setBlock(mPos.west().above(), WINDOW, 3);
-
-		} else if (northsouth) {
-			level.setBlock(mPos.north(), WINDOW, 0);
-			level.setBlock(mPos.north().above(), WINDOW, 3);
-			level.setBlock(mPos.south(), WINDOW, 0);
-			level.setBlock(mPos.south().above(), WINDOW, 3);
-		}
-
 	}
 
 	private static void buildRoofBalconies(ServerLevel level, BlockPos roofPos) {
@@ -557,35 +556,14 @@ public class GrimCitadelManager {
 		}
 	}
 
-	public static float doGrimDistanceAdjustment(ServerLevel level, LivingEntity entity, float distanceFromSpawn) {
-		if (!MyConfig.isUseGrimCitadels())
-			return distanceFromSpawn;
-		
-		float grimMod = 1.0f;
-		float grimDistance = distanceFromSpawn;
 
-		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
-		double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
-		if (closestGrimDistSq <= bonusGrimDistSq) {
-			grimMod = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
-			if (grimMod > MyConfig.getGrimCitadelMaxBoostPercent()) {
-				grimMod = MyConfig.getGrimCitadelMaxBoostPercent();
-			}
-			grimDistance = grimMod * MyConfig.getModifierMaxDistance();
-		}
-		if (grimDistance > distanceFromSpawn) {
-			distanceFromSpawn = grimDistance;
-		}
-		
-		return distanceFromSpawn;
-	}
 
 	private static void doBuildDoorColumn(ServerLevel level, BlockPos doorColPos, BlockState blockState) {
 		level.setBlock(doorColPos, blockState, 0);
 		level.setBlock(doorColPos.above(1), blockState, 0);
 		level.setBlock(doorColPos.above(2), blockState, 3);
 	}
-
+	
 	private static int getCitadelBottom(ServerLevel level, BlockPos pos) {
 		int bottom = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
 		if (bottom > level.getMaxBuildHeight() - 63)
@@ -655,6 +633,28 @@ public class GrimCitadelManager {
 
 	public static List<Block> getFloorBlocks() {
 		return floorBlocks;
+	}
+
+	public static float getGrimDifficulty(ServerLevel level, LivingEntity entity) {
+		
+		if (!MyConfig.isUseGrimCitadels())
+			return 0;
+		
+		float grimDifficulty = 0;
+
+		double closestGrimDistSq = GrimCitadelManager.getClosestGrimCitadelDistanceSq(entity.blockPosition());
+		double bonusGrimDistSq = MyConfig.getGrimCitadelBonusDistanceSq();
+		if (closestGrimDistSq > bonusGrimDistSq) 
+			return 0;
+
+		grimDifficulty = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
+
+		if (grimDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+			grimDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+		}		
+
+		return grimDifficulty;
+
 	}
 
 	public static int getGrimRadius() {

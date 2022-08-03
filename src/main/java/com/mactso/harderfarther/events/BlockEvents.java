@@ -82,7 +82,7 @@ public class BlockEvents {
 	}
 
 	@SubscribeEvent
-	public static void onBlockPlacementEvent(EntityPlaceEvent event) {
+	public static void onBlockPlacement(EntityPlaceEvent event) {
 
 		if (!(event.getEntity() instanceof Player))
 			return;

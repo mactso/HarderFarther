@@ -43,7 +43,7 @@ public class Utility {
 
 		TextComponent component = new TextComponent (chatMessage);
 		component.setStyle(component.getStyle().withBold(true));
-		component.setStyle(component.getStyle().withColor(ChatFormatting.DARK_GREEN));
+		component.setStyle(component.getStyle().withColor(textColor));
 		p.sendMessage(component, p.getUUID());
 
 	}	
@@ -52,7 +52,7 @@ public class Utility {
 	public static void sendChat(Player p, String chatMessage, ChatFormatting textColor) {
 
 		TextComponent component = new TextComponent (chatMessage);
-		component.setStyle(component.getStyle().withColor(ChatFormatting.GREEN));
+		component.setStyle(component.getStyle().withColor(textColor));
 		p.sendMessage(component, p.getUUID());
 
 	}

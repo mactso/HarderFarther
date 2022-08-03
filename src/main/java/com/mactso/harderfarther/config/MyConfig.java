@@ -38,19 +38,28 @@ public class MyConfig {
 	}
 
 	public static int getDebugLevel() {
-		return aDebugLevel;
+		return debugLevel;
 	}
 
-	public static void setDebugLevel(int debugLevel) {
-		if (debugLevel <0 || debugLevel > 2) 
-			debugLevel = 0;
-		 aDebugLevel = debugLevel;
+	public static void setDebugLevel(int newValue) {
+		if (newValue <0 || newValue > 2) // TODO: this should be redundant 
+			newValue = 0;
+		 debugLevel = newValue;
 	}
 
 	public static boolean isOnlyOverworld() {
 		return onlyOverworld;
 	}	
 	
+	public static boolean isUseLootDrops() {
+		return useLootDrops;
+	}
+
+	public static void setUseLootDrops(boolean newValue) {
+		MyConfig.useLootDrops = newValue;
+		COMMON.useLootDrops.set(newValue);
+	}
+
 	public static boolean isDimensionOmitted(String dimensionName) {
 			return dimensionOmitList.contains(dimensionName);
 	}
@@ -126,10 +135,30 @@ public class MyConfig {
 	public static int getMobFarmingLimitingTimer() {
 		return limitMobFarmsTimer;
 	}
+	
+	public static boolean isMakeHarderOverTime() {
+		return makeHarderOverTime;
+	}
+
+	public static void setMakeHarderOverTime(boolean newValue) {
+		MyConfig.makeHarderOverTime = newValue;
+		COMMON.makeHarderOverTime.set(newValue);
+	}
+
+	public static int getMaxHarderTimeMinutes() {
+		return maxHarderTimeMinutes;
+	}
+
+	public static void setMaxHarderTimeMinutes(int newValue) {
+		MyConfig.maxHarderTimeMinutes = newValue;
+		COMMON.maxHarderTimeMinutes.set(newValue);	
+	}
+
+
 
 	public static boolean isMakeMonstersHarderFarther() {
 		return makeMonstersHarderFarther;
-}
+	}
 
 
 	public static int getMinimumSafeAltitude() {
@@ -237,10 +266,11 @@ public class MyConfig {
 		COMMON.grimFogBluePercent.set(grimFogBluePercent/100);
 	}
 
-	private static int      aDebugLevel;
+	private static int      debugLevel;
 	private static boolean  onlyOverworld;
 	private static int 	    limitMobFarmsTimer;
 	private static boolean  makeMonstersHarderFarther;
+	private static boolean  useLootDrops;
 	private static List<? extends String> dimensionOmitList;
 	private static int 	    boostMaxDistance;
 	private static List<? extends String> lootItemsList;
@@ -252,11 +282,9 @@ public class MyConfig {
 	private static int atkDmgBoost;
 	private static int knockbackBoost;
 
-	private static boolean  useHarderOverTime;
-	private static boolean  fadeHarderOverTime;
-	private static int      maxHarderTimeSeconds;
-	private static int      minHarderTimeSeconds;
-	
+	private static boolean  makeHarderOverTime;
+	private static int      maxHarderTimeMinutes;
+
 	private static boolean  useGrimCitadels;
 	private static int      grimCitadelsRadius;
 	private static int      grimCitadelsCount;
@@ -297,14 +325,14 @@ public class MyConfig {
 
 
 	public static void pushValues() {
-		COMMON.debugLevel.set(aDebugLevel);
+		COMMON.debugLevel.set(debugLevel);
 
 		COMMON.limitMobFarmsTimer.set(limitMobFarmsTimer);
 		
 		COMMON.onlyOverworld.set(onlyOverworld);
 		COMMON.dimensionOmitList.set(dimensionOmitList);
 		COMMON.makeMonstersHarderFarther.set(makeMonstersHarderFarther);
-
+		COMMON.useLootDrops.set(useLootDrops);
 		COMMON.modifierMaxDistance.set(boostMaxDistance);
 		COMMON.safeDistance.set(safeDistance);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
@@ -335,7 +363,7 @@ public class MyConfig {
 		COMMON.grimFogGreenPercent.set (grimFogGreenPercent);
 	}
 	
-	public static void setGrimCitadels(boolean newValue) {
+	public static void setUseGrimCitadels(boolean newValue) {
 		COMMON.useGrimCitadels.set(newValue);
 		useGrimCitadels = COMMON.useGrimCitadels.get();
 	}
@@ -364,7 +392,7 @@ public class MyConfig {
 	
 	public static void bakeConfig()
 	{
-		aDebugLevel = COMMON.debugLevel.get();
+		debugLevel = COMMON.debugLevel.get();
 
 		limitMobFarmsTimer = COMMON.limitMobFarmsTimer.get();
 		
@@ -379,6 +407,7 @@ public class MyConfig {
 
 		lootItemsList = COMMON.lootItemsList.get();
 		LootManager.initLootItems(extract(lootItemsList));
+		useLootDrops = COMMON.useLootDrops.get();
 		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
 		
 		hpMaxBoost=COMMON.hpMaxBoost.get();
@@ -386,10 +415,9 @@ public class MyConfig {
 		atkDmgBoost=COMMON.atkDmgBoost.get();
 		knockbackBoost=COMMON.knockbackBoost.get();
 
-		useHarderOverTime = COMMON.useHarderOverTime.get() ;
-		fadeHarderOverTime = COMMON.fadeHarderOverTime.get() ;
-		maxHarderTimeSeconds = COMMON.maxHarderTimeSeconds.get() ;
-		minHarderTimeSeconds = COMMON.minHarderTimeSeconds.get() ;
+		makeHarderOverTime = COMMON.makeHarderOverTime.get() ;
+		maxHarderTimeMinutes = COMMON.maxHarderTimeMinutes.get() ;
+
 		
 		useGrimCitadels = COMMON.useGrimCitadels.get();
 		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
@@ -407,8 +435,8 @@ public class MyConfig {
 		grimFogBluePercent = COMMON.grimFogBluePercent.get();
 		grimFogGreenPercent = COMMON.grimFogGreenPercent.get();
 		
-		if (aDebugLevel > 0) {
-			System.out.println("Harder Farther Debug Level: " + aDebugLevel );
+		if (debugLevel > 0) {
+			System.out.println("Harder Farther Debug Level: " + debugLevel );
 		}
 	}
 	
@@ -446,16 +474,15 @@ public class MyConfig {
 		public final IntValue minimumSafeAltitude;
 		public final IntValue maximumSafeAltitude;
 		
+		public final BooleanValue useLootDrops;
 		public final ConfigValue<List<? extends String>> lootItemsList;
 		public final IntValue hpMaxBoost;
 		public final IntValue speedBoost;
 		public final IntValue atkDmgBoost;
 		public final IntValue knockbackBoost;
 
-		public final BooleanValue  useHarderOverTime;
-		public final BooleanValue  fadeHarderOverTime;
-		public final IntValue      maxHarderTimeSeconds;
-		public final IntValue      minHarderTimeSeconds;
+		public final BooleanValue  makeHarderOverTime;
+		public final IntValue      maxHarderTimeMinutes;
 		
 		public final BooleanValue useGrimCitadels;
 		public final IntValue grimCitadelsRadius;
@@ -492,9 +519,9 @@ public class MyConfig {
 					"c,1,minecraft:emerald,1,1","c,1,minecraft:paper,1,2");
 			
 			List<String> defGrimCitadelsList = Arrays.asList(
-					"3100,3000","3000,-100", "3000,-3050",
-					"0,3096",             "128,-3000",
-					"-2970,3016", "-3017,80", "-3128,-3256");
+					"3600,3500","3500,-100", "3500,-3550",
+					"0,3596",             "128,-3500",
+					"-2970,3516", "-3517,80", "-3528,-3756");
 
 			List<String> defDimensionOmitList = Arrays.asList(
 					"minecraft:the_nether","minecraft:the_end");
@@ -550,6 +577,13 @@ public class MyConfig {
 			builder.pop();
 			
 			builder.push("Loot Settings");
+
+			useLootDrops = builder
+					.comment("Use enhanced harder farther loot?")
+					.translation(Main.MODID + ".config." + "useLootDrops")
+					.define ("useLootDrops", () -> true);
+
+			
 			oddsDropExperienceBottle = builder
 					.comment("oddsDropExperienceBottle: Chance to drop 1 experience bottle.")
 					.translation(Main.MODID + ".config." + "oddsDropExperienceBottle")
@@ -569,7 +603,7 @@ public class MyConfig {
 			speedBoost = builder
 					.comment("Boost Movement Speed (Percent) ")
 					.translation(Main.MODID + ".config." + "speedBoost")
-					.defineInRange("speedBoost", () -> 25, 0, 999);
+					.defineInRange("speedBoost", () -> 20, 0, 999);
 			
 			atkDmgBoost = builder
 					.comment("Boost Attack Damage (percent)")
@@ -584,26 +618,15 @@ public class MyConfig {
 			builder.pop();
 			builder.push("Harder Over Time Settings");
 //			public final BooleanValue  useHarderOverTime;
-			useHarderOverTime= builder
+			makeHarderOverTime= builder
 					.comment("use Harder Over Time (false) ")
-					.translation(Main.MODID + ".config." + "useHarderOverTime")
-					.define ("useHarderOverTime", () -> false);
+					.translation(Main.MODID + ".config." + "makeHarderOverTime")
+					.define ("makeHarderOverTime", () -> false);
 
-			//			public final BooleanValue  fadeHarderOverTime;
-			fadeHarderOverTime= builder
-					.comment("Do areas get easier while uninhabited? (true) ")
-					.translation(Main.MODID + ".config." + "fadeHarderOverTime")
-					.define ("fadeHarderOverTime", () -> true);
-			//			public final IntValue      minHarderTimeSeconds;	
-			minHarderTimeSeconds = builder
-					.comment("How many seconds before area starts getting harder (6000s/5 gamedays)")
-					.translation(Main.MODID + ".config." + "minHarderTimeSeconds")
-					.defineInRange("minHarderTimeSeconds", () -> 6000, 60, 24000);	// 1 minute to 20 game days.
-//			public final IntValue       maxHarderTimeSeconds;
-			maxHarderTimeSeconds = builder
-					.comment("How many seconds before area is max difficulty (12000s/10 gamedays)")
-					.translation(Main.MODID + ".config." + "maxHarderTimeSeconds")
-					.defineInRange("maxHarderTimeSeconds", () -> 12000, 60, 144000);	
+			maxHarderTimeMinutes = builder
+					.comment("How many minutes before area hits maximum difficulty.")
+					.translation(Main.MODID + ".config." + "maxHarderTimeMinutes")
+					.defineInRange("maxHarderTimeMinutes", () -> 720, 20, 28800);	
 
 			builder.pop();
 
