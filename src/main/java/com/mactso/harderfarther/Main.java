@@ -3,8 +3,7 @@ package com.mactso.harderfarther;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.blockentities.ModBlockEntities;
-import com.mactso.harderfarther.config.GrimCitadelManager;
-import com.mactso.harderfarther.config.HarderFartherCommands;
+import com.mactso.harderfarther.command.HarderFartherCommands;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.BlockEvents;
 import com.mactso.harderfarther.events.ChunkEvent;
@@ -17,6 +16,7 @@ import com.mactso.harderfarther.events.PlayerTickEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
 import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Register;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Utility;

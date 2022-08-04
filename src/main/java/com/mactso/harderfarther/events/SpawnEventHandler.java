@@ -5,8 +5,8 @@ import java.lang.reflect.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.HarderFartherManager;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
@@ -48,87 +48,86 @@ public class SpawnEventHandler {
 		}
 	}
 
-	private static void boostAtkDmg(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostAtkDmg(LivingEntity le, String eDsc, float difficulty) {
 		if (MyConfig.isAtkDmgBoosted()) {
-			if (entity.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
-				float baseAttackDamage = (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-				float damageBoost = (MyConfig.getAtkPercent() * distanceModifier);
+			if (le.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
+				float baseAttackDamage = (float) le.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+				float damageBoost = (MyConfig.getAtkPercent() * difficulty);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
-				entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
-				Utility.debugMsg(2, pos,
+				le.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
+				Utility.debugMsg(2, le,
 						"--Boost " + eDsc + " attack damage from " + baseAttackDamage + " to " + newAttackDamage + ".");
 			} else {
-				Utility.debugMsg(2, pos, "erBoost " + eDsc + " Attack Damage Null  .");
+				Utility.debugMsg(2, le, "erBoost " + eDsc + " Attack Damage Null  .");
 			}
 		}
 	}
 
-	private static void boostHealth(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostHealth(LivingEntity le, String eDsc, float difficulty) {
 		if (MyConfig.isHpMaxBoosted()) {
-			if (entity.getAttribute(Attributes.MAX_HEALTH) != null) {
-				float startHealth = entity.getHealth();
-				float healthBoost = (MyConfig.getHpMaxPercent() * distanceModifier);
-				healthBoost = limitHealthBoostByMob(healthBoost, entity);
-				entity.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(
+			if (le.getAttribute(Attributes.MAX_HEALTH) != null) {
+				float startHealth = le.getHealth();
+				float healthBoost = (MyConfig.getHpMaxPercent() * difficulty);
+				healthBoost = limitHealthBoostByMob(healthBoost, le);
+				le.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(
 						new AttributeModifier("maxhealthboost", healthBoost, Operation.MULTIPLY_TOTAL));
-				entity.setHealth(entity.getMaxHealth());
-				Utility.debugMsg(2, pos, "--Boost " + eDsc + " " + startHealth + " health to " + entity.getHealth());
+				le.setHealth(le.getMaxHealth());
+				Utility.debugMsg(2, le, "--Boost " + eDsc + " " + startHealth + " health to " + le.getHealth());
 
 			} else {
-				Utility.debugMsg(1, pos, "erBoost: " + eDsc + " " + entity.getHealth() + " MaxHealth attribute null.");
+				Utility.debugMsg(1, le, "erBoost: " + eDsc + " " + le.getHealth() + " MaxHealth attribute null.");
 			}
 		}
 	}
 
 	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
-	private static void boostKnockbackResistance(LivingEntity entity, BlockPos pos, String eDsc,
-			float distanceModifier) {
+	private static void boostKnockbackResistance(LivingEntity le, String eDsc, float difficulty) {
 		if (MyConfig.isKnockBackBoosted()) {
-			if (entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
-				float baseKnockBackResistance = (float) entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
+			if (le.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
+				float baseKnockBackResistance = (float) le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
 				if (baseKnockBackResistance == 0) {
-					baseKnockBackResistance = getKBRBoostByMob(entity);
+					baseKnockBackResistance = getKBRBoostByMob(le);
 				}
-				float kbrBoost = (MyConfig.getKnockBackPercent() * distanceModifier);
+				float kbrBoost = (MyConfig.getKnockBackPercent() * difficulty);
 				float newKnockBackResistance = baseKnockBackResistance + baseKnockBackResistance * kbrBoost;
-				entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
+				le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
 
-				Utility.debugMsg(2, pos, "--Boost " + eDsc + " Boost KB Resist from " + baseKnockBackResistance + " to "
+				Utility.debugMsg(2, le, "--Boost " + eDsc + " Boost KB Resist from " + baseKnockBackResistance + " to "
 						+ newKnockBackResistance + ".");
 
 			} else {
-				Utility.debugMsg(2, pos, "erBoost " + entity.getType().toString() + " KB Resist Null .");
+				Utility.debugMsg(2, le, "erBoost " + le.getType().toString() + " KB Resist Null .");
 
 			}
 		}
 	}
 
-	private static void boostSpeed(LivingEntity entity, BlockPos pos, String eDsc, float distanceModifier) {
+	private static void boostSpeed(LivingEntity le, String eDsc, float difficulty) {
 
 		if (MyConfig.isSpeedBoosted()) {
-			if (entity.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
-				float baseSpeed = (float) entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
-				float speedModifier = (MyConfig.getSpeedPercent() * distanceModifier);
-				if (entity instanceof Zombie) {
-					Zombie z = (Zombie) entity;
+			if (le.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
+				float baseSpeed = (float) le.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
+				float speedModifier = (MyConfig.getSpeedPercent() * difficulty);
+				if (le instanceof Zombie) {
+					Zombie z = (Zombie) le;
 					if (z.isBaby()) {
 						speedModifier *= 0.5f;
 					}
 				}
 				float newSpeed = baseSpeed + (baseSpeed * speedModifier);
-				entity.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
-				Utility.debugMsg(2, pos, "--Boost " + eDsc + " speed from " + baseSpeed + " to " + newSpeed + ".");
+				le.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
+				Utility.debugMsg(2, le, "--Boost " + eDsc + " speed from " + baseSpeed + " to " + newSpeed + ".");
 			} else {
-				Utility.debugMsg(2, pos, "erBoost : " + eDsc + " Speed Value Null .");
+				Utility.debugMsg(2, le, "erBoost : " + eDsc + " Speed Value Null .");
 			}
 		}
 	}
 
-	private static boolean boostXp(LivingEntity entity, BlockPos ePos, String eDsc, float distanceModifier) {
+	private static boolean boostXp(LivingEntity le, String eDsc, float distanceModifier) {
 		try {
-			int preXp = fieldXpReward.getInt(entity);
-			fieldXpReward.setInt(entity, (int) (fieldXpReward.getInt(entity) * (1.0f + distanceModifier)));
-			Utility.debugMsg(2, ePos, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(entity)+")");
+			int preXp = fieldXpReward.getInt(le);
+			fieldXpReward.setInt(le, (int) (fieldXpReward.getInt(le) * (1.0f + distanceModifier)));
+			Utility.debugMsg(2, le, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(le)+")");
 		} catch (Exception e) {
 			LOGGER.error("XXX Unexpected Reflection Failure getting xpReward");
 			return false;
@@ -136,32 +135,32 @@ public class SpawnEventHandler {
 		return true;
 	}
 
-	private static void doBoostAbilities(LivingEntity entity, BlockPos ePos, String eDsc, float difficultyPct) {
-		boostHealth(entity, ePos, eDsc, difficultyPct);
-		boostSpeed(entity, ePos, eDsc, difficultyPct);
-		boostAtkDmg(entity, ePos, eDsc, difficultyPct);
-		boostKnockbackResistance(entity, ePos, eDsc, difficultyPct);
-		boostXp(entity, ePos, eDsc, difficultyPct);
+	private static void doBoostAbilities(LivingEntity le, String eDsc, float difficulty) {
+		boostHealth(le, eDsc, difficulty);
+		boostSpeed(le, eDsc, difficulty);
+		boostAtkDmg(le, eDsc, difficulty);
+		boostKnockbackResistance(le, eDsc, difficulty);
+		boostXp(le, eDsc, difficulty);
 	}
 
-	private static float getKBRBoostByMob(LivingEntity entity) {
+	private static float getKBRBoostByMob(LivingEntity le) {
 		float kbrBoost = 0;
 		// give some mobs more bonus hit points.
-		if (entity instanceof Zombie) {
+		if (le instanceof Zombie) {
 			kbrBoost = .45f;
-		} else if (entity instanceof CaveSpider) {
+		} else if (le instanceof CaveSpider) {
 			kbrBoost = 0.05f; // lower boost
-		} else if (entity instanceof Spider) {
+		} else if (le instanceof Spider) {
 			kbrBoost = .6f; // higher boost
-		} else if (entity instanceof Creeper) {
+		} else if (le instanceof Creeper) {
 			kbrBoost = 0.2f; // lower boost
-		} else if (entity.getType().getRegistryName().toString().equals("nasty:skeleton")) {
+		} else if (le.getType().getRegistryName().toString().equals("nasty:skeleton")) {
 			kbrBoost = 0.2f;
-		} else if (entity instanceof AbstractSkeleton) {
+		} else if (le instanceof AbstractSkeleton) {
 			kbrBoost = 0.3f;
-		} else if (entity.getMaxHealth() < 10) {
+		} else if (le.getMaxHealth() < 10) {
 			kbrBoost = 0.05f;
-		} else if (entity.getMaxHealth() < 40) {
+		} else if (le.getMaxHealth() < 40) {
 			kbrBoost = 0.2f;
 		} else {
 			kbrBoost = 0.35f;
@@ -192,7 +191,7 @@ public class SpawnEventHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
+	public void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
 
 		// note may need to put this in "EntityJoinWorld" instead. But be careful to restrict
 		// to mobs since that method includes all entities like xp orbs and so on.
@@ -213,35 +212,39 @@ public class SpawnEventHandler {
 										// this field.
 			return;
 		}
-		ServerLevel slevel = (ServerLevel) event.getWorld();
+		ServerLevel serverLevel = (ServerLevel) event.getWorld();
 
-		LivingEntity entity = event.getEntityLiving();
+		LivingEntity le = event.getEntityLiving();
 
 			
-		EntityType<?> type = entity.getType();
+		EntityType<?> type = le.getType();
 		if (type.getCategory().isFriendly()) {
 			return;
 		}
 
-		if (MyConfig.isOnlyOverworld() && (slevel.dimension() != Level.OVERWORLD)) {
+		if (MyConfig.isOnlyOverworld() && (serverLevel.dimension() != Level.OVERWORLD)) {
 			return;
 		}
 
-		String dimensionName = slevel.dimension().location().toString();
+		String dimensionName = serverLevel.dimension().location().toString();
 		if (MyConfig.isDimensionOmitted(dimensionName)) {
 			return;
 		}
 
-		BlockPos ePos = entity.blockPosition();
-		String eDsc = entity.getType().getRegistryName().toString();
+		float difficulty = HarderFartherManager.getDifficultyHere(le);
+		if (difficulty == 0) 
+			return;
+		
 
-		Utility.debugMsg(2, ePos,
-				entity.getName().getString() + " : Hostile Spawn Event. " + entity.getType().toString());
+		String eDsc = le.getType().getRegistryName().toString();
+
+		Utility.debugMsg(1, le,
+				le.getName().getString() + " : Hostile Spawn Event. " + le.getType().toString() + " difficulty = " + difficulty);
 
 		// no spawns closer to worldspawn than safe distance
 
-		LevelData winfo = slevel.getLevelData();
-		double xzf = slevel.dimensionType().coordinateScale();
+		LevelData winfo = serverLevel.getLevelData();
+		double xzf = serverLevel.dimensionType().coordinateScale();
 		if (xzf == 0.0) {
 			xzf = 1.0d;
 		}
@@ -249,18 +252,17 @@ public class SpawnEventHandler {
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
-		if (slevel.dimension() == Level.OVERWORLD) {
+		if (serverLevel.dimension() == Level.OVERWORLD) {
 			if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()) {
 				event.setResult(Result.DENY);
-				BlockPos sPos = new BlockPos(event.getX(), event.getY(), event.getZ());
-				Utility.debugMsg(2, sPos, "Safe Blocked " + entity.getType().getRegistryName().toString());
+				Utility.debugMsg(2, le, "Safe Blocked " + le.getType().getRegistryName().toString());
 				return;
 			}
 		}
 
-		float difficultyPct = HarderFartherManager.getDifficultyPct(entity, slevel, winfo, ePos);
-		
-		doBoostAbilities(entity, ePos, eDsc, difficultyPct);
+
+			doBoostAbilities(le, eDsc, difficulty);
+
 
 	}
 

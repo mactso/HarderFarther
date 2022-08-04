@@ -1,4 +1,4 @@
-package com.mactso.harderfarther.config;
+package com.mactso.harderfarther.manager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,12 +17,15 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.GrimGateBlock;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.block.properties.GrimGateType;
+import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncAllGCWithClientPacket;
+import com.mactso.harderfarther.sounds.ModSounds;
+import com.mactso.harderfarther.utility.Glooms;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.Util;
@@ -31,11 +34,15 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -59,7 +66,7 @@ public class GrimCitadelManager {
 	public static List<BlockPos> realGCList = new ArrayList<BlockPos>();
 
 	private static List<Block> protectedBlocks = Arrays.asList(Blocks.NETHERRACK, Blocks.BLACKSTONE, Blocks.BASALT,
-			Blocks.POLISHED_BASALT, Blocks.CRIMSON_PLANKS, Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.BLACKSTONE,
+			Blocks.POLISHED_BASALT, Blocks.CRIMSON_PLANKS,Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS,  Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.BLACKSTONE,
 			Blocks.GILDED_BLACKSTONE, Blocks.TINTED_GLASS, Blocks.CHEST, Blocks.ANCIENT_DEBRIS);
 
 	private static List<Block> floorBlocks = Arrays.asList(Blocks.BASALT, Blocks.CRIMSON_PLANKS, Blocks.NETHERRACK);
@@ -88,6 +95,26 @@ public class GrimCitadelManager {
 	private static File grimFile;
 	private static UUID ITEM_SPEED_UUID = UUID.fromString("4ce59996-ed35-11ec-8ea0-0242ac120002");
 
+	static List<SoundEvent> gcDirectionalSoundEvents = Arrays.asList(SoundEvents.ZOMBIFIED_PIGLIN_ANGRY,
+			SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT, SoundEvents.LAVA_AMBIENT, SoundEvents.ZOMBIE_VILLAGER_STEP,
+			SoundEvents.HOGLIN_ANGRY, SoundEvents.BLAZE_AMBIENT, SoundEvents.HOGLIN_AMBIENT,
+			SoundEvents.AMBIENT_NETHER_WASTES_MOOD, SoundEvents.FIRE_AMBIENT, SoundEvents.WITHER_SKELETON_STEP);
+	static List<SoundEvent> gcAmbientSoundEvents = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT,
+			SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE, SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
+
+	// TODO: This is becoming obsolete replaced by difficulty.
+	public static int	gcDist100 = MyConfig.getGrimCitadelBonusDistanceSq(); //100%
+	public static int	gcDist70 = gcDist100 / 2; //70% .. and so on.
+	public static int	gcDist50 = gcDist100 / 4;
+	public static int	gcDist30 = gcDist100 / 8;
+	public static int	gcDist25 = gcDist100 / 16;
+	public static int	gcDist16 = gcDist100 / 32;
+	public static int	gcDist12 = gcDist100 / 64;
+	public static int	gcDist09 = gcDist100 / 128;
+	public static int	gcDist05 = gcDist100 / 256;
+
+	
+	
 	private static void addCorners(ServerLevel level, BlockPos bottomPos, int offset) {
 		BlockState bs = POLISHEDBASALT;
 
@@ -218,7 +245,7 @@ public class GrimCitadelManager {
 				if ((fy > 8) && (rand.nextInt(100) > 20)) {
 					buildFloorBalcony(level, bottomPos, fy, rand);
 				}
-			} else if (fy < bottom + 8) {
+			} else if (fy < bottom + 9) {
 				floorPos.setY(bottomPos.getY() + fy);
 				clearAFloor(level, rand, floorPos, fy, top - bottom, roof);
 			}
@@ -319,7 +346,7 @@ public class GrimCitadelManager {
 
 	}
 
-	private static void buildOutsideWall(ServerLevel level, BlockPos pos, int fy, int height) {
+	private static void buildOutsideWall(ServerLevel level, BlockPos bottomPos, int fy, int height) {
 		Random rand = level.getRandom();
 		BlockState bs1;
 		BlockState bs2;
@@ -335,9 +362,9 @@ public class GrimCitadelManager {
 		}
 
 		MutableBlockPos mPos = new MutableBlockPos();
-		mPos.setY(pos.getY() + fy);
-		int posX = pos.getX();
-		int posZ = pos.getZ();
+		mPos.setY(bottomPos.getY() + fy);
+		int posX = bottomPos.getX();
+		int posZ = bottomPos.getZ();
 		int wallRadius = getGrimRadius() + 1;
 		for (int fx = -wallRadius; fx <= wallRadius; fx++) {
 			for (int fz = -wallRadius; fz <= wallRadius; fz++) {
@@ -381,8 +408,11 @@ public class GrimCitadelManager {
 		buildBalcony(level, roofPos.west(balconyRadius));
 	}
 
+	
+	
 	public static void checkCleanUpCitadels(ServerLevel level) {
 
+		
 		if (level.dimension() != Level.OVERWORLD) {
 			return;
 		}
@@ -468,9 +498,7 @@ public class GrimCitadelManager {
 		grimFile = null;
 		realGCList.clear();
 		checkTimer = 0;
-		Main.lem.doResetTimers();
-		Main.lem.shutdown();
-
+		Glooms.doResetTimers();
 	}
 
 	public static void clearAFloor(ServerLevel level, Random rand, MutableBlockPos airPos, int fy, int height,
@@ -509,16 +537,53 @@ public class GrimCitadelManager {
 
 		doBuildDoor(level, bottom, top, level.getRandom(), bottomPos.above());
 		addCorners(level, bottomPos, -1);
-		addCorners(level, bottomPos, top - bottom - 1);
-		buildRoofBalconies(level, bottomPos.above(top - bottom));
 		decorateRoof(level, bottom, bottomPos, top);
 
 	}
+	
+
+	public static void doBrokenGrimGate(ServerPlayer sp, ServerLevel serverLevel, BlockPos pos, BlockState bs) {
+		if (bs.getValue(GrimGateBlock.TYPE) == GrimGateType.FLOOR) {
+			GrimCitadelManager.makeSeveralHolesInFloor(serverLevel, pos);
+		} else if (bs.getValue(GrimGateBlock.TYPE) == GrimGateType.DOOR) {
+			Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_LABYRINTH_LOST_DREAMS), sp);
+		}
+	}
 
 	private static void decorateRoof(ServerLevel level, int bottom, BlockPos bottomPos, int top) {
-		level.setBlockAndUpdate(bottomPos.above(top - bottom + 3), Blocks.GLOWSTONE.defaultBlockState());
-		level.setBlock(bottomPos.above(top - bottom + 1), Blocks.ANCIENT_DEBRIS.defaultBlockState(), 0);
-		level.setBlock(bottomPos.above(top - bottom + 2), Blocks.LAVA.defaultBlockState(), 0);
+
+		addCorners(level, bottomPos, top - bottom +2);
+		addAntiClimbingRing(level, bottomPos, top - bottom +1);
+		buildRoofBalconies(level, bottomPos.above(top - bottom+2));
+		level.setBlock(bottomPos.above(top - bottom + 1), Blocks.ANCIENT_DEBRIS.defaultBlockState(), 3);
+		level.setBlock(bottomPos.above(top - bottom + 2), Blocks.LAVA.defaultBlockState(), 131);
+		level.setBlock(bottomPos.above(top - bottom + 3), Blocks.GLOWSTONE.defaultBlockState(), 131);
+		level.setBlock(bottomPos.above(top - bottom + 4), Blocks.LAVA.defaultBlockState(), 131);
+
+	}
+
+	private static void addAntiClimbingRing(ServerLevel level, BlockPos pos, int top) {
+		Random rand = level.getRandom();
+		MutableBlockPos mutPos = new MutableBlockPos();
+		mutPos.setY(pos.getY() + top );
+		int bottomPosX = pos.getX();
+		int bottomPosZ = pos.getZ();
+		int wallRadius = getGrimRadius() + 2;
+		for (int fx = -wallRadius; fx <= wallRadius; fx++) {
+			for (int fz = -wallRadius; fz <= wallRadius; fz++) {
+				if ((Math.abs(fx) == wallRadius) || (Math.abs(fz) == wallRadius)) {
+					mutPos.setX(bottomPosX + fx);
+					mutPos.setZ(bottomPosZ + fz);
+					if (rand.nextFloat() < 0.67F) {
+
+						level.setBlock(mutPos, floorBlocks.get(FLOOR_BLOCKS_TOP).defaultBlockState(), 0);
+					} else {
+						level.setBlock(mutPos, floorBlocks.get(FLOOR_BLOCKS_MIDDLE).defaultBlockState(), 0);
+					}
+				}
+			}
+		}
+		
 	}
 
 	private static void doBuildDoor(ServerLevel level, int bottom, int top, Random rand, BlockPos bottomPos) {
@@ -635,7 +700,7 @@ public class GrimCitadelManager {
 		return floorBlocks;
 	}
 
-	public static float getGrimDifficulty(ServerLevel level, LivingEntity entity) {
+	public static float getGrimDifficulty(Level level, LivingEntity entity) {
 		
 		if (!MyConfig.isUseGrimCitadels())
 			return 0;
@@ -906,6 +971,87 @@ public class GrimCitadelManager {
 			BlockPos pos = iter.next();
 			p.println(pos.getX() + "," + pos.getY() + "," + pos.getZ());
 		}
+	}
+	
+	public static boolean isInRangeOfGC(BlockPos pos) {
+
+		double closestGrimDistSq = getClosestGrimCitadelDistanceSq(pos);
+		if ((closestGrimDistSq > gcDist100)) { // note also MAXINTEGER in here.
+			return false;
+		}
+		return true;
+	}
+	
+	
+	// ClientSide
+	public static void playOptionalSoundCues(Player cp, float difficulty) {
+		
+		boolean playAmbientsound = isPlayAmbientSound(cp.level);
+		boolean playDirectionalSound = isPlayDirectionalSound(cp.level);
+		
+		if (difficulty > Utility.Pct91) 
+			playDirectionalSound = false;
+
+		if (!playAmbientsound && !playDirectionalSound)
+			return;
+		
+		float pitch = 0.67f;
+		float volume = getGrimDistanceVolume(difficulty);
+		BlockPos pos = cp.blockPosition();
+		
+		if (playAmbientsound) {
+			int i = cp.level.getRandom().nextInt(gcAmbientSoundEvents.size());
+			cp.level.playSound(cp, pos, gcAmbientSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
+		}
+		if (playDirectionalSound) {
+			int i = cp.level.getRandom().nextInt(gcDirectionalSoundEvents.size());
+			cp.level.playSound(cp, getSoundCluePosition(pos), gcDirectionalSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
+
+		}
+	}
+
+	private static boolean isPlayAmbientSound(Level level) {
+		
+		int reqRoll = 13;
+		if (level.isNight()) 
+			reqRoll += 17;
+		if (level.getRandom().nextInt(1200) <= reqRoll) 
+			return true;
+		
+		return false;
+
+	}
+	
+	private static boolean isPlayDirectionalSound(Level level) {
+		
+		int reqRoll;
+		reqRoll = 31;
+		if (level.isNight()) 
+			reqRoll += 23;
+		if (level.getRandom().nextInt(1200) <= reqRoll) 
+			return true;
+		
+		return false;
+
+	}
+
+	private static float getGrimDistanceVolume(float difficulty) {
+		return (0.2f * difficulty) + 0.03f;
+	}
+
+	public static boolean isTooCloseToFly(float difficulty) {
+		return difficulty > Utility.Pct91;
+	}
+	
+	private static BlockPos getSoundCluePosition(BlockPos pos) {
+
+		Vec3 v = getDirectionGrimCitadel(pos);
+		if (v != null) {
+			v = v.scale(15);
+			return new BlockPos(pos.getX() + v.x, pos.getY() + v.y, pos.getZ() + v.z);
+		} 
+		
+		return  pos;
 	}
 
 }

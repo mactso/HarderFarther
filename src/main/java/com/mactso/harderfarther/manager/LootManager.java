@@ -1,4 +1,4 @@
-package com.mactso.harderfarther.config;
+package com.mactso.harderfarther.manager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
@@ -79,7 +80,7 @@ public class LootManager {
 		String lootList = "LootList:\n";
 
 		for (LootItem hi : lootHashtable.values()) {
-			lootList += asString(hi) + "\n";
+			lootList += "  " + asString(hi) + "\n";
 		}
 		return lootList;
 	}
@@ -185,15 +186,15 @@ public class LootManager {
 		}
 	}
 	
-	public static ItemStack doGetLootStack(Entity eventEntity, Mob me, float distanceModifier, int lootRoll) {
+	public static ItemStack doGetLootStack(Entity eventEntity, Mob me, float difficulty, int lootRoll) {
 		ItemStack itemStackToDrop;
 		BlockPos pos = me.blockPosition();
-		Utility.debugMsg(1, pos, "doGetLootStack: Roll " + lootRoll + ". " + "distanceModifier = " + distanceModifier  );
+		Utility.debugMsg(1, pos, "doGetLootStack: Roll " + lootRoll + ". " + "distanceModifier = " + difficulty  );
 		
 		if (me instanceof Bat) {
 			itemStackToDrop = new ItemStack(Items.LEATHER, (int) 1);
 		} else {
-			float itemPowerModifier = distanceModifier;
+			float itemPowerModifier = difficulty;
 			if (lootRoll < 690) {
 				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level.getRandom());
 			} else if (lootRoll < 750) {
@@ -207,7 +208,7 @@ public class LootManager {
 					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
 				}
 			} else {
-				if (distanceModifier > 0.95) {
+				if (difficulty > 0.95) {
 					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level.getRandom());
 				} else {
 					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());

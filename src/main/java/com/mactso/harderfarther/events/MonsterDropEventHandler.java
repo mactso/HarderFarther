@@ -3,9 +3,9 @@ package com.mactso.harderfarther.events;
 import java.util.Collection;
 import java.util.Random;
 
-import com.mactso.harderfarther.config.HarderFartherManager;
-import com.mactso.harderfarther.config.LootManager;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 import com.mactso.harderfarther.timer.IChunkLastMobDeathTime;
 import com.mactso.harderfarther.utility.Utility;
@@ -26,7 +26,6 @@ import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.storage.LevelData;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -72,7 +71,7 @@ public class MonsterDropEventHandler {
 	}
 
 	
-	@SubscribeEvent
+	@SubscribeEvent  // serverside only.
 	public boolean onMonsterDropsEvent(LivingDropsEvent event) {
 
 		LivingEntity eventEntity = event.getEntityLiving();
@@ -82,7 +81,7 @@ public class MonsterDropEventHandler {
 			return false;
 
 		ServerLevel serverLevel = (ServerLevel) eventEntity.level;
-		LevelData winfo = serverLevel.getLevelData();
+
 		Random rand = serverLevel.getRandom();
 		BlockPos pos = new BlockPos(eventEntity.getX(), eventEntity.getY(), eventEntity.getZ());
 
@@ -100,23 +99,23 @@ public class MonsterDropEventHandler {
 
 		LootManager.doXPBottleDrop(eventEntity, eventItems, rand);
 
-		float difficultyPct = HarderFartherManager.getDifficultyPct(eventEntity, serverLevel, winfo, pos);
-		float odds = 100 + (333 * difficultyPct);
-
+		float difficulty = HarderFartherManager.getDifficultyHere(eventEntity);
+		float odds = 100 + (333 * difficulty);
+		float health = eventEntity.getMaxHealth(); // todo debugging
 		int d1000 = (int) (Math.ceil(rand.nextDouble() * 1000));
 
 		if (d1000 > odds) {
 			Utility.debugMsg(1, pos, "No Loot Upgrade: Roll " + d1000 + " odds " + odds);
 			return false;
 		}
-
+		int x = 3;
 		d1000 = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
 		if (d1000 < 640) {
 			d1000 += odds / 10;
 		}
 
 		Mob me = (Mob) event.getEntityLiving();
-		ItemStack itemStackToDrop = LootManager.doGetLootStack(eventEntity, me, difficultyPct, d1000);
+		ItemStack itemStackToDrop = LootManager.doGetLootStack(eventEntity, me, difficulty, d1000);
 
 		ItemEntity myItemEntity = new ItemEntity(eventEntity.level, eventEntity.getX(), eventEntity.getY(),
 				eventEntity.getZ(), itemStackToDrop);

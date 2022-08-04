@@ -1,8 +1,11 @@
-package com.mactso.harderfarther.config;
+package com.mactso.harderfarther.command;
 
 import java.util.Iterator;
 import java.util.List;
 
+import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
+import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
@@ -52,15 +55,18 @@ public class HarderFartherCommands {
 		Utility.sendBoldChat(p, "\nGrim Citadel Information", ChatFormatting.DARK_GREEN);
 		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = ("   Grim Citadels are Enabled" 
-					+ "\n   Nearest Grim Citadel ..................................: "
+					+ "\n   Nearest Grim Citadel ................................: "
 					+ (int) Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pPos)) + " meters at "
-					+ "\n   " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
-					+ "\n   Grim Citadel Aura Range ...............................: "
-					+ MyConfig.getGrimCitadelBonusDistance() + " blocks." + "\n   Grim Citadel Player Curse Range ...: "
+					+ "\n    " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
+					+ "\n   Aura Range ......................................................: "
+					+ MyConfig.getGrimCitadelBonusDistance() + " blocks." 
+					+ "\n   Player Curse Range ................................: "
 					+ MyConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
-					+ "\n   Grim Citadel Counts ......................................: "
+					+ "\n   Maximum Difficulty .......................................: +"
+					+ MyConfig.getGrimCitadelMaxBoostValue() + "%"
+					+ "\n   Minimum Number of Grim Citadels.......: "
 					+ MyConfig.getGrimCitadelsCount()
-					+ "\n   Grim Citadel Radius ......................................: "
+					+ "\n   Citadel Radius  ..............................................: "
 					+ GrimCitadelManager.getGrimRadius());
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 		} else {
@@ -163,16 +169,17 @@ public class HarderFartherCommands {
 					Utility.sendChat(p, "\nChunk\n" + p.level.gatherChunkSourceStats(), ChatFormatting.GREEN);
 					return 1;
 				}))
-				.then(Commands.literal("report").executes(ctx -> {
+				.then(Commands.literal("grimReport").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
 					String report = "Grim Citadels at : " + GrimCitadelManager.getCitadelListAsString();
 					Utility.sendChat(p, report, ChatFormatting.GREEN);
 					return 1;
-				})).then(Commands.literal("reportLoot").executes(ctx -> {
+				})).then(Commands.literal("lootReport").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
-					reportUseLootDrop(p);
 					String report = LootManager.report();
-					Utility.sendChat(p, report, ChatFormatting.GREEN);
+					Utility.sendBoldChat(p, "\nLoot Report", ChatFormatting.GOLD);
+					Utility.sendChat(p, report, ChatFormatting.YELLOW);
+					reportUseLootDrop(p);
 					reportOddsXpBottleDrop(p);
 					return 1;
 				})).then(Commands.literal("info").executes(ctx -> {
@@ -253,11 +260,11 @@ public class HarderFartherCommands {
 
 	
 	private static void reportUseLootDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  Use Loot Drops .....................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.DARK_AQUA);
+		Utility.sendChat(p, "  Use Loot Drops .....................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.YELLOW);
 	}
 	
 	private static void reportOddsXpBottleDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.DARK_AQUA);
+		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.YELLOW);
 	}
 	
 	public static int setBonusRange(ServerPlayer p, int newRange) {

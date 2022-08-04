@@ -1,10 +1,11 @@
-package com.mactso.harderfarther.config;
+package com.mactso.harderfarther.manager;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import com.mactso.harderfarther.block.ModBlocks;
+import com.mactso.harderfarther.config.MyConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,9 +15,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.ClipContext.Fluid;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.OreBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.TallGrassBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,7 +38,7 @@ public class HarderTimeManager {
 			SoundEvents.SOUL_ESCAPE, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SOUL_SAND_STEP,
 			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
 
-	public static float getTimeDifficulty(ServerLevel level, LivingEntity entity) {
+	public static float getTimeDifficulty(Level level, LivingEntity entity) {
 		if (!MyConfig.isMakeHarderOverTime())
 			return 0;
 

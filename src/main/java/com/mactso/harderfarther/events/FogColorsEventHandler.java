@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.events;
 
-import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;

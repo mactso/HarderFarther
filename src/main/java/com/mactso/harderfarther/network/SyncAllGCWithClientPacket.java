@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.mactso.harderfarther.config.GrimCitadelManager;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.mactso.harderfarther.Main;
-import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 

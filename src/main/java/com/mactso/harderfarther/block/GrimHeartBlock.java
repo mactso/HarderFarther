@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.mactso.harderfarther.blockentities.GrimHeartBlockEntity;
 import com.mactso.harderfarther.client.PlayGrimSongs;
-import com.mactso.harderfarther.config.GrimCitadelManager;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.sounds.ModSounds;
 
 import net.minecraft.core.BlockPos;

@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.events;
 
-import com.mactso.harderfarther.config.GrimCitadelManager;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
 
