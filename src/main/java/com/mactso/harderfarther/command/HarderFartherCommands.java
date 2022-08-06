@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
+import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
@@ -19,6 +20,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class HarderFartherCommands {
 
@@ -52,6 +54,9 @@ public class HarderFartherCommands {
 
 	private static void printGrimInfo(ServerPlayer p) {
 		BlockPos pPos = p.blockPosition();
+		float grimDifficulty = Math.min(MyConfig.getGrimCitadelMaxBoostValue(),
+				100*GrimCitadelManager.getGrimDifficulty((LivingEntity) p));
+
 		Utility.sendBoldChat(p, "\nGrim Citadel Information", ChatFormatting.DARK_GREEN);
 		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = ("   Grim Citadels are Enabled" 
@@ -62,8 +67,10 @@ public class HarderFartherCommands {
 					+ MyConfig.getGrimCitadelBonusDistance() + " blocks." 
 					+ "\n   Player Curse Range ................................: "
 					+ MyConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
-					+ "\n   Maximum Difficulty .......................................: +"
+					+ "\n   Maximum Difficulty .......................................: "
 					+ MyConfig.getGrimCitadelMaxBoostValue() + "%"
+					+ "\n   Current Difficulty ......................................: "
+					+ grimDifficulty + "%"
 					+ "\n   Minimum Number of Grim Citadels.......: "
 					+ MyConfig.getGrimCitadelsCount()
 					+ "\n   Citadel Radius  ..............................................: "
@@ -251,10 +258,12 @@ public class HarderFartherCommands {
 
 	private static void printTimeInfo(ServerPlayer p) {
 		long time = p.level.getChunk(p.blockPosition()).getInhabitedTime() / 1200;
+		float timeDifficulty = 100* HarderTimeManager.getTimeDifficulty(p.getLevel(), (LivingEntity) p);
 		Utility.sendBoldChat(p,"\nTime Info ", ChatFormatting.AQUA);
 		Utility.sendChat(p, "  Make Harder Over Time .........: " + MyConfig.isMakeHarderOverTime() +".", ChatFormatting.AQUA);
 		Utility.sendChat(p, "  Maximum Difficulty .......................: " + MyConfig.getMaxHarderTimeMinutes() +" minutes.", ChatFormatting.AQUA);
-		Utility.sendChat(p, "  Current Chunk Age ...................: " + time+" minutes.", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Current Difficulty ......................: " + timeDifficulty +" %.", ChatFormatting.AQUA);
+			Utility.sendChat(p, "  Current Chunk Age ...................: " + time+" minutes.", ChatFormatting.AQUA);
 
 	}
 

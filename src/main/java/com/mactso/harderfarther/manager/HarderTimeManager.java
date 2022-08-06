@@ -52,12 +52,13 @@ public class HarderTimeManager {
 		if (rand.nextInt(20) == 1) {
 			lookv = lookv.reverse();
 		}
-		BlockPos pPos = new BlockPos(pos.getX()+lookv.x*7,pos.getY()+lookv.y*2,pos.getZ()+lookv.z*7);
+		lookv.scale(7.0);
+		BlockPos pPos = new BlockPos(pos.getX()+lookv.x,pos.getY()+lookv.y,pos.getZ()+lookv.z);
 		for (int k = 0; k < 5; ++k) {
-
-			int xv = (rand.nextInt(7) - 4) * 3;
-			int yv = (rand.nextInt(5) - 2) * 2;
-			int zv = (rand.nextInt(7) - 4) * 3;
+			
+			int xv = (rand.nextInt(7) - 4) * 2;
+			int yv = (rand.nextInt(5) - 2)  ;
+			int zv = (rand.nextInt(7) - 4) * 2;
 
 			BlockPos temp = pPos.east(xv).above(yv).north(zv);
 			for (int j = 0; j < 2; ++j) {
@@ -95,10 +96,10 @@ public class HarderTimeManager {
 		}
 		
 
-		int chance = 23;
+		int chance = 5;
 		if (cp.level.isNight())
-			chance -= -23;
-		if (rand.nextInt(2400) > (chance))
+			chance += 3;
+		if (rand.nextInt(1200) > (chance))
 			return;
 
 		doClientParticles(cp, rand,
@@ -114,7 +115,7 @@ public class HarderTimeManager {
 		Random rand = sl.getRandom();
 
 		float timeDifficulty = getTimeDifficulty(sl, sp);
-		if (rand.nextFloat() > timeDifficulty)
+		if (timeDifficulty == 0)
 			return;
 
 		int chance = 37;
@@ -213,15 +214,15 @@ public class HarderTimeManager {
 		Random rand = cp.level.getRandom();
 
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
-		if (rand.nextFloat() > timeDifficulty)
+		if (timeDifficulty == 0)
 			return;
 
-		int chance = 7;
+		int chance = 5;
 		if (cp.level.isNight())
-			chance += 9;
-		
-		if (rand.nextInt(3000) > (chance))
+			chance -= 3;
+		if (rand.nextInt(320) > (chance))
 			return;
+		
 		int i = rand.nextInt(spookySounds.size());
 		cp.level.playSound(cp, cp.blockPosition(), spookySounds.get(i), SoundSource.AMBIENT, 0.12f, pitch);
 		if (rand.nextInt(100) == 42) {
@@ -250,7 +251,7 @@ public class HarderTimeManager {
 
 		long minutes = inhabitedMinutes - startHarderTime;
 		float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
-		timeDifficulty = (float) Math.min(0.33, timeDifficulty);
+		timeDifficulty = (float) Math.max(0.33, timeDifficulty);
 		return timeDifficulty;
 	}
 	

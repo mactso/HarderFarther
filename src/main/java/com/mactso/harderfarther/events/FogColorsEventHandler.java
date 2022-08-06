@@ -147,14 +147,17 @@ public class FogColorsEventHandler {
 			if ((fogTick != gametick)) {
 				fogTick = gametick;
 
-				float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
-
-				if ((percent > 0.99f) && (clientLocalGrimDifficulty > 0)) {
-					percent = 0.99f + ((0.99f - percent) * 100); // "donut hole" of low density in the fog
-				} else if (percent > 0.39f) {
-					percent = (0.39f + percent) / 2; // donut ring of dense fog
+				float percent = 1.0f;
+				if (clientLocalGrimDifficulty >= clientLocalTimeDifficulty) {
+					percent = clientLocalGrimDifficulty;
+				} else {
+					percent = clientLocalGrimDifficulty;
 				}
 
+				if (percent > 0.75) {
+					percent -= (percent - 0.70)*2.5;
+				}
+				percent = Math.max(0, percent);
 				percent = Math.min(percent, 1.0f);
 
 				sliderStartFogDistance = doSlideToPercent(sliderStartFogDistance, 1 - percent);
