@@ -6,19 +6,26 @@ import net.minecraft.core.BlockPos;
 
 public class ClientProxy implements IProxy {
 	@Override
-	public void setClientGrimSong(int song) {
+	public void setGrimSong(int song) {
 
 		
 	}
 	
 	@Override
-	public void setClientGrimCitadelListValues(List<BlockPos> grimList) {
+	public void setGrimCitadelListValues(List<BlockPos> grimList) {
 		
 	
 	}
 
-	public void setClientFogColors(int r, int g, int b) {
+	public void setFogColors(int r, int g, int b) {
 		
 		
 	}
+
+	public void setDifficulty(int h, int g, int t) {
+		
+		
+	}
+
+
 }

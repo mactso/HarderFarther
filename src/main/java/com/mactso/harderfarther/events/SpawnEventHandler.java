@@ -6,10 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.utility.Utility;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,7 +30,6 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 
 public class SpawnEventHandler {
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -127,7 +126,8 @@ public class SpawnEventHandler {
 		try {
 			int preXp = fieldXpReward.getInt(le);
 			fieldXpReward.setInt(le, (int) (fieldXpReward.getInt(le) * (1.0f + distanceModifier)));
-			Utility.debugMsg(2, le, "--Boost " + eDsc + " Xp increased from ("+preXp+") to ("+fieldXpReward.getInt(le)+")");
+			Utility.debugMsg(2, le,
+					"--Boost " + eDsc + " Xp increased from (" + preXp + ") to (" + fieldXpReward.getInt(le) + ")");
 		} catch (Exception e) {
 			LOGGER.error("XXX Unexpected Reflection Failure getting xpReward");
 			return false;
@@ -136,6 +136,7 @@ public class SpawnEventHandler {
 	}
 
 	private static void doBoostAbilities(LivingEntity le, String eDsc, float difficulty) {
+		
 		boostHealth(le, eDsc, difficulty);
 		boostSpeed(le, eDsc, difficulty);
 		boostAtkDmg(le, eDsc, difficulty);
@@ -193,30 +194,28 @@ public class SpawnEventHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void onSpawnEvent(LivingSpawnEvent.CheckSpawn event) {
 
-		// note may need to put this in "EntityJoinWorld" instead. But be careful to restrict
+		// note may need to put this in "EntityJoinWorld" instead. But be careful to
+		// restrict
 		// to mobs since that method includes all entities like xp orbs and so on.
 		// EntityJoinWorld applies on reloading from save too tho.
 		// So would need to check attributes before applying them.
 
-		if (!(MyConfig.isMakeMonstersHarderFarther()) 
-				&& (!MyConfig.isMakeHarderOverTime())
-				&& (!MyConfig.isUseGrimCitadels())
-				) 
+		if (!(MyConfig.isMakeMonstersHarderFarther()) && (!MyConfig.isMakeHarderOverTime())
+				&& (!MyConfig.isUseGrimCitadels()))
 			return;
-
+		
+		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
+			// this field.
+			return;
+		}
+		
 		if (!(event.getWorld() instanceof ServerLevel)) {
 			return;
 		}
 
-		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
-										// this field.
-			return;
-		}
 		ServerLevel serverLevel = (ServerLevel) event.getWorld();
-
 		LivingEntity le = event.getEntityLiving();
 
-			
 		EntityType<?> type = le.getType();
 		if (type.getCategory().isFriendly()) {
 			return;
@@ -231,15 +230,19 @@ public class SpawnEventHandler {
 			return;
 		}
 
-		float difficulty = HarderFartherManager.getDifficultyHere(le);
-		if (difficulty == 0) 
+		float boostDifficulty = HarderFartherManager.getDifficultyHere(serverLevel,le);
+		if (boostDifficulty == 0)
 			return;
+		if (boostDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+			if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(le)) {
+				boostDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+			}
+		}
 		
-
 		String eDsc = le.getType().getRegistryName().toString();
 
-		Utility.debugMsg(1, le,
-				le.getName().getString() + " : Hostile Spawn Event. " + le.getType().toString() + " difficulty = " + difficulty);
+		Utility.debugMsg(1, le, le.getName().getString() + " : Hostile Spawn Event. " + le.getType().toString()
+				+ " boost difficulty = " + boostDifficulty);
 
 		// no spawns closer to worldspawn than safe distance
 
@@ -248,7 +251,7 @@ public class SpawnEventHandler {
 		if (xzf == 0.0) {
 			xzf = 1.0d;
 		}
-		
+
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(event.getX(), event.getY(), event.getZ());
 
@@ -260,12 +263,8 @@ public class SpawnEventHandler {
 			}
 		}
 
-
-			doBoostAbilities(le, eDsc, difficulty);
-
+		doBoostAbilities(le, eDsc, boostDifficulty);
 
 	}
-
-
 
 }

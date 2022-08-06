@@ -23,7 +23,7 @@ public class SyncFogToClientsPacket  {
 		{
 			ctx.get().enqueueWork( () -> 
 				{
-					FogColorsEventHandler.setServerFogRGB(message.red, message.green, message.blue);
+					FogColorsEventHandler.setFogRGB(message.red, message.green, message.blue);
 				}
 			);
 			ctx.get().setPacketHandled(true);

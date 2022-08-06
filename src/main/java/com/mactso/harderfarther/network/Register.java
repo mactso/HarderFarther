@@ -18,6 +18,12 @@ public class Register {
 				SyncFogToClientsPacket::readPacketData,
 				SyncFogToClientsPacket::processPacket);
 
+		Network.registerMessage(SyncDifficultyToClientsPacket.class,
+				SyncDifficultyToClientsPacket::writePacketData,
+				SyncDifficultyToClientsPacket::readPacketData,
+				SyncDifficultyToClientsPacket::processPacket);
+
+		
 		Network.registerMessage(GrimClientSongPacket.class,
 				GrimClientSongPacket::writePacketData,
 				GrimClientSongPacket::readPacketData,

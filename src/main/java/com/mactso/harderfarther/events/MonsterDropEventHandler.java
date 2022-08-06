@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
@@ -74,20 +75,20 @@ public class MonsterDropEventHandler {
 	@SubscribeEvent  // serverside only.
 	public boolean onMonsterDropsEvent(LivingDropsEvent event) {
 
-		LivingEntity eventEntity = event.getEntityLiving();
+		LivingEntity le = event.getEntityLiving();
 		DamageSource dS = event.getSource();
 
-		if (!isDropsSpecialLoot(event, eventEntity, dS))
+		if (!isDropsSpecialLoot(event, le, dS))
 			return false;
 
-		ServerLevel serverLevel = (ServerLevel) eventEntity.level;
+		ServerLevel serverLevel = (ServerLevel) le.level;
 
 		Random rand = serverLevel.getRandom();
-		BlockPos pos = new BlockPos(eventEntity.getX(), eventEntity.getY(), eventEntity.getZ());
+		BlockPos pos = new BlockPos(le.getX(), le.getY(), le.getZ());
 
 		// in this section prevent ALL drops if players are killing mobs too quickly.
 
-		boolean cancel = doLimitDropSpeed(serverLevel, eventEntity, pos);
+		boolean cancel = doLimitDropSpeed(serverLevel, le, pos);
 		if (cancel) {
 			event.setCanceled(true);
 			return false;
@@ -97,32 +98,40 @@ public class MonsterDropEventHandler {
 
 		Collection<ItemEntity> eventItems = event.getDrops();
 
-		LootManager.doXPBottleDrop(eventEntity, eventItems, rand);
+		LootManager.doXPBottleDrop(le, eventItems, rand);
 
-		float difficulty = HarderFartherManager.getDifficultyHere(eventEntity);
-		float odds = 100 + (333 * difficulty);
-		float health = eventEntity.getMaxHealth(); // todo debugging
+		float boostDifficulty = HarderFartherManager.getDifficultyHere(serverLevel,le);
+		if (boostDifficulty == 0)
+			return false;
+		if (boostDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+			if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(le)) {
+				boostDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+			}
+		}		
+		
+		float odds = 100 + (333 * boostDifficulty);
+		float health = le.getMaxHealth(); // todo debugging
 		int d1000 = (int) (Math.ceil(rand.nextDouble() * 1000));
 
 		if (d1000 > odds) {
 			Utility.debugMsg(1, pos, "No Loot Upgrade: Roll " + d1000 + " odds " + odds);
 			return false;
 		}
-		int x = 3;
-		d1000 = (int) (Math.ceil(eventEntity.level.getRandom().nextDouble() * 1000));
+
+		d1000 = (int) (Math.ceil(le.level.getRandom().nextDouble() * 1000));
 		if (d1000 < 640) {
 			d1000 += odds / 10;
 		}
 
 		Mob me = (Mob) event.getEntityLiving();
-		ItemStack itemStackToDrop = LootManager.doGetLootStack(eventEntity, me, difficulty, d1000);
+		ItemStack itemStackToDrop = LootManager.doGetLootStack(le, me, boostDifficulty, d1000);
 
-		ItemEntity myItemEntity = new ItemEntity(eventEntity.level, eventEntity.getX(), eventEntity.getY(),
-				eventEntity.getZ(), itemStackToDrop);
+		ItemEntity myItemEntity = new ItemEntity(le.level, le.getX(), le.getY(),
+				le.getZ(), itemStackToDrop);
 
 		eventItems.add(myItemEntity);
 
-		Utility.debugMsg(1, pos, eventEntity.getName().getString() + " died and dropped loot: "
+		Utility.debugMsg(1, pos, le.getName().getString() + " died and dropped loot: "
 				+ itemStackToDrop.getItem().getRegistryName());
 		return true;
 	}

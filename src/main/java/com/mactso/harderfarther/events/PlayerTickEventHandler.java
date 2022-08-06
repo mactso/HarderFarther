@@ -13,10 +13,11 @@ public class PlayerTickEventHandler {
 	@SubscribeEvent
 	public void onTick(PlayerTickEvent event) {
 
-		if ((event.phase != Phase.START) || !(MyConfig.isMakeHarderOverTime()))
+		if ((event.phase != Phase.START))
 			return;
-		if (event.player instanceof ServerPlayer sp) {
-			HarderTimeManager.doScarySpookyThings(sp);
+		if (MyConfig.isMakeHarderOverTime()) {
+			HarderTimeManager.doScarySpookyThings(event.player);
 		}
+			
 	}
 }

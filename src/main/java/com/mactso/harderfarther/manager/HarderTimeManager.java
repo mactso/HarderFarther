@@ -6,9 +6,11 @@ import java.util.Random;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.events.FogColorsEventHandler;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -16,6 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -38,52 +41,74 @@ public class HarderTimeManager {
 			SoundEvents.SOUL_ESCAPE, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SOUL_SAND_STEP,
 			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
 
-	public static float getTimeDifficulty(Level level, LivingEntity entity) {
-		if (!MyConfig.isMakeHarderOverTime())
-			return 0;
+	private static void doClientParticles(Player cp, Random rand,
+			SimpleParticleType p1,
+			SimpleParticleType p2,
+			SimpleParticleType p3,
+			SoundEvent soundEvent) 
+	{
+		BlockPos pos = cp.blockPosition();
+		Vec3 lookv = cp.getForward();
+		if (rand.nextInt(20) == 1) {
+			lookv = lookv.reverse();
+		}
+		BlockPos pPos = new BlockPos(pos.getX()+lookv.x*7,pos.getY()+lookv.y*2,pos.getZ()+lookv.z*7);
+		for (int k = 0; k < 5; ++k) {
 
-		long startHarderTime = MyConfig.getMaxHarderTimeMinutes() / 2;
-		long inhabitedMinutes = level.getChunk(entity.blockPosition()).getInhabitedTime() / 1200; // 60 sec * 20
+			int xv = (rand.nextInt(7) - 4) * 3;
+			int yv = (rand.nextInt(5) - 2) * 2;
+			int zv = (rand.nextInt(7) - 4) * 3;
 
-		if (inhabitedMinutes < startHarderTime)
-			return 0;
+			BlockPos temp = pPos.east(xv).above(yv).north(zv);
+			for (int j = 0; j < 2; ++j) {
 
-		long minutes = inhabitedMinutes - startHarderTime;
-		float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
+				double x = (double) temp.getX() + rand.nextDouble() * (double) 0.1F;
+				double y = (double) temp.getY() + rand.nextDouble();
+				double z = (double) temp.getZ() + rand.nextDouble();
 
-		return timeDifficulty;
+				cp.level.addParticle(p1,  x, y, z, xv/3, yv/2, zv/2);
+				cp.level.addParticle(p2,  x, y, z, xv/3, yv/2, zv/2);
+				cp.level.addParticle(p3,  x, y, z, xv/3, yv/2, zv/2);
+			}
+
+			cp.level.playSound(cp, pPos, soundEvent, SoundSource.AMBIENT, 0.95f, pitch);
+
+		}
 	}
 
-	public static void doScarySpookyThings(ServerPlayer sp) {
-		doNiceThings(sp);
-		doRandomSpookySound(sp);
-		doRandomScaryThing(sp);
-	}
+	private static void doNiceAtmosphere(Player cp) {
 
-	private static void doRandomSpookySound(ServerPlayer sp) {
+		Random rand = cp.level.getRandom();
 
-		ServerLevel sl = sp.getLevel();
-		Random rand = sl.getRandom();
-
-		float timeDifficulty = getTimeDifficulty(sl, sp);
-		if (rand.nextFloat() > timeDifficulty)
-			return;
-
-		int chance = 7;
-		if (sl.isNight())
-			chance += 9;
 		
-		if (rand.nextInt(3000) > (chance))
+		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
+
+		if (timeDifficulty > 0) {
 			return;
-		int i = rand.nextInt(spookySounds.size());
-		sl.playSound(null, sp.blockPosition(), spookySounds.get(i), SoundSource.AMBIENT, 0.12f, pitch);
-		if (rand.nextInt(100) == 42) {
-			sl.playSound(null, sp.blockPosition(), SoundEvents.GOAT_SCREAMING_PREPARE_RAM, SoundSource.AMBIENT, 0.12f, pitch);
 		}
 
+		if (!cp.level.canSeeSky(cp.blockPosition())) {
+			if (rand.nextInt(2400) == 43) {
+				cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 0.95f, pitch);
+			}	
+			return;
+		}
+		
+
+		int chance = 23;
+		if (cp.level.isNight())
+			chance -= -23;
+		if (rand.nextInt(2400) > (chance))
+			return;
+
+		doClientParticles(cp, rand,
+				ParticleTypes.GLOW,
+				ParticleTypes.SPORE_BLOSSOM_AIR,
+				ParticleTypes.BUBBLE,
+				SoundEvents.AMETHYST_BLOCK_CHIME);
 	}
 
-	private static void doRandomScaryThing(ServerPlayer sp) {
+	private static void doRandomScaryThings(ServerPlayer sp) {
 
 		ServerLevel sl = sp.getLevel();
 		Random rand = sl.getRandom();
@@ -91,8 +116,6 @@ public class HarderTimeManager {
 		float timeDifficulty = getTimeDifficulty(sl, sp);
 		if (rand.nextFloat() > timeDifficulty)
 			return;
-
-
 
 		int chance = 37;
 		if (sl.isNight())
@@ -116,25 +139,14 @@ public class HarderTimeManager {
 			int zv = (rand.nextInt(6) - 2) * 3;
 
 			BlockPos temp = pPos.east(xv).above(yv).north(zv);
-			for (int j = 0; j < 2; ++j) {
-
-				double x = (double) temp.getX() + rand.nextDouble() * (double) 0.1F;
-				double y = (double) temp.getY() + rand.nextDouble();
-				double z = (double) temp.getZ() + rand.nextDouble() * (double) 0.1F;
-
-				sl.sendParticles(sp, ParticleTypes.LARGE_SMOKE, false, x, y, z, j, 0, 0.01d, 0, 1);
-				sl.sendParticles(sp, ParticleTypes.SMALL_FLAME, false, x, y, z, j, 0, 0.01d, 0, 1);
-				sl.sendParticles(sp, ParticleTypes.SOUL, false, x, y, z, j, 0, 0.01d, 0, 1);
-
-			}
-
-			sl.playSound(null, temp, SoundEvents.SOUL_ESCAPE, SoundSource.AMBIENT, 0.95f, pitch);
 			BlockState bs = sl.getBlockState(temp);
 			Block b = bs.getBlock();
 			FluidState fs = sl.getFluidState(temp); 
 //			if (fs.is(FluidTags.WATER)) {
 //				sl.setBlock(temp, BlockState.MUD, 3);   // FOR 1.19.1
-//			}
+//			sl.setBlock(temp, BlockState.BLUE, 3);   // FOR 1.19.1
+
+			//			}
 			if (!bs.isAir()) {
 				if ((b instanceof TallGrassBlock) ) {
 					sl.setBlock(temp.below(), Blocks.COARSE_DIRT.defaultBlockState(), 3);
@@ -186,62 +198,60 @@ public class HarderTimeManager {
 		}
 	}
 
-	private static void doNiceThings(ServerPlayer sp) {
+	public static void doScarySpookyThings(Player p) {
+		if (p.level.isClientSide) {
+			doNiceAtmosphere(p);
+			doSpookyAtmosphere(p);
+			return;
+		} 
+		doRandomScaryThings((ServerPlayer) p);
+	}
 
-		ServerLevel sl = sp.getLevel();
-		Random rand = sl.getRandom();
+	// clientside
+	private static void doSpookyAtmosphere(Player cp) {
 
+		Random rand = cp.level.getRandom();
+
+		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
+		if (rand.nextFloat() > timeDifficulty)
+			return;
+
+		int chance = 7;
+		if (cp.level.isNight())
+			chance += 9;
 		
-		float timeDifficulty = getTimeDifficulty(sl, sp);
-
-		if (timeDifficulty > 0) {
+		if (rand.nextInt(3000) > (chance))
 			return;
+		int i = rand.nextInt(spookySounds.size());
+		cp.level.playSound(cp, cp.blockPosition(), spookySounds.get(i), SoundSource.AMBIENT, 0.12f, pitch);
+		if (rand.nextInt(100) == 42) {
+			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.GOAT_SCREAMING_PREPARE_RAM, SoundSource.AMBIENT, 0.12f, pitch);
 		}
+		if (rand.nextInt(100) < 5) 
+			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMBIENT_CAVE, SoundSource.AMBIENT, 0.23f, 0.66f);
+		doClientParticles(cp, rand,
+				ParticleTypes.LARGE_SMOKE,
+				ParticleTypes.SMALL_FLAME,
+				ParticleTypes.SOUL,
+				SoundEvents.SOUL_ESCAPE);
 
-		if (!sl.canSeeSky(sp.blockPosition())) {
-			if (rand.nextInt(2400) == 43) {
-				sl.playSound(null, sp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 0.95f, pitch);
-			}	
-			return;
-		}
-		
+	}
 
-		int chance = 23;
-		if (sl.isNight())
-			chance -= -23;
-		if (rand.nextInt(2400) > (chance))
-			return;
+	// must be server side.  chunk inhabited time is 0 on client side.
+	public static float getTimeDifficulty(ServerLevel level, LivingEntity entity) {
+		if (!MyConfig.isMakeHarderOverTime())
+			return 0;
 
-		BlockPos pos = sp.blockPosition();
-		Vec3 lookv = sp.getForward();
-		if (rand.nextInt(20) == 1) {
-			lookv = lookv.reverse();
-		}
-		BlockPos pPos = new BlockPos(pos.getX()+lookv.x*7,pos.getY()+lookv.y*2,pos.getZ()+lookv.z*7);
-		for (int k = 0; k < 5; ++k) {
+		long startHarderTime = (long) (MyConfig.getMaxHarderTimeMinutes() *.66f);
+		long inhabitedMinutes = level.getChunk(entity.blockPosition()).getInhabitedTime() / 1200; // 60 sec * 20
 
-			int xv = (rand.nextInt(7) - 4) * 3;
-			int yv = (rand.nextInt(5) - 2) * 2;
-			int zv = (rand.nextInt(7) - 4) * 3;
+		if (inhabitedMinutes < startHarderTime)
+			return 0;
 
-			BlockPos temp = pPos.east(xv).above(yv).north(zv);
-			for (int j = 0; j < 2; ++j) {
-
-				double x = (double) temp.getX() + rand.nextDouble() * (double) 0.1F;
-				double y = (double) temp.getY() + rand.nextDouble();
-				double z = (double) temp.getZ() + rand.nextDouble();
-
-				sl.sendParticles(sp, ParticleTypes.GLOW, false, x, y, z, j, 0, 0.07d, 0, 1);
-				sl.sendParticles(sp, ParticleTypes.SPORE_BLOSSOM_AIR, false, x, y, z, j, 0, 0.07d, 0, 1);
-				sl.sendParticles(sp, ParticleTypes.BUBBLE, false, x, y, z, j, 0, 0.07d, 0, 1);
-
-			}
-
-			sl.playSound(null, pPos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 0.95f, pitch);
-
-
-
-		}
+		long minutes = inhabitedMinutes - startHarderTime;
+		float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
+		timeDifficulty = (float) Math.min(0.33, timeDifficulty);
+		return timeDifficulty;
 	}
 	
 }

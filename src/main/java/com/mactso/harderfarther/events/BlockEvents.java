@@ -73,6 +73,7 @@ public class BlockEvents {
 		if (p.blockPosition().getY() < ePos.getY()) {
 			adjustY = -0.5f;
 		}
+
 		if (GrimCitadelManager.getClosestGrimCitadelDistanceSq(ePos) <= PROTECTED_DISTANCE) {
 			if (GrimCitadelManager.getProtectedBlocks().contains(level.getBlockState(ePos).getBlock())
 					&& event.isCancelable()) {
@@ -97,6 +98,7 @@ public class BlockEvents {
 
 	@SubscribeEvent
 	public static void onBreakBlock(BreakEvent event) {
+
 		// server side only event.
 		ServerPlayer sp = (ServerPlayer) event.getPlayer();
 		ServerLevel serverLevel = (ServerLevel) sp.level;
