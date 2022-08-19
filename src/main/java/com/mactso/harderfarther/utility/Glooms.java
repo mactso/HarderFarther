@@ -410,8 +410,8 @@ public class Glooms {
 		boolean hasLifeHeart = sp.getInventory().contains(new ItemStack(ModItems.LIFE_HEART));
 
 		if (hasLifeHeart) {
-			if ((difficulty > Utility.Pct84) && (rand.nextInt(42) == 42)) {
-				System.out.println("regen");
+			if ((difficulty > Utility.Pct50) && (rand.nextInt(42) == 42)) {
+				// System.out.println("regen");
 				Utility.updateEffect((LivingEntity) sp, 0, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
 			}
 		}

@@ -21,7 +21,7 @@ public class PlayGrimSongs {
 
 	@SubscribeEvent
 	public static void playSong(SoundEvent song) {
-		playSong(song, 3600, 4800);
+		playSong(song, 9600, 18200);
 	}
 
 	public static void playSong(SoundEvent song, int minDelay, int maxDelay) {
@@ -30,7 +30,7 @@ public class PlayGrimSongs {
 
 		clientPsuedoTicks = Util.getMillis() / 50;
 		if (grimSongDelayTicks < clientPsuedoTicks) {
-			grimSongDelayTicks = clientPsuedoTicks + (600); // ignore calls within 30 seconds.  
+			grimSongDelayTicks = clientPsuedoTicks + (1200); // ignore calls within 60 seconds.  
 			// TODO: need forcestart=true/false parm
 		}
 		musicTicker.stopPlaying();

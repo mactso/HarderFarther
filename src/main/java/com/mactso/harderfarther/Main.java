@@ -60,6 +60,7 @@ public class Main {
 	    	System.out.println(MODID + ": Registering Mod.");
 	        ModLoadingContext.get().registerExtensionPoint(DisplayTest.class,
 	        		() -> new DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+	        //TODO ask lupin if ignoreserveronly still applies.
 
 	    }
 

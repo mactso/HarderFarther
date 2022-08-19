@@ -136,6 +136,9 @@ public class Utility {
 			} else {
 				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL, true, true);
 			}
+			if (e == null) {
+				return false;
+			}
 			if (persistant) {
 				e.setPersistenceRequired();
 			}
