@@ -599,22 +599,22 @@ public class MyConfig {
 			hpMaxBoost = builder
 					.comment("Boost Max Hit Points (Percent) ")
 					.translation(Main.MODID + ".config." + "hpMaxBoost")
-					.defineInRange("hpMaxBoost", () -> 200, 0, 999);
+					.defineInRange("hpMaxBoost", () -> 200, 0, 30000000);
 
 			speedBoost = builder
-					.comment("Boost Movement Speed (Percent) ")
+					.comment("Boost Movement Speed (Percent). Very sensative setting. Over 50 kinda ridiculous ")
 					.translation(Main.MODID + ".config." + "speedBoost")
 					.defineInRange("speedBoost", () -> 20, 0, 999);
 			
 			atkDmgBoost = builder
-					.comment("Boost Attack Damage (percent)")
+					.comment("Boost Attack Damage (percent).  Mobs base damage is about 3 points + 2 for hard mode.")
 					.translation(Main.MODID + ".config." + "atkDmgBoost")
-					.defineInRange("atkDmgBoost", () -> 100, 0, 999);
+					.defineInRange("atkDmgBoost", () -> 100, 0, 30000000);
 			
 			knockbackBoost = builder
-					.comment("Boost Knockback Resistance (Percent) ")
+					.comment("Boost Knockback Resistance (Percent) over 100 has no additional effect.")
 					.translation(Main.MODID + ".config." + "knockbackBoost")
-					.defineInRange("knockbackBoost", () -> 100, 0, 999);
+					.defineInRange("knockbackBoost", () -> 95, 0, 999);
 			
 			builder.pop();
 			builder.push("Harder Over Time Settings");
