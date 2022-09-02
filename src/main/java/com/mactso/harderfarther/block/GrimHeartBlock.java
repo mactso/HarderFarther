@@ -45,11 +45,6 @@ public class GrimHeartBlock extends BaseEntityBlock {
 		return RenderShape.MODEL;
 	}
 	
-	// TODO: This is only called once when the block is set.
-	@Override
-	public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-		return 7;
-	}
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

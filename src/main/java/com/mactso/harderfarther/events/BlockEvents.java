@@ -80,7 +80,7 @@ public class BlockEvents {
 				event.setNewSpeed(event.getOriginalSpeed() / 20);
 				event.setCanceled(true);
 				if (level.isClientSide) {
-					if (cGameTime < gameTime ) { // TODO: Check this might be 0
+					if (cGameTime < gameTime ) { 
 						cGameTime = gameTime + 20 + rand.nextInt(40);
 						level.playSound(p, ePos, SoundEvents.VILLAGER_NO, SoundSource.AMBIENT, 0.11f, 0.6f);
 						for (int j = 0; j < 21; ++j) {

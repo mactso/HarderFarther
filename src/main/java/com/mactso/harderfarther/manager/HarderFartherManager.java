@@ -3,7 +3,6 @@ package com.mactso.harderfarther.manager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
-import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -15,9 +14,9 @@ import net.minecraft.world.phys.Vec3;
 public class HarderFartherManager {
 
 	public static float calcDistanceModifier(Vec3 eventVec, Vec3 spawnVec) {
-		Float f = (float) Math.min(1.0f, (eventVec.distanceTo(spawnVec) / MyConfig.getModifierMaxDistance()));
-		if (f < Utility.Pct02)
-			f= 0.0f;
+		double distance = eventVec.distanceTo(spawnVec);
+		distance = Math.max(0, distance - MyConfig.getBoostMinDistance());
+		Float f = (float) Math.min(1.0f, distance / MyConfig.getBoostMaxDistance());
 		return f;
 	}
 	

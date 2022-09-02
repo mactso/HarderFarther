@@ -166,7 +166,7 @@ public class MonsterDropEventHandler {
 			return false;
 		}
 
-		if (!(eventEntity instanceof Mob)) { // TODO this should be 'enemy' I think
+		if (!(eventEntity instanceof Enemy)) { 
 			return false;
 		}
 

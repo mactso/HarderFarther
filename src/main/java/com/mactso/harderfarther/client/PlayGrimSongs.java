@@ -41,9 +41,8 @@ public class PlayGrimSongs {
 
 	private static void doInit() {
 		if (mc == null) {
-			rand.setSeed(Util.getMillis()); // TODO is this safe?
-			mc = Minecraft.getInstance(); // TODO - can I init this once safely?
-			// TODO - can I init music manager once safely?
+			rand.setSeed(Util.getMillis()); 
+			mc = Minecraft.getInstance(); 
 		}
 		if (musicTicker == null) {
 			musicTicker = mc.getMusicManager();

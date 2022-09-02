@@ -117,7 +117,7 @@ public class HarderFartherCommands {
 		String chatMessage = "\nDimension: " + dimensionName + "\n Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
 
-		chatMessage = "  Harder Max Distance From Spawn....: " + MyConfig.getModifierMaxDistance() + " blocks."
+		chatMessage = "  Harder Max Distance From Spawn....: " + MyConfig.getBoostMaxDistance() + " blocks."
 				+ "\n  Spawn Safe Distance ..................................: " + MyConfig.getSafeDistance()
 				+ " blocks." + "\n  Debug Level .......................................................: "
 				+ MyConfig.getDebugLevel() + "\n  Only In Overworld .........................................: "

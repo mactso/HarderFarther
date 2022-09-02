@@ -17,7 +17,7 @@
 //
 //	public BurnishItem(Properties p_40710_) {
 //		super(p_40710_);
-//		// TODO Auto-generated constructor stub
+//		// 
 //	}
 //	
 //	@Override

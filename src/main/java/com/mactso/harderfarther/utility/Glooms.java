@@ -36,17 +36,12 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biome.BiomeCategory;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.TallGrassBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 
 public class Glooms {
@@ -94,8 +89,8 @@ public class Glooms {
 				} else {
 					serverLevel.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.AMBIENT, 4.20f,
 							pitch);
-					Utility.populateEntityType(EntityType.ZOMBIFIED_PIGLIN, serverLevel, pos, 1, 0, true, pig.isBaby()); // TODO
-																															// test.
+					Utility.populateEntityType(EntityType.ZOMBIFIED_PIGLIN, serverLevel, pos, 1, 0, true, pig.isBaby()); 
+																															
 				}
 			}
 		}

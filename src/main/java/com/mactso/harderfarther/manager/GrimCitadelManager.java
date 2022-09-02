@@ -925,7 +925,6 @@ public class GrimCitadelManager {
 		int passes = 0;
 		Random rand = level.getRandom();
 		while (i < GrimCitadelManager.getGrimRadius() && (passes < getGrimRadius() * 2 + 1)) {
-			// TODO also need to pass pos in here. its looking at 3,131,4 not at tower.
 			i = makeOneHoleInGrimCitadelFloor(level, pos, i, rand);
 			passes++; // ensure exit if it doesn't find floor blocks..
 		}
@@ -984,7 +983,6 @@ public class GrimCitadelManager {
 		boolean playClueSound = isPlayDirectionalSound(cp, difficulty);
 		if (!playAmbientsound && !playClueSound)
 			return;
-		int x = 3;
 		float pitch = 0.67f;
 		float volume = calcGCDistanceVolume(difficulty);
 		long gameTime = cp.level.getGameTime();

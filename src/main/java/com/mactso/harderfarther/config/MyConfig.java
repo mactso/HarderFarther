@@ -65,12 +65,23 @@ public class MyConfig {
 			return dimensionOmitList.contains(dimensionName);
 	}
 
-	public static int getModifierMaxDistance() {
+	public static int getBoostMaxDistance() {
 		return boostMaxDistance;
 	}
 
-	public static void setModifierMaxDistance(int modifierMaxDistance) {
+	public static void setBoostMaxDistance(int modifierMaxDistance) {
 		MyConfig.boostMaxDistance = modifierMaxDistance;
+	}
+
+	public static int getBoostMinDistance() {
+		if (boostMinDistance >= boostMaxDistance) {
+			return boostMaxDistance - 1;
+		}
+		return boostMinDistance;
+	}
+
+	public static void setBoostMinDistance(int boostMinDistance) {
+		MyConfig.boostMinDistance = boostMinDistance;
 	}
 
 	public static int getSafeDistance() {
@@ -274,6 +285,7 @@ public class MyConfig {
 	private static boolean  useLootDrops;
 	private static List<? extends String> dimensionOmitList;
 	private static int 	    boostMaxDistance;
+	private static int 	    boostMinDistance;
 	private static List<? extends String> lootItemsList;
 	private static int      safeDistance;
 	private static int      oddsDropExperienceBottle;
@@ -334,7 +346,9 @@ public class MyConfig {
 		COMMON.dimensionOmitList.set(dimensionOmitList);
 		COMMON.makeMonstersHarderFarther.set(makeMonstersHarderFarther);
 		COMMON.useLootDrops.set(useLootDrops);
-		COMMON.modifierMaxDistance.set(boostMaxDistance);
+		COMMON.boostMaxDistance.set(boostMaxDistance);
+		COMMON.boostMinDistance.set(boostMinDistance);
+
 		COMMON.safeDistance.set(safeDistance);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
@@ -401,7 +415,14 @@ public class MyConfig {
 
 		dimensionOmitList = COMMON.dimensionOmitList.get();
 		makeMonstersHarderFarther = COMMON.makeMonstersHarderFarther.get();
-		boostMaxDistance = COMMON.modifierMaxDistance.get();
+		boostMaxDistance = COMMON.boostMaxDistance.get();
+		boostMinDistance = COMMON.boostMinDistance.get();
+		if (boostMinDistance >= boostMaxDistance) {
+			LOGGER.error("ERROR: boostMinDistance should be less than boostMaxDistance.");
+			LOGGER.error("ERROR: boostMinDistance will use (boostMaxDistance - 1).");
+			boostMinDistance = boostMaxDistance-1;
+			COMMON.boostMinDistance.set(boostMinDistance);
+		}
 		minimumSafeAltitude = COMMON.minimumSafeAltitude.get();
 		maximumSafeAltitude = COMMON.maximumSafeAltitude.get();
 		safeDistance =COMMON.safeDistance.get();
@@ -468,7 +489,8 @@ public class MyConfig {
 		public final BooleanValue onlyOverworld;
 		public final ConfigValue<List<? extends String>> dimensionOmitList;	
 		public final BooleanValue makeMonstersHarderFarther;
-		public final IntValue modifierMaxDistance;
+		public final IntValue boostMaxDistance;
+		public final IntValue boostMinDistance;
 
 		public final IntValue oddsDropExperienceBottle;
 		public final IntValue safeDistance;
@@ -556,10 +578,15 @@ public class MyConfig {
 					.translation(Main.MODID + ".config." + "makeMonstersHarderFarther")
 					.define ("makeMonstersHarderFarther", () -> true);
 			
-			modifierMaxDistance = builder
-					.comment("modifierMaxDistance: Distance til Maximum Modifier Values Applied")
-					.translation(Main.MODID + ".config." + "modifierMaxDistance")
-					.defineInRange("modifierMaxDistance", () -> 30000, 1000, 6000000);
+			boostMaxDistance = builder
+					.comment("boostMaxDistance: Distance til Maximum Boost Values Applied")
+					.translation(Main.MODID + ".config." + "boostMaxDistance")
+					.defineInRange("boostMaxDistance", () -> 30000, 1000, 6000000);
+
+			boostMinDistance = builder
+					.comment("boostMinDistance: Distance til Boost Values Start.  Should be less than boostMaxDistance")
+					.translation(Main.MODID + ".config." + "boostMinDistance")
+					.defineInRange("boostMinDistance", () -> 1000, 64, 1000000);
 			
 			safeDistance = builder
 					.comment("Worldspawn Safe Distance: No Mobs Will Spawn In this Range")
