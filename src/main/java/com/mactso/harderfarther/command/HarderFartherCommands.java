@@ -188,6 +188,7 @@ public class HarderFartherCommands {
 					Utility.sendChat(p, report, ChatFormatting.YELLOW);
 					reportUseLootDrop(p);
 					reportOddsXpBottleDrop(p);
+					reportGrimLifeHeartPulseSeconds(p);
 					return 1;
 				})).then(Commands.literal("info").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
@@ -269,11 +270,15 @@ public class HarderFartherCommands {
 
 	
 	private static void reportUseLootDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  Use Loot Drops .....................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.YELLOW);
+		Utility.sendChat(p, "  Use Loot Drops ...................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.YELLOW);
 	}
 	
 	private static void reportOddsXpBottleDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  OddsXpBottleDrop .....................: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.YELLOW);
+		Utility.sendChat(p, "  OddsXpBottleDrop ..............: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.YELLOW);
+	}
+
+	private static void reportGrimLifeHeartPulseSeconds(ServerPlayer p) {
+		Utility.sendChat(p, "  Life Heart Pulse Rate......: " + "roughly " + MyConfig.getGrimLifeheartPulseSeconds() +" seconds +/- 50%.", ChatFormatting.YELLOW);
 	}
 	
 	public static int setBonusRange(ServerPlayer p, int newRange) {

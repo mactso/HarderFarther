@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.config.MyConfig.Common;
 import com.mactso.harderfarther.manager.LootManager;
 
 import net.minecraft.core.BlockPos;
@@ -252,6 +253,10 @@ public class MyConfig {
 		return grimEffectVillagers;
 	}
 	
+	public static int getGrimLifeheartPulseSeconds() {
+		return grimLifeheartPulseSeconds;
+	}
+
 	public static double getGrimFogRedPercent() {
 		return grimFogRedPercent;
 	}
@@ -310,7 +315,8 @@ public class MyConfig {
 	private static boolean  grimEffectAnimals;
 	private static boolean  grimEffectPigs;
 	private static boolean  grimEffectVillagers;
-
+	private static int      grimLifeheartPulseSeconds;
+	
 	private static double 	grimFogRedPercent;
 	private static double 	grimFogGreenPercent;
 	private static double 	grimFogBluePercent;
@@ -318,8 +324,6 @@ public class MyConfig {
 	private static List<? extends String> grimCitadelsList;
 	private static List<BlockPos> grimCitadelsBlockPosList;
 	
-
-
 	private static int      minimumSafeAltitude;
 	private static int      maximumSafeAltitude;
 	public static final int KILLER_ANY   = 0;
@@ -372,6 +376,7 @@ public class MyConfig {
 		COMMON.grimEffectAnimals.set(grimEffectAnimals);
 		COMMON.grimEffectPigs.set(grimEffectPigs);
 		COMMON.grimEffectVillagers.set(grimEffectVillagers);
+		COMMON.grimLifeheartPulseSeconds.set(grimLifeheartPulseSeconds);
 		
 		COMMON.grimFogRedPercent.set (grimFogRedPercent);
 		COMMON.grimFogBluePercent.set (grimFogBluePercent);
@@ -448,10 +453,12 @@ public class MyConfig {
 		grimCitadelsRadius= COMMON.grimCitadelsRadius.get();
 		grimCitadelMaxBoostPercent = COMMON.grimCitadelMaxBoostPercent.get();
 		bakeGrimRanges();
-		
+
+
 		grimEffectAnimals = COMMON.grimEffectAnimals.get();
 		grimEffectPigs = COMMON.grimEffectPigs.get();
 		grimEffectVillagers = COMMON.grimEffectVillagers.get();
+		grimLifeheartPulseSeconds = COMMON.grimLifeheartPulseSeconds.get();
 		
 		grimFogRedPercent = COMMON.grimFogRedPercent.get();
 		grimFogBluePercent = COMMON.grimFogBluePercent.get();
@@ -517,6 +524,9 @@ public class MyConfig {
 		public final BooleanValue grimEffectAnimals;
 		public final BooleanValue grimEffectPigs;
 		public final BooleanValue grimEffectVillagers;
+		public final IntValue grimLifeheartPulseSeconds;
+
+		
 		public final DoubleValue grimFogRedPercent;
 		public final DoubleValue grimFogBluePercent;
 		public final DoubleValue grimFogGreenPercent;
@@ -711,6 +721,11 @@ public class MyConfig {
 					.comment("grimEffectVillagers : Villagers in grim area become witches. ")
 					.translation(Main.MODID + ".config." + "grimEffectVillagers")
 					.define ("grimEffectVillagers", () -> true);
+			grimLifeheartPulseSeconds = builder
+					.comment("grimLifeheartPulseSeconds : number of grim Citadels kept in the game (if 0 will count down til none left)")
+					.translation(Main.MODID + ".config." + "grimLifeheartPulseSeconds")
+					.defineInRange("grimLifeheartPulseSeconds", () -> 120, 60, 600);	
+			
 			builder.push("Grim Fog Color Settings");			
 			grimFogRedPercent = builder
 					.comment("grimFogRedPercent : Grim Fog Red Component Multiplier")

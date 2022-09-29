@@ -27,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
 public class Utility {
 	public final static int FOUR_SECONDS = 80;
 	public final static int TWO_SECONDS = 40;
+	public static final int TICKS_PER_SECOND = 20;
+	
 	public final static float Pct00 = 0.00f;
 	public final static float Pct02 = 0.02f;
 	public final static float Pct05 = 0.05f;
@@ -41,6 +43,7 @@ public class Utility {
 	public final static float Pct95 = 0.95f;
 	public final static float Pct99 = 0.99f;
 	public final static float Pct100 = 1.0f;
+
 
 	private static final Logger LOGGER = LogManager.getLogger();
 

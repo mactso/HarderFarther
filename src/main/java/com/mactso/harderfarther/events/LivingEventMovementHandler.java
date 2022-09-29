@@ -3,6 +3,7 @@ package com.mactso.harderfarther.events;
 import java.util.Random;
 
 import com.mactso.harderfarther.client.GrimSongManager;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderFartherManager;
@@ -15,8 +16,11 @@ import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -25,7 +29,9 @@ import net.minecraftforge.fml.common.Mod;;
 
 @Mod.EventBusSubscriber()
 public class LivingEventMovementHandler {
-
+	/**
+	 * @param event
+	 */
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
 
@@ -46,17 +52,39 @@ public class LivingEventMovementHandler {
 
 		ServerLevel serverLevel = (ServerLevel) le.getLevel();
 		if (le instanceof ServerPlayer sp) {
-			boolean hasLifeHeart = sp.getInventory().contains(new ItemStack(ModItems.LIFE_HEART));
-			if (hasLifeHeart) {
-				if (rand.nextInt(6000) == 42) {
-					Utility.updateEffect((LivingEntity) sp, 0, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
-//					Vec3 rfv = sp.getForward().scale(1.3);
-//					for (int j = 0; j < 21; ++j) {
-//						double x = (double) sp.getX() + rand.nextDouble() * (double) 0.1F;
-//						double y = (double) sp.getY() + rand.nextDouble();
-//						double z = (double) sp.getZ() + rand.nextDouble();
-//						serverLevel.sendParticles(ParticleTypes.SMALL_FLAME, x, y, z, rfv.x, rfv.y, rfv.z);
-//					}
+			boolean hasLifeHeart = sp.getInventory().contains(ModItems.LIFE_HEART_STACK);
+			 
+			if ((sp.getHealth() < sp.getMaxHealth()) && (hasLifeHeart)) {
+				int dice = MyConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
+				int roll = rand.nextInt(dice);
+				int duration = Utility.FOUR_SECONDS;
+				if (roll == 42) { // once per 2 minutes
+					int slot = sp.getInventory().findSlotMatchingItem(ModItems.LIFE_HEART_STACK);
+					slot /= 9;
+					int healingpower = 1;
+					duration = Utility.FOUR_SECONDS * 3;
+					if (slot != 1) { // first top row no sound
+						float volume = 0.48f; // default loud
+						healingpower = 3;
+						duration = Utility.FOUR_SECONDS;
+
+						if (slot == 3) // second row quiet
+						{
+							volume = 0.12f;
+							healingpower = 2;
+							duration = Utility.FOUR_SECONDS;
+						}
+						if (slot == 3) // third row just over hotbar
+						{
+							volume = 0.24f;
+							healingpower = 2;
+							duration = Utility.FOUR_SECONDS+Utility.FOUR_SECONDS;
+
+						}
+						serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME,
+								SoundSource.PLAYERS, volume, 0.86f);
+					}
+					Utility.updateEffect((LivingEntity) sp, healingpower, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
 				}
 			}
 
