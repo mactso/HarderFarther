@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.blockentities.ModBlockEntities;
@@ -12,7 +14,6 @@ import com.mactso.harderfarther.command.HarderFartherCommands;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.BlockEvents;
 import com.mactso.harderfarther.events.ChunkEvent;
-import com.mactso.harderfarther.events.EnterWorldEventHandler;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
@@ -26,22 +27,18 @@ import com.mactso.harderfarther.network.Register;
 import com.mactso.harderfarther.sounds.ModSounds;
 import com.mactso.harderfarther.utility.Utility;
 
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.coremod.api.ASMAPI;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -49,7 +46,9 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkConstants;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 
 
 @Mod("harderfarther")
@@ -98,7 +97,6 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
 				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
-				MinecraftForge.EVENT_BUS.register(new EnterWorldEventHandler());
 				//  https://www.youtube.com/watch?v=_uC28W_aasg for this alternative method.
 				lem = new LivingEventMovementHandler();
 				MinecraftForge.EVENT_BUS.register(lem);
@@ -133,28 +131,22 @@ public class Main {
 	    public static class ModEvents
 	    {
 
-			@SubscribeEvent
-			public static void onSoundEventsRegistry (final RegistryEvent.Register<SoundEvent> event)
-			{
-				ModSounds.register(event.getRegistry());
-			}
-			
 		    @SubscribeEvent
-		    public static void onItemsRegistry(final RegistryEvent.Register<Item> event)
+		    public static void onRegister(final RegisterEvent event)
 		    {
-		        ModItems.register(event.getRegistry());
-		    }
-		    
-		    @SubscribeEvent
-		    public static void onBlocksRegistry(final RegistryEvent.Register<Block> event)
-		    {
-		        ModBlocks.register(event.getRegistry());
-		    }
-		    
-		    @SubscribeEvent
-		    public static void onBlockEntitiesRegistry(final RegistryEvent.Register<BlockEntityType<?>> event)
-		    {
-		        ModBlockEntities.register(event.getRegistry());
+		    	@Nullable
+				IForgeRegistry<Object> fr = event.getForgeRegistry();
+		    	
+		    	@NotNull
+				ResourceKey<? extends Registry<?>> key = event.getRegistryKey();
+		    	if (key.equals(ForgeRegistries.Keys.BLOCKS))
+		    		ModBlocks.register(event.getForgeRegistry());
+		    	else if (key.equals(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES))
+		    		ModBlockEntities.register(event.getForgeRegistry());
+		    	else if (key.equals(ForgeRegistries.Keys.ITEMS))
+		    		ModItems.register(event.getForgeRegistry());
+		    	else if (key.equals(ForgeRegistries.Keys.SOUND_EVENTS))
+		    		ModSounds.register(event.getForgeRegistry());
 		    }
 		    
 	    }	

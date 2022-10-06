@@ -25,12 +25,6 @@ public class ModSounds {
 //	https://creativecommons.org/licenses/by/3.0/
 	
 	
-//	public static final DeferredRegister<SoundEvent> DEFERRED_REG 
-//	= DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Main.MODID);
-
-//	public static final RegistryObject<SoundEvent> DUSTY_MEMORIES = registerSoundEvent ("dust");
-//	public static final RegistryObject<SoundEvent> LABYRINTH_LOST_DREAMS = registerSoundEvent ("laby");
-//	public static final RegistryObject<SoundEvent> LAKE_DESTINY = registerSoundEvent ("lake");
 
 	public static final SoundEvent DUSTY_MEMORIES = create ("dust");
 	public static final SoundEvent LABYRINTH_LOST_DREAMS = create ("laby");
@@ -47,20 +41,16 @@ public class ModSounds {
 
 	public static void register(IForgeRegistry<SoundEvent> forgeRegistry)
 	{
-		forgeRegistry.register(DUSTY_MEMORIES);
-		forgeRegistry.register(LABYRINTH_LOST_DREAMS);
-		forgeRegistry.register(LAKE_DESTINY);
+		forgeRegistry.register(DUSTY_MEMORIES.getLocation(),DUSTY_MEMORIES);
+		forgeRegistry.register(LABYRINTH_LOST_DREAMS.getLocation(),LABYRINTH_LOST_DREAMS);
+		forgeRegistry.register(LAKE_DESTINY.getLocation(),LAKE_DESTINY);
 	}
 
 	private static SoundEvent create(String key)
 	{
 		ResourceLocation res = new ResourceLocation(Main.MODID, key);
 		SoundEvent ret = new SoundEvent(res);
-		ret.setRegistryName(res);
 		return ret;
 	}
 	
-//	public static void register(IEventBus eventBus) {
-//    	DEFERRED_REG.register(eventBus);		
-//	}
 }

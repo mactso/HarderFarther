@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.BucketItem;
@@ -36,9 +37,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
-import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.BlockEvent.EntityPlaceEvent;
+import net.minecraftforge.event.level.ExplosionEvent.Detonate;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -57,17 +58,20 @@ public class BlockEvents {
 	@SubscribeEvent
 	public static void onBreakingSpeed(BreakSpeed event) {
 		// note: This is both server and clientside. client uses to display properly.
-		if (event.getPlayer() == null) {
+		if (event.getEntity() == null) {
 			return;
-		} else if (event.getPlayer().isCreative()) {
+		} else if (event.getEntity().isCreative()) {
+			return;
+		} else if (!(event.getPosition().isPresent())) {
 			return;
 		}
-		Player p = event.getPlayer();
+
+		Player p = event.getEntity();
 		Vec3 rfv = p.getForward().reverse().scale(0.6);
 		Level level = p.level;
 		long gameTime = level.getGameTime();
-		Random rand = level.getRandom();
-		BlockPos ePos = event.getPos();
+		RandomSource rand = level.getRandom();
+		BlockPos ePos = event.getPosition().get();
 
 		float adjustY = 0;
 		if (p.blockPosition().getY() < ePos.getY()) {
@@ -168,7 +172,7 @@ public class BlockEvents {
 			return;
 
 		if (target.getType() == HitResult.Type.BLOCK) {
-			Player player = event.getPlayer();
+			Player player = event.getEntity();
 			Level world = player.level;
 			BlockHitResult blockray = (BlockHitResult) target;
 			BlockPos blockpos = blockray.getBlockPos();
@@ -229,8 +233,8 @@ public class BlockEvents {
 //	}
 
 	@SubscribeEvent
-	public static void onExplosionDetonate(ExplosionEvent.Detonate event) {
-		Level level = event.getWorld();
+	public static void onExplosionDetonate(Detonate event) {
+		Level level = event.getLevel();
 		List<BlockPos> list = event.getAffectedBlocks();
 		Vec3 vPos = event.getExplosion().getPosition();
 		if (GrimCitadelManager

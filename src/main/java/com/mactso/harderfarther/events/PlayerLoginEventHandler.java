@@ -14,8 +14,8 @@ public class PlayerLoginEventHandler {
     @SubscribeEvent
     public void onLogin(PlayerLoggedInEvent event)
     {
-    	if (event.getPlayer().level.isClientSide) return;
-    	Player sp = event.getPlayer();
+    	if (event.getEntity().level.isClientSide) return;
+    	Player sp = event.getEntity();
     	if ( sp == null ) return;
     	if (!(sp instanceof ServerPlayer)) return;
     	if (MyConfig.isUseGrimCitadels()) {

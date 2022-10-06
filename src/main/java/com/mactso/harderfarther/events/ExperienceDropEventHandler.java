@@ -22,7 +22,7 @@ public class ExperienceDropEventHandler {
 	@SubscribeEvent
 	public void onMonsterDrops(LivingExperienceDropEvent event) {
 		
-		LivingEntity le = event.getEntityLiving();
+		LivingEntity le = event.getEntity();
 		if (le == null)   {
 			return;
 		}

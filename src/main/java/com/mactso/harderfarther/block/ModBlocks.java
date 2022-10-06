@@ -20,26 +20,27 @@ public class ModBlocks
 	public static final Block GRIM_HEART = 
 			new GrimHeartBlock(BlockBehaviour
 					.Properties.of(Material.CLAY).lightLevel((state) -> { return 7;}).sound(SoundType.METAL), ParticleTypes.FLAME
-					).setRegistryName("grim_heart");
+					);
 	
 	public static final Block GRIM_GATE = 
 			new GrimGateBlock(BlockBehaviour
 					.Properties.of(Material.GLASS).instabreak().noOcclusion().lightLevel((state) -> { return 3;}).sound(SoundType.GLASS)
-					).setRegistryName("grim_gate");
+					);
 	
 //	   public static final Block WALL_TORCH = register("wall_torch", new WallTorchBlock(BlockBehaviour
 //			   .Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_152607_) -> {
 //		      return 14;   }).sound(SoundType.WOOD).dropsLike(TORCH), ParticleTypes.FLAME));
-	public static final Block DEAD_BRANCHES = new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never)).setRegistryName("dead_branches");
+	public static final Block DEAD_BRANCHES = new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion().isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never));
 
 	
 	public static void register(IForgeRegistry<Block> forgeRegistry	)
 	{
 		// BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.GRASS).friction(0.8F).sound(SoundType.SLIME_BLOCK).noOcclusion()))
-
-		forgeRegistry.register(GRIM_HEART);
-		forgeRegistry.register(GRIM_GATE);
-		forgeRegistry.register(DEAD_BRANCHES);
+		//forgeRegistry.register("bee_pollen", BEE_POLLEN);
+		
+		forgeRegistry.register("grim_heart",GRIM_HEART);
+		forgeRegistry.register("grim_gate",GRIM_GATE);
+		forgeRegistry.register("dead_branches",DEAD_BRANCHES);
 
 
 	}

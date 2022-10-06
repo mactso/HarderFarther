@@ -3,7 +3,6 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,8 +13,10 @@ import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -38,7 +39,7 @@ public class LootManager {
 	public static Hashtable<Integer, LootItem> lootHashtable = new Hashtable<>();
 	public static boolean init = false;
 	
-	public static ItemStack getLootItem (String Rarity, Random rand) {
+	public static ItemStack getLootItem (String Rarity, RandomSource rand) {
 
 
 		int workroll = 0;
@@ -174,7 +175,7 @@ public class LootManager {
 
 	}
 	
-	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemEntity> eventItems, Random rand) {
+	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemEntity> eventItems, RandomSource rand) {
 		int d100 = (int) (Math.ceil(rand.nextDouble() * 100));
 		if (d100 < MyConfig.getOddsDropExperienceBottle()) {
 			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
@@ -225,7 +226,7 @@ public class LootManager {
 		int durationRegen = (int) (20 + 200 * distanceFactor);
 		int effectRegen = (int) (1 + 4 * distanceFactor);
 
-		TextComponent potionName = new TextComponent("Life Saving Potion");
+		MutableComponent potionName = Component.literal("Life Saving Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
 		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
 		col.add(new MobEffectInstance(MobEffects.ABSORPTION, durationAbsorb, effectAbsorb));
@@ -239,7 +240,7 @@ public class LootManager {
 
 	private static ItemStack makeOgreStrengthPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
-		TextComponent potionName = new TextComponent("Ogre Power Potion");
+		MutableComponent potionName = Component.literal("Ogre Power Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);
 		Collection<MobEffectInstance> col = new ArrayList<MobEffectInstance>();
 		int durationAbsorb = (int) (12000 * distanceFactor);

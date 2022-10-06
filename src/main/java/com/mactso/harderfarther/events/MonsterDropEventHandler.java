@@ -1,7 +1,6 @@
 package com.mactso.harderfarther.events;
 
 import java.util.Collection;
-import java.util.Random;
 
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
@@ -14,6 +13,7 @@ import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,6 +47,8 @@ public class MonsterDropEventHandler {
 		ChunkAccess ichunk = serverLevel.getChunk(pos);
 		IChunkLastMobDeathTime cap;
 		boolean cancel = false;
+		Utility.debugMsg(2, "doLimitDropSpeed");
+
 		if (ichunk instanceof LevelChunk chunk) {
 			cap = chunk.getCapability(CapabilityChunkLastMobDeathTime.LASTMOBDEATHTIME).orElse(null);
 			lastMobDeathTime = 0;
@@ -75,7 +77,7 @@ public class MonsterDropEventHandler {
 	@SubscribeEvent  // serverside only.
 	public boolean onMonsterDropsEvent(LivingDropsEvent event) {
 
-		LivingEntity le = event.getEntityLiving();
+		LivingEntity le = event.getEntity();
 		DamageSource dS = event.getSource();
 
 		if (!isDropsSpecialLoot(event, le, dS))
@@ -83,7 +85,7 @@ public class MonsterDropEventHandler {
 
 		ServerLevel serverLevel = (ServerLevel) le.level;
 
-		Random rand = serverLevel.getRandom();
+		RandomSource rand = serverLevel.getRandom();
 		BlockPos pos = new BlockPos(le.getX(), le.getY(), le.getZ());
 
 		// in this section prevent ALL drops if players are killing mobs too quickly.
@@ -123,7 +125,7 @@ public class MonsterDropEventHandler {
 			d1000 += odds / 10;
 		}
 
-		Mob me = (Mob) event.getEntityLiving();
+		Mob me = (Mob) event.getEntity();
 		ItemStack itemStackToDrop = LootManager.doGetLootStack(le, me, boostDifficulty, d1000);
 
 		ItemEntity myItemEntity = new ItemEntity(le.level, le.getX(), le.getY(),
@@ -131,8 +133,9 @@ public class MonsterDropEventHandler {
 
 		eventItems.add(myItemEntity);
 
+		
 		Utility.debugMsg(1, pos, le.getName().getString() + " died and dropped loot: "
-				+ itemStackToDrop.getItem().getRegistryName());
+				+ itemStackToDrop.getItem().toString());
 		return true;
 	}
 

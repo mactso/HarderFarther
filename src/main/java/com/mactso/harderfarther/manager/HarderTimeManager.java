@@ -7,8 +7,10 @@ import java.util.Random;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
+import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -40,7 +43,7 @@ public class HarderTimeManager {
 			SoundEvents.SOUL_ESCAPE, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SOUL_SAND_STEP,
 			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
 
-	private static void doClientParticles(Player cp, Random rand,
+	private static void doClientParticles(Player cp, RandomSource rand,
 			SimpleParticleType p1,
 			SimpleParticleType p2,
 			SimpleParticleType p3,
@@ -78,7 +81,7 @@ public class HarderTimeManager {
 
 	private static void doNiceAtmosphere(Player cp) {
 
-		Random rand = cp.level.getRandom();
+		RandomSource rand = cp.level.getRandom();
 
 		
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
@@ -111,7 +114,7 @@ public class HarderTimeManager {
 	private static void doRandomScaryThings(ServerPlayer sp) {
 
 		ServerLevel sl = sp.getLevel();
-		Random rand = sl.getRandom();
+		RandomSource rand = sl.getRandom();
 
 		float timeDifficulty = getTimeDifficulty(sl, sp);
 		if (timeDifficulty == 0)
@@ -184,7 +187,7 @@ public class HarderTimeManager {
 				}   else if (b instanceof SnowLayerBlock) {
 					sl.setBlock(temp, Blocks.ICE.defaultBlockState(), 3);
 					sl.setBlock(temp.above(), Blocks.SOUL_FIRE.defaultBlockState(), 131);
-				} else if (BlockTags.BASE_STONE_OVERWORLD.contains(bs.getBlock())) {
+				} else if (bs.is(BlockTags.BASE_STONE_OVERWORLD)) {
 					if (!sl.canSeeSky(pos)) {
 						sl.setBlock(temp, Blocks.GRAVEL.defaultBlockState(),3);
 						sl.playSound(null, temp, SoundEvents.TURTLE_EGG_CRACK, SoundSource.AMBIENT, 0.11f, pitch);
@@ -210,7 +213,7 @@ public class HarderTimeManager {
 	// clientside
 	private static void doSpookyAtmosphere(Player cp) {
 
-		Random rand = cp.level.getRandom();
+		RandomSource rand = cp.level.getRandom();
 
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
 		if (timeDifficulty == 0)
@@ -243,15 +246,25 @@ public class HarderTimeManager {
 			return 0;
 
 		long startHarderTime = (long) (MyConfig.getMaxHarderTimeMinutes() *.66f);
-		long inhabitedMinutes = level.getChunk(entity.blockPosition()).getInhabitedTime() / 1200; // 60 sec * 20
+		Utility.debugMsg(2, "getChunk top start = " + startHarderTime);
+		if (level.isAreaLoaded(entity.blockPosition(), 3)) {
+			Utility.debugMsg(2, "Area is loaded " );
+			BlockPos b = entity.blockPosition();
+			long inhabitedMinutes = level.getChunk(b).getInhabitedTime() / 1200; // 60 sec * 20
+			Utility.debugMsg(2, "getChunk bottom minutes = " + inhabitedMinutes);
+			if (inhabitedMinutes < startHarderTime)
+				return 0;
+			long minutes = inhabitedMinutes - startHarderTime;
+			float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
+			timeDifficulty = (float) Math.max(0.33, timeDifficulty);
+			return timeDifficulty;
 
-		if (inhabitedMinutes < startHarderTime)
-			return 0;
+		} else {
+			Utility.debugMsg(2, "Chunk NOT loaded " );
+		}
 
-		long minutes = inhabitedMinutes - startHarderTime;
-		float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
-		timeDifficulty = (float) Math.max(0.33, timeDifficulty);
-		return timeDifficulty;
+		return 0;
+
 	}
 	
 }

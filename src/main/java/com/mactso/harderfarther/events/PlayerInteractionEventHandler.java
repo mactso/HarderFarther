@@ -13,7 +13,7 @@ public class PlayerInteractionEventHandler {
 	
 	@SubscribeEvent
 	public static void onPlayerInteract(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 //		if (player.isCreative())
 //			return;
 		Level level = player.level;

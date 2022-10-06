@@ -1,7 +1,5 @@
 package com.mactso.harderfarther.events;
 
-import java.util.Random;
-
 import com.mactso.harderfarther.client.GrimSongManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
@@ -11,6 +9,7 @@ import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.sounds.ModSounds;
+import com.mactso.harderfarther.utility.Boosts;
 import com.mactso.harderfarther.utility.Glooms;
 import com.mactso.harderfarther.utility.Utility;
 
@@ -18,25 +17,28 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;;
 
 @Mod.EventBusSubscriber()
 public class LivingEventMovementHandler {
+	
 	/**
 	 * @param event
 	 */
 	@SubscribeEvent
-	public void onLivingUpdate(LivingUpdateEvent event) {
+	public void onLivingUpdate(LivingTickEvent event) {
 
-		LivingEntity le = event.getEntityLiving();
-		Random rand = le.getLevel().getRandom();
+		// could be livingtick or could be playertick / playerupdate now.
+		LivingEntity le = event.getEntity();
+		RandomSource rand = le.getLevel().getRandom();
 
 		if (le.level.isClientSide()) {
 			if (le instanceof Player cp) {
@@ -51,9 +53,12 @@ public class LivingEventMovementHandler {
 		}
 
 		ServerLevel serverLevel = (ServerLevel) le.getLevel();
+
 		if (le instanceof ServerPlayer sp) {
+			Utility.debugMsg(2, "LivingEventMovementHandler");
+
 			boolean hasLifeHeart = sp.getInventory().contains(ModItems.LIFE_HEART_STACK);
-			 
+
 			if ((sp.getHealth() < sp.getMaxHealth()) && (hasLifeHeart)) {
 				int dice = MyConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
 				int roll = rand.nextInt(dice);
@@ -78,48 +83,58 @@ public class LivingEventMovementHandler {
 						{
 							volume = 0.24f;
 							healingpower = 2;
-							duration = Utility.FOUR_SECONDS+Utility.FOUR_SECONDS;
+							duration = Utility.FOUR_SECONDS + Utility.FOUR_SECONDS;
 
 						}
 						serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME,
 								SoundSource.PLAYERS, volume, 0.86f);
 					}
-					Utility.updateEffect((LivingEntity) sp, healingpower, MobEffects.REGENERATION, Utility.FOUR_SECONDS);
+					Utility.updateEffect((LivingEntity) sp, healingpower, MobEffects.REGENERATION,
+							Utility.FOUR_SECONDS);
 				}
 			}
 
-		}
-		long gameTime = serverLevel.getGameTime();
+			long gameTime = serverLevel.getGameTime();
 
-		float difficulty = HarderFartherManager.getDifficultyHere(serverLevel, le);
+			float difficulty = HarderFartherManager.getDifficultyHere(serverLevel, le);
 
-		if (difficulty > 0) {
-			if (GrimCitadelManager.isGCNear(difficulty)) {
-				Utility.slowFlyingMotion(le);
-			}
-			if (gameTime % 10 != le.getId() % 10)
-				return;
-
-			Utility.debugMsg(2, le,
-					"Living Event " + event.getEntity().getType().getRegistryName().toString() + " dif: " + difficulty);
-			if ((le instanceof ServerPlayer sp) && (rand.nextInt(300000) == 4242) && (difficulty > Utility.Pct09)) {
-				Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
-			}
-
-			if ((difficulty > Utility.Pct84)) {
-				if (le.hasEffect(MobEffects.SLOW_FALLING)) {
-					le.removeEffect(MobEffects.SLOW_FALLING);
+			if (difficulty > 0) {
+				if (GrimCitadelManager.isGCNear(difficulty)) {
+					Utility.slowFlyingMotion(le);
 				}
-			}
+				if (gameTime % 10 != le.getId() % 10)
+					return;
 
-			if (GrimCitadelManager.getGrimDifficulty(le) > 0) {
-				Glooms.doGlooms(serverLevel, gameTime, difficulty, le, Glooms.GRIM);
-				if ((le instanceof ServerPlayer sp) && (rand.nextInt(144000) == 4242) && (difficulty > Utility.Pct09)) {
+				Utility.debugMsg(2, le, "Living Event " + EntityType.getKey((event.getEntity().getType())).toString()
+						+ " dif: " + difficulty);
+				if ((le instanceof ServerPlayer) && (rand.nextInt(300000) == 4242) && (difficulty > Utility.Pct09)) {
 					Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
 				}
+
+				if ((difficulty > Utility.Pct84)) {
+					if (le.hasEffect(MobEffects.SLOW_FALLING)) {
+						le.removeEffect(MobEffects.SLOW_FALLING);
+					}
+				}
+
+				if (GrimCitadelManager.getGrimDifficulty(le) > 0) {
+					Glooms.doGlooms(serverLevel, gameTime, difficulty, le, Glooms.GRIM);
+					if ((le instanceof ServerPlayer) && (rand.nextInt(144000) == 4242)
+							&& (difficulty > Utility.Pct09)) {
+						Network.sendToClient(new GrimClientSongPacket(ModSounds.NUM_DUSTY_MEMORIES), sp);
+					}
+				}
+				if (HarderTimeManager.getTimeDifficulty(serverLevel, le) > 0) {
+					Glooms.doGlooms(serverLevel, gameTime, difficulty, le, Glooms.TIME);
+				}
 			}
-			if (HarderTimeManager.getTimeDifficulty(serverLevel, le) > 0) {
-				Glooms.doGlooms(serverLevel, gameTime, difficulty, le, Glooms.TIME);
+
+		} else {
+			// "enter world event" horked as of 1.19.  Move boosts here..
+			if (event.getEntity() instanceof Monster me) {
+				Utility.debugMsg(2, "entering doBoostAbilities");
+				String eDsc = EntityType.getKey(me.getType()).toString();
+				Boosts.doBoostAbilities(me, eDsc);
 			}
 		}
 

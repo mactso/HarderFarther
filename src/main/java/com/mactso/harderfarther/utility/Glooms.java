@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -401,7 +402,7 @@ public class Glooms {
 
 	public static void doGloomPlayerCurse(float difficulty, int gloomType, int amplitude, ServerPlayer sp) {
 
-		Random rand = sp.getLevel().getRandom();
+		RandomSource rand = sp.getLevel().getRandom();
 		boolean hasLifeHeart = sp.getInventory().contains(new ItemStack(ModItems.LIFE_HEART));
 
 		if (hasLifeHeart) {

@@ -13,6 +13,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -57,7 +58,8 @@ public class GrimHeartBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public int getExpDrop(BlockState state, LevelReader world, BlockPos pos, int fortune, int silktouch) {
+	public int getExpDrop(BlockState state, LevelReader world, RandomSource rand, BlockPos pos, int fortune, int silktouch) {
+
 		return 171;
 	}
 
