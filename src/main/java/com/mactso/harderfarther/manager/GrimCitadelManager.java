@@ -753,6 +753,10 @@ public class GrimCitadelManager {
 			return 0;
 
 		grimDifficulty = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
+		
+		if (grimDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+			grimDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+		}
 
 		return grimDifficulty;
 

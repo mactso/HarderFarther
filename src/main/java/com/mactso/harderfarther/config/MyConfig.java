@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.Main;
-import com.mactso.harderfarther.config.MyConfig.Common;
 import com.mactso.harderfarther.manager.LootManager;
 
 import net.minecraft.core.BlockPos;

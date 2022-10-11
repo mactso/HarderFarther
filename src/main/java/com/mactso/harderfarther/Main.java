@@ -12,7 +12,6 @@ import com.mactso.harderfarther.command.HarderFartherCommands;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.BlockEvents;
 import com.mactso.harderfarther.events.ChunkEvent;
-import com.mactso.harderfarther.events.EnterWorldEventHandler;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.events.LivingEventMovementHandler;
@@ -41,7 +40,6 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -49,7 +47,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkConstants;
 
 
 @Mod("harderfarther")
@@ -98,7 +95,6 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
 				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
-				MinecraftForge.EVENT_BUS.register(new EnterWorldEventHandler());
 				//  https://www.youtube.com/watch?v=_uC28W_aasg for this alternative method.
 				lem = new LivingEventMovementHandler();
 				MinecraftForge.EVENT_BUS.register(lem);
