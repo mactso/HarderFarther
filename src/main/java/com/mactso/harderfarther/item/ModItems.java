@@ -14,18 +14,22 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 
 public class ModItems {
-// public static final Item BLESSED_APPLE = new Item(new Item.Properties().food(new FoodProperties.Builder().hunger(3).setAlwaysEdible().saturation(0.3F).fastToEat().effect(() -> new EffectInstance(Effects.ABSORPTION, 400, 4), 1.0F).build()).group(ItemGroup.FOOD).maxStackSize(16)).setRegistryName("blessed_apple");
-//	public static final Item STRANGE_POTION = new Item(new Item.Properties().food(new Food.Builder().hunger(3).setAlwaysEdible().saturation(0.3F).fastToEat().effect(() -> new EffectInstance(Effects.ABSORPTION, 400, 4), 1.0F).build()).group(ItemGroup.FOOD).maxStackSize(16)).setRegistryName("blessed_apple");
+
 	public static final Item LIFE_HEART = new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC).fireResistant().rarity(Rarity.EPIC)).setRegistryName("life_heart");
 	public static final ItemStack LIFE_HEART_STACK = new ItemStack(LIFE_HEART, 1);
-
 	public static final Item DEAD_BRANCHES = new BlockItem(ModBlocks.DEAD_BRANCHES, (new Item.Properties()).tab(CreativeModeTab.TAB_DECORATIONS)).setRegistryName("dead_branches");
+	public static final Item BURNISHING_STONE = new BurnishingStone(new Item.Properties().tab(CreativeModeTab.TAB_MISC).fireResistant().rarity(Rarity.RARE)).setRegistryName("burnishing_stone");
+	public static final ItemStack BURNISHING_STONE_STACK = new ItemStack(BURNISHING_STONE, 1);
 	
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
 		Utility.setLore(LIFE_HEART_STACK,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.life_heart.lore")));
-		forgeRegistry.registerAll(DEAD_BRANCHES,LIFE_HEART);
+		Utility.setLore(BURNISHING_STONE_STACK,
+				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
+		forgeRegistry.register(DEAD_BRANCHES);
+		forgeRegistry.register(LIFE_HEART);
+		forgeRegistry.register(BURNISHING_STONE);
 	}
 
 }

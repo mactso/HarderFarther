@@ -240,6 +240,14 @@ public class MyConfig {
 		MyConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
 	}
 	
+	public static boolean isGrimEffectTrees() {
+		return grimEffectTrees;
+	}
+
+	public static void setGrimEffectTrees(boolean grimEffectTrees) {
+		MyConfig.grimEffectTrees = grimEffectTrees;
+	}
+
 	public static boolean isGrimEffectAnimals() {
 		return grimEffectAnimals;
 	}
@@ -311,6 +319,7 @@ public class MyConfig {
 	private static int 		grimCitadelPlayerCurseDistance;
 	private static int 		grimCitadelPlayerCurseDistanceSq;
 
+	private static boolean  grimEffectTrees;
 	private static boolean  grimEffectAnimals;
 	private static boolean  grimEffectPigs;
 	private static boolean  grimEffectVillagers;
@@ -372,6 +381,7 @@ public class MyConfig {
 		COMMON.grimCitadelBonusDistance.set(grimCitadelBonusDistance);
 		COMMON.grimCitadelPlayerCurseDistance.set(grimCitadelPlayerCurseDistance);
 		
+		COMMON.grimEffectTrees.set(grimEffectTrees);
 		COMMON.grimEffectAnimals.set(grimEffectAnimals);
 		COMMON.grimEffectPigs.set(grimEffectPigs);
 		COMMON.grimEffectVillagers.set(grimEffectVillagers);
@@ -454,6 +464,7 @@ public class MyConfig {
 		bakeGrimRanges();
 
 
+		grimEffectTrees = COMMON.grimEffectTrees.get();
 		grimEffectAnimals = COMMON.grimEffectAnimals.get();
 		grimEffectPigs = COMMON.grimEffectPigs.get();
 		grimEffectVillagers = COMMON.grimEffectVillagers.get();
@@ -520,6 +531,7 @@ public class MyConfig {
 		public final IntValue grimCitadelPlayerCurseDistance;
 		public final IntValue grimCitadelMaxBoostPercent;
 		
+		public final BooleanValue grimEffectTrees;
 		public final BooleanValue grimEffectAnimals;
 		public final BooleanValue grimEffectPigs;
 		public final BooleanValue grimEffectVillagers;
@@ -706,9 +718,16 @@ public class MyConfig {
 			
 			builder.pop();
 			builder.push("Grim Effects Settings");					
+
+			grimEffectTrees = builder
+					.comment("grimEffectTrees : Master Switch Trees suffer Grim Effects. ")
+					.translation(Main.MODID + ".config." + "grimEffectTrees")
+					.define ("grimEffectTrees", () -> true);
+
+			
 			grimEffectAnimals = builder
 					.comment("grimEffectAnimals : Master Switch Animals suffer grim effects. ")
-					.translation(Main.MODID + ".config." + "grimEffectsAnimals")
+					.translation(Main.MODID + ".config." + "grimEffectAnimals")
 					.define ("grimEffectAnimals", () -> true);
 
 			grimEffectPigs = builder

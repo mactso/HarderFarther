@@ -1,8 +1,8 @@
 {
-
+	"item.harderfarther.burnishing_stone" : "Burnishing Stone",
+	"item.harderfarther.burnishing_stone.lore" : "Repairs item in other hand.",
 	"item.harderfarther.life_heart" : "Life Heart",
-	"item.harderfarther.life_heart.lore" : "Aids against the grim auras and curses.",
+	"item.harderfarther.life_heart.lore" : "Helps ward against the grim auras, curses, and injury.",
 	"item.harderfarther.grim_boots.name" : "Speedy Boots",
 	"item.harderfarther.grim_boots.lore" : "Hurry quickly to your next death."
-	
 }

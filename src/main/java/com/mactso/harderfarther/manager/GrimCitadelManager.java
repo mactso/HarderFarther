@@ -53,6 +53,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -593,8 +594,21 @@ public class GrimCitadelManager {
 		level.setBlockAndUpdate(pos.below(), Blocks.GRAY_SHULKER_BOX.defaultBlockState());
 		RandomizableContainerBlockEntity.setLootTable(level, level.random, pos.below(),
 				BuiltInLootTables.NETHER_BRIDGE);
+
+		ShulkerBoxBlockEntity sBox = (ShulkerBoxBlockEntity) level.getBlockEntity(pos.below());
+
 		ItemStack itemStackToDrop;
-		ShulkerBoxBlockEntity s = (ShulkerBoxBlockEntity) level.getBlockEntity(pos.below());
+		itemStackToDrop = new ItemStack(ModItems.LIFE_HEART, (int) 1);
+		Utility.setLore(itemStackToDrop,
+				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.life_heart.lore")));
+		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
+
+		itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, (int) level.getRandom().nextInt(4)+2);
+		Utility.setLore(itemStackToDrop,
+				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
+		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
+		
+		
 		double bootsSpeed = 0.04D + level.getRandom().nextDouble() * 0.06D;
 		AttributeModifier am = new AttributeModifier(ITEM_SPEED_UUID, "hfspeed", bootsSpeed,
 				AttributeModifier.Operation.ADDITION);
@@ -604,16 +618,21 @@ public class GrimCitadelManager {
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.grim_boots.name")));
 		Utility.setLore(itemStackToDrop,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.grim_boots.lore")));
+		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
 
-		int slot = level.getRandom().nextInt(s.getContainerSize());
-		s.setItem(slot, itemStackToDrop);
-		itemStackToDrop = new ItemStack(ModItems.LIFE_HEART, (int) 1);
-		Utility.setLore(itemStackToDrop,
-				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.life_heart.lore")));
-		slot = level.getRandom().nextInt(s.getContainerSize());
-		s.setItem(slot, itemStackToDrop);
 	}
 
+	private static int getEmptyContainerSlot (Random rand, RandomizableContainerBlockEntity r) {
+		int slot = 0;
+		int counter = 10;
+		slot = rand.nextInt(r.getContainerSize());
+		while ((counter >= 0) && (!r.getItem(slot).isEmpty())) {
+			slot = rand.nextInt(r.getContainerSize());
+			counter--;
+		}
+		return slot;
+	}
+	
 	private static void decorateCitadel(ServerLevel level, BlockPos bottomPos, int top, int bottom) {
 
 		doBuildDoor(level, bottom, top, level.getRandom(), bottomPos.above());
@@ -917,6 +936,8 @@ public class GrimCitadelManager {
 		Block b = level.getBlockState(fPos).getBlock();
 		if (GrimCitadelManager.getFloorBlocks().contains(level.getBlockState(fPos).getBlock())) {
 			level.setBlock(fPos, Blocks.CAVE_AIR.defaultBlockState(), 3);
+			level.setBlock(fPos.below(1), Blocks.CAVE_AIR.defaultBlockState(), 3);
+			level.setBlock(fPos.below(2), Blocks.CAVE_AIR.defaultBlockState(), 3);
 			i += 1;
 		}
 		return i;
@@ -1010,6 +1031,13 @@ public class GrimCitadelManager {
 				level.setBlock(savePos.south(fx).east(fz), Blocks.CHEST.defaultBlockState(), 3);
 				RandomizableContainerBlockEntity.setLootTable(level, level.random, savePos.south(fx).east(fz),
 						BuiltInLootTables.NETHER_BRIDGE);
+				ChestBlockEntity cBox = (ChestBlockEntity) level.getBlockEntity(savePos.south(fx).east(fz));
+
+				ItemStack itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, (int) level.getRandom().nextInt(3)+1);
+				Utility.setLore(itemStackToDrop,
+						Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
+				cBox.setItem(getEmptyContainerSlot(level.getRandom(),cBox), itemStackToDrop);
+
 			}
 			livingfloor = true;
 		}

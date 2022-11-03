@@ -10,11 +10,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -23,6 +26,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CaveSpider;
+import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -202,6 +206,11 @@ public class LootManager {
 			} else if (lootRoll < 830) {
 				itemStackToDrop = makeOgreStrengthPotion(itemPowerModifier);
 			} else if (lootRoll < 975) {
+				if (me instanceof Pillager) {
+					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level.getRandom().nextInt(2) + 1);
+					Utility.setLore(itemStackToDrop,
+							Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
+				} else
 				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
