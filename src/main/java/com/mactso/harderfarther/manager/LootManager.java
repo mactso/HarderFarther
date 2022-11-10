@@ -3,6 +3,7 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import net.minecraft.util.RandomSource;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
+
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
