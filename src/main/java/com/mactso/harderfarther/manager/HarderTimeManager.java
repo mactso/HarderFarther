@@ -2,7 +2,6 @@ package com.mactso.harderfarther.manager;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.config.MyConfig;
@@ -10,7 +9,6 @@ import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;

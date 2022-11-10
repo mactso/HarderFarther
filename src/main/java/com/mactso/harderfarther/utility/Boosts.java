@@ -3,6 +3,12 @@ package com.mactso.harderfarther.utility;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.HarderFartherManager;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,12 +23,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraftforge.coremod.api.ASMAPI;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.manager.HarderFartherManager;
 
 public class Boosts {
 

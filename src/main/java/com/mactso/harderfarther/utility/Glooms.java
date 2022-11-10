@@ -2,7 +2,7 @@ package com.mactso.harderfarther.utility;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.config.MyConfig;
@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
+
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,7 +42,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.TallGrassBlock;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 
 public class Glooms {
@@ -72,7 +75,7 @@ public class Glooms {
 
 	public static void doGloomPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (MyConfig.isGrimEffectPigs()) {
-
+			
 			if (pigTimer < gameTime) {
 				pigTimer = gameTime + 1800;
 				float pitch = 0.8f;
@@ -99,19 +102,21 @@ public class Glooms {
 
 	public static void doGloomDeadBranches(LivingEntity le, BlockPos pos, Level level) {
 		Utility.debugMsg(2, pos, "doSpreadDeadBranches");
-		if (level.getBrightness(LightLayer.SKY, pos) > 10) {
-			BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
-			Block b = level.getBlockState(deadBranchPos.below()).getBlock();
-			if (b instanceof LeavesBlock || b == Blocks.NETHER_WART_BLOCK) {
-				if (b == ModBlocks.DEAD_BRANCHES || b == Blocks.NETHER_WART_BLOCK) {
-					for (int i = 0; i <= 3; i++) {
-						deadBranchPos = doSpreadOneDeadBranch(level, deadBranchPos);
-					}
-				} else {
-					if (level.getRandom().nextInt(100) == 42) {
-						level.setBlock(deadBranchPos, Blocks.NETHER_WART_BLOCK.defaultBlockState(), 3);
+		if (MyConfig.isGrimEffectTrees()) {
+			if (level.getBrightness(LightLayer.SKY, pos) > 10) {
+				BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
+				Block b = level.getBlockState(deadBranchPos.below()).getBlock();
+				if (b instanceof LeavesBlock || b == Blocks.NETHER_WART_BLOCK) {
+					if (b == ModBlocks.DEAD_BRANCHES || b == Blocks.NETHER_WART_BLOCK) {
+						for (int i = 0; i <= 3; i++) {
+							deadBranchPos = doSpreadOneDeadBranch(level, deadBranchPos);
+						}
 					} else {
-						level.setBlock(deadBranchPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
+						if (level.getRandom().nextInt(100) == 42) {
+							level.setBlock(deadBranchPos, Blocks.NETHER_WART_BLOCK.defaultBlockState(), 3);
+						} else {
+							level.setBlock(deadBranchPos, ModBlocks.DEAD_BRANCHES.defaultBlockState(), 3);
+						}
 					}
 				}
 			}
@@ -217,8 +222,8 @@ public class Glooms {
 		if (level.getRandom().nextInt(400) < 9) {
 			if (ae.getHealth() > 3) {
 				Utility.updateEffect((LivingEntity) ae, 0, MobEffects.POISON, 10);
-				Block b = level.getBlockState(ae.blockPosition().below()).getBlock();
-				if (!GrimCitadelManager.getFloorBlocks().contains(b)) {
+				BlockState bs = level.getBlockState(ae.blockPosition().below());
+				if ((!isStoneOrWall(bs)) && (!GrimCitadelManager.getFloorBlocks().contains(bs.getBlock()))) {
 					level.setBlock(ae.blockPosition().below(), Blocks.GRAVEL.defaultBlockState(), 3);
 				}
 			}
@@ -233,6 +238,20 @@ public class Glooms {
 		}
 	}
 
+	
+	
+	public static boolean isStoneOrWall (BlockState bs) {
+		if (bs.getBlock() == Blocks.COBBLESTONE) return false;
+		if (bs.getBlock() == Blocks.COBBLESTONE_SLAB) return false;
+		if (bs.getBlock() == Blocks.COBBLESTONE_WALL) return false;
+		if (bs.getBlock() == Blocks.COBBLESTONE_STAIRS) return false;
+		if (bs.getMaterial() == Material.STONE) return true;
+		if (bs.getBlock() instanceof WallBlock) return true;
+		return false;
+	}
+	
+	
+	
 	public static void doGloomMobCreepers(LivingEntity le, long gameTime, ServerLevel serverLevel) {
 		if (creeperTimer < gameTime) {
 			creeperTimer = gameTime + 240;

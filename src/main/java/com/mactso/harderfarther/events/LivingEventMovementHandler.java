@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.events;
 
+import net.minecraft.util.RandomSource;
 import com.mactso.harderfarther.client.GrimSongManager;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
@@ -17,7 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
+
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,7 +37,6 @@ public class LivingEventMovementHandler {
 	@SubscribeEvent
 	public void onLivingUpdate(LivingTickEvent event) {
 
-		// could be livingtick or could be playertick / playerupdate now.
 		LivingEntity le = event.getEntity();
 		RandomSource rand = le.getLevel().getRandom();
 
@@ -125,7 +125,9 @@ public class LivingEventMovementHandler {
 					}
 				}
 				if (HarderTimeManager.getTimeDifficulty(serverLevel, le) > 0) {
+					
 					Glooms.doGlooms(serverLevel, gameTime, difficulty, le, Glooms.TIME);
+					
 				}
 			}
 

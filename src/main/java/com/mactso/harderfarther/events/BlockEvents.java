@@ -2,7 +2,6 @@ package com.mactso.harderfarther.events;
 
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
 
 import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.ModBlocks;

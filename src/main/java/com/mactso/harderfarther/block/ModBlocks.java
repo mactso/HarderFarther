@@ -35,8 +35,7 @@ public class ModBlocks
 	
 	public static void register(IForgeRegistry<Block> forgeRegistry	)
 	{
-		// BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.GRASS).friction(0.8F).sound(SoundType.SLIME_BLOCK).noOcclusion()))
-		//forgeRegistry.register("bee_pollen", BEE_POLLEN);
+
 		
 		forgeRegistry.register("grim_heart",GRIM_HEART);
 		forgeRegistry.register("grim_gate",GRIM_GATE);

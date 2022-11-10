@@ -40,9 +40,10 @@ public class HarderFartherCommands {
 		Utility.sendBoldChat(p, "\nGrim Effects Info", ChatFormatting.DARK_GREEN);
 		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = (
-					"\n  Effect Villagers ..................................: " + MyConfig.isGrimEffectVillagers()
-				+	"\n  Effect Animals ..................................: " + MyConfig.isGrimEffectAnimals()
-				+	"\n  Effect Pigs................................: " + MyConfig.isGrimEffectPigs()
+					"\n  Effect Villagers ..............................: " + MyConfig.isGrimEffectVillagers()
+					+ "\n  Effect Trees .....................................: " + MyConfig.isGrimEffectTrees()
+					+ "\n  Effect Animals ...................................: " + MyConfig.isGrimEffectAnimals()
+					+ "\n  Effect Pigs ..........................................: " + MyConfig.isGrimEffectPigs()
 				);
 
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);

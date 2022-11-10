@@ -12,7 +12,6 @@ public class ModBlockEntities
 
 	public static void register(IForgeRegistry<BlockEntityType<?>> forgeRegistry)
 	{
-		int x= 3;
 		forgeRegistry.register("grim_heart",GRIM_HEART);
 	}
 }

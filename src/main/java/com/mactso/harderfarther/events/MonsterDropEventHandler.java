@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.events;
 
 import java.util.Collection;
+import net.minecraft.util.RandomSource;
 
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
@@ -13,7 +14,6 @@ import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,7 +47,6 @@ public class MonsterDropEventHandler {
 		ChunkAccess ichunk = serverLevel.getChunk(pos);
 		IChunkLastMobDeathTime cap;
 		boolean cancel = false;
-		Utility.debugMsg(2, "doLimitDropSpeed");
 
 		if (ichunk instanceof LevelChunk chunk) {
 			cap = chunk.getCapability(CapabilityChunkLastMobDeathTime.LASTMOBDEATHTIME).orElse(null);

@@ -1,5 +1,6 @@
 {
-
+	"item.harderfarther.burnishing_stone" : "Burnishing Stone",
+	"item.harderfarther.burnishing_stone.lore" : "Repairs item in off hand.",
 	"item.harderfarther.life_heart" : "Life Heart",
 	"item.harderfarther.life_heart.lore" : "Aids against the grim auras and curses.",
 	"item.harderfarther.grim_boots.name" : "Speedy Boots",
