@@ -128,6 +128,9 @@ public class FogColorsEventHandler {
 		if ((colorTick != gametick)) {
 			colorTick = gametick;
 			float percent = Math.max(clientLocalGrimDifficulty, clientLocalTimeDifficulty);
+			if ((percent > 0) && (percent < 0.1f)){
+				percent = 0.1f;
+			}
 			percent = Math.max(percent, 0.00f);
 			percent = Math.min(percent, 1.0f);
 			sliderColorPercent = doSlideToPercent(sliderColorPercent, 1 - percent);
@@ -154,6 +157,10 @@ public class FogColorsEventHandler {
 					percent = clientLocalGrimDifficulty;
 				}
 
+				if ((percent > 0.0f) && (percent < 0.05f)) {
+					percent = 0.05f;
+				}
+				
 				if (percent > 0.75) {
 					percent -= (percent - 0.70)*2.5;
 				}

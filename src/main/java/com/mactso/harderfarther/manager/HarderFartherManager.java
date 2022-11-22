@@ -33,6 +33,21 @@ public class HarderFartherManager {
 
 	}
 	
+	
+	
+	public static float getDistanceDifficultyHere (ServerLevel serverLevel, Vec3 eventVec) {
+		double xzf = serverLevel.dimensionType().coordinateScale();
+		if (xzf == 0.0) {
+			xzf = 1.0d;
+		}
+		LevelData winfo = serverLevel.getLevelData();
+		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
+		float difficulty = HarderFartherManager.calcDistanceModifier(eventVec, spawnVec);
+		return difficulty;
+	}
+	
+	
+	
 	public static float getDifficultyHere(ServerLevel serverLevel, LivingEntity le) {
 		
 		Utility.debugMsg(2, "getdifficulty here top");

@@ -11,7 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.harderfarther.Main;
+import com.mactso.harderfarther.manager.ChestLootManager;
 import com.mactso.harderfarther.manager.LootManager;
+import com.mactso.harderfarther.manager.LootTableListManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -59,6 +61,17 @@ public class MyConfig {
 	public static void setUseLootDrops(boolean newValue) {
 		MyConfig.useLootDrops = newValue;
 		COMMON.useLootDrops.set(newValue);
+	}
+
+	
+	
+	
+	public static int getBonusLootEnchantmentLevelModifier() {
+		return bonusLootEnchantmentLevelModifier;
+	}
+
+	public static void setBonusLootEnchantmentLevelModifier(int bonusLootEnchantmentLevelModifier) {
+		MyConfig.bonusLootEnchantmentLevelModifier = bonusLootEnchantmentLevelModifier;
 	}
 
 	public static boolean isDimensionOmitted(String dimensionName) {
@@ -299,6 +312,10 @@ public class MyConfig {
 	private static int 	    boostMaxDistance;
 	private static int 	    boostMinDistance;
 	private static List<? extends String> lootItemsList;
+	private static List<? extends String> bonusChestLootList;
+	private static List<? extends String> bonusLootTableList;
+	private static int bonusLootEnchantmentLevelModifier;
+	
 	private static int      safeDistance;
 	private static int      oddsDropExperienceBottle;
 
@@ -366,6 +383,9 @@ public class MyConfig {
 		COMMON.maximumSafeAltitude.set(maximumSafeAltitude);
 
 		COMMON.lootItemsList.set(lootItemsList);
+		COMMON.bonusChestLootList.set(bonusChestLootList);
+		COMMON.bonusLootTableList.set(bonusLootTableList);
+		COMMON.bonusLootEnchantmentLevelModifier.set(bonusLootEnchantmentLevelModifier);
 		COMMON.oddsDropExperienceBottle.set(oddsDropExperienceBottle);
 		
 		COMMON.hpMaxBoost.set(hpMaxBoost);
@@ -442,7 +462,13 @@ public class MyConfig {
 		safeDistance =COMMON.safeDistance.get();
 
 		lootItemsList = COMMON.lootItemsList.get();
-		LootManager.initLootItems(extract(lootItemsList));
+		LootManager.init(extract(lootItemsList));
+		bonusChestLootList = COMMON.bonusChestLootList.get();
+		ChestLootManager.init(extract(bonusChestLootList));
+		bonusLootTableList = COMMON.bonusLootTableList.get();
+		LootTableListManager.init(extract(bonusLootTableList));
+		bonusLootEnchantmentLevelModifier = COMMON.bonusLootEnchantmentLevelModifier.get();
+		
 		useLootDrops = COMMON.useLootDrops.get();
 		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
 		
@@ -516,6 +542,10 @@ public class MyConfig {
 		
 		public final BooleanValue useLootDrops;
 		public final ConfigValue<List<? extends String>> lootItemsList;
+		public final ConfigValue<List<? extends String>> bonusChestLootList; 
+		public final ConfigValue<List<? extends String>> bonusLootTableList; 
+		public final IntValue bonusLootEnchantmentLevelModifier;
+		
 		public final IntValue hpMaxBoost;
 		public final IntValue speedBoost;
 		public final IntValue atkDmgBoost;
@@ -569,6 +599,130 @@ public class MyConfig {
 
 			List<String> defDimensionOmitList = Arrays.asList(
 					"minecraft:the_nether","minecraft:the_end");
+
+			List<String> defBonusChestLootList = Arrays.asList(
+								"01,minecraft:stone_pickaxe,1,1",
+								"02,minecraft:stone_axe,1,1",
+								"03,minecraft:leather_helmet,1,1",
+								"04,minecraft:leather_chestplate,1,1",
+								"05,minecraft:leather_leggings,1,1",
+								"06,minecraft:leather_boots,1,1",
+								"07,minecraft:tipped_arrow,12,18",
+								"08,minecraft:emerald,2,5",
+								"09,minecraft:iron_pickaxe,1,1",
+								"10,minecraft:chainmail_helmet,1,1",
+								"11,minecraft:chainmail_chestplate,1,1",
+								"12,minecraft:chainmail_leggings,1,1",
+								"13,minecraft:chainmail_boots,1,1",
+								"14,minecraft:lapis_lazuli,7,11",
+								"15,minecraft:honey_bottle,1,2",
+								"16,minecraft:glowstone,7,9",
+								"17,minecraft:iron_shovel,1,1",
+								"18,minecraft:iron_axe,1,1",
+								"19,minecraft:cooked_beef,1,5",
+								"20,harderfarther:burnishing_stone,1,1",
+								"21,minecraft:obsidian,1,3",
+								"22,minecraft:emerald,1,6",
+								"23,minecraft:diamond,1,1",
+								"24,minecraft:iron_helmet,1,1",
+								"25,minecraft:iron_chestplate,1,1",
+								"26,minecraft:iron_leggings,1,1",
+								"27,minecraft:iron_boots,1,1",
+								"28,minecraft:iron_axe,1,1",
+								"29,minecraft:glowstone_dust,11,23",
+								"30,minecraft:moss_block,1,1",
+								"31,minecraft:nautilus_shell,1,1",
+								"32,minecraft:cooked_mutton,1,1",
+								"33,minecraft:amethyst_block,13,18",
+								"34,minecraft:budding_amethyst,1,1",
+								"35,minecraft:potion,1,1",
+								"36,minecraft:glow_squid_spawn_egg,1,1",
+								"37,minecraft:golden_apple,1,1",
+								"38,minecraft:jack_o_lantern,1,6",
+								"39,minecraft:end_rod,1,3",
+								"40,harderfarther:burnishing_stone,1,2",
+								"41,minecraft:end_stone_bricks,11,20",
+								"42,minecraft:amethyst_shard,11,17",
+								"43,minecraft:diamond_helmet,1,1",
+								"44,minecraft:diamond_chestplate,1,1",
+								"45,minecraft:diamond_leggings,1,1",
+								"46,minecraft:diamond_boots,1,1",
+								"47,minecraft:glow_lichen,1,7",
+								"48,minecraft:tnt,2,5",
+								"49,minecraft:ice,31,37",
+								"50,minecraft:infested_cobblestone,31,64",
+								"51,minecraft:red_mushroom_block,31,64",
+								"52,minecraft:mushroom_stem,31,64",
+								"53,minecraft:brown_mushroom_block,31,64",
+								"54,minecraft:chipped_anvil,1,1",
+								"55,minecraft:turtle_egg,1,2",
+								"56,minecraft:blaze_spawn_egg,1,2",
+								"57,minecraft:llama_spawn_egg,1,2",
+								"58,minecraft:evoker_spawn_egg,1,1",
+								"59,minecraft:zombie_spawn_egg,1,3",
+								"60,minecraft:drowned_spawn_egg,3,5",
+								"61,minecraft:strider_spawn_egg,1,2",
+								"62,minecraft:fox_spawn_egg,1,3",
+								"63,minecraft:ocelot_spawn_egg,1,3",
+								"64,minecraft:parrot_spawn_egg,1,2",
+								"65,minecraft:terracotta,31,64",
+								"66,minecraft:coal_block,11,16",
+								"67,minecraft:packed_ice,24,48",
+								"68,minecraft:green_stained_glass,49,64",
+								"69,minecraft:sea_lantern,11,16",
+								"70,minecraft:piston,9,16",
+								"71,minecraft:bone_block,31,64",
+								"72,minecraft:diamond,3,7",
+								"73,minecraft:gold_nugget,33,64",
+								"74,minecraft:iron_nugget,33,64",
+								"75,minecraft:gunpowder,24,48",
+								"76,minecraft:powder_snow_bucket,1,1",
+								"77,minecraft:green_concrete_powder,56,64",
+								"78,minecraft:brain_coral_fan,1,1",
+								"79,minecraft:creeper_head,1,1",
+								"80,minecraft:zombie_head,1,1",
+								"81,minecraft:wither_skeleton_skull,1,1",
+								"82,minecraft:skeleton_skull,1,1",
+								"83,minecraft:firework_rocket,31,60",
+								"84,minecraft:netherite_helmet,1,1",
+								"85,minecraft:netherite_boots,1,1",
+								"86,minecraft:endermite_spawn_egg,1,5",
+								"87,minecraft:elder_guardian_spawn_egg,1,1",
+								"88,minecraft:mooshroom_spawn_egg,1,1",
+								"89,minecraft:ghast_spawn_egg,1,1",
+								"90,minecraft:beacon,1,1",
+								"91,minecraft:ender_chest,1,1",
+								"92,minecraft:dragon_breath,11,15",
+								"93,minecraft:dragon_head,1,1",
+								"94,minecraft:diamond_pickaxe,1,1",
+								"95,minecraft:diamond_axe,1,1",
+								"96,minecraft:diamond_shovel,1,1",
+								"97,minecraft:dragon_egg,1,1",
+								"98,minecraft:elytra,1,1",
+								"99,minecraft:end_portal_frame,1,1"
+							 );
+
+			List<String> defBonusLootTableList = Arrays.asList(
+					"minecraft:chests/end_city_treasure",
+					"minecraft:chests/simple_dungeon",
+					"minecraft:chests/village/village_weaponsmith",
+					"minecraft:chests/abandoned_mineshaft",
+					"minecraft:chests/nether_bridge",
+					"minecraft:chests/stronghold_crossing",
+					"minecraft:chests/stronghold_corridor",
+					"minecraft:chests/desert_pyramid",
+					"minecraft:chests/jungle_temple",
+					"minecraft:chests/igloo_chest",
+					"minecraft:chests/woodland_mansion",
+					"minecraft:chests/underwater_ruin_small",
+					"minecraft:chests/underwater_ruin_big",
+					"minecraft:chests/buried_treasure",
+					"minecraft:chests/shipwreck_treasure",
+					"minecraft:chests/pillager_outpost",
+					"minecraft:chests/bastion_treasure",
+					"minecraft:chests/ancient_city",
+					"minecraft:chests/ruined_portal"
+			);
 			
 			builder.push("Harder Farther Control Values");
 			builder.push("Debug Settings");			
@@ -642,6 +796,25 @@ public class MyConfig {
 					.comment("Loot Items List")
 					.translation(Main.MODID + ".config" + "lootItemsList")
 					.defineList("lootItemsList", defLootItemsList, Common::isString);
+			
+			
+			
+			bonusChestLootList = builder
+			.comment("Loot Items List")
+			.translation(Main.MODID + ".config" + "bonusChestLootList ")
+			.defineList("bonusChestLootList ", defBonusChestLootList, Common::isString);
+
+			
+			bonusLootTableList = builder
+			.comment("List of Loot Tables (usually containers) that will get bonus loot based on distance")
+			.translation(Main.MODID + ".config" + "bonusLootTableList ")
+			.defineList("bonusLootTableList ", defBonusLootTableList, Common::isString);
+
+			bonusLootEnchantmentLevelModifier = builder
+					.comment("Bonus Loot Enchantment Level Modifier")
+					.translation(Main.MODID + ".config." + "bonusLootEnchantmentLevelModifier")
+					.defineInRange("bonusLootEnchantmentLevelModifier", () -> 1, 0, 19);
+			
 			builder.pop();
 			builder.push("Boost Settings");
 			hpMaxBoost = builder

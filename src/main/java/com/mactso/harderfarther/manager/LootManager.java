@@ -88,7 +88,7 @@ public class LootManager {
 		}
 		return lootList;
 	}
-	public static void initLootItems(String [] lootItems) {
+	public static void init(String [] lootItems) {
 
 		lootHashtable.clear();
 		rareDice = 0;
@@ -227,7 +227,7 @@ public class LootManager {
 		return itemStackToDrop;
 	}
 	
-	private static ItemStack makeLifeSavingPotion(float distanceFactor) {
+	public static ItemStack makeLifeSavingPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
 		int durationAbsorb = (int) (24000 * distanceFactor);
 		int effectAbsorb = (int) (2 + 4 * distanceFactor);
@@ -246,7 +246,7 @@ public class LootManager {
 		return itemStackToDrop;
 	}
 
-	private static ItemStack makeOgreStrengthPotion(float distanceFactor) {
+	public static ItemStack makeOgreStrengthPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
 		MutableComponent potionName = Component.literal("Ogre Power Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);

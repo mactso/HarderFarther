@@ -20,11 +20,13 @@ import com.mactso.harderfarther.events.LivingEventMovementHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.PlayerLoginEventHandler;
 import com.mactso.harderfarther.events.PlayerTickEventHandler;
+import com.mactso.harderfarther.events.PlayerTeleportHandler;
 import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Register;
 import com.mactso.harderfarther.sounds.ModSounds;
+import com.mactso.harderfarther.utility.LootHandler.HFLootModifier;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.Registry;
@@ -56,19 +58,15 @@ public class Main {
 
 	    public static final String MODID = "harderfarther"; 
 		private static final Logger LOGGER = LogManager.getLogger();
-	    public static LivingEventMovementHandler lem;
-		// entity health is float which has limited precision. i.e. 60,000,000 -1 still equals 60,000,000;
 		private static final int MAX_USABLE_VALUE = 16000000;  // you can subtract 1 from this number.
 
 	    
 	    public Main()
 	    {
 
-	    	System.out.println(MODID + ": Registering Mod.");
+	    	Utility.debugMsg(0,MODID + ": Registering Mod.");
 	  		FMLJavaModLoadingContext.get().getModEventBus().register(this);
  	        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON,MyConfig.COMMON_SPEC );
-	    	System.out.println(MODID + ": Registering Mod.");
-
 
 	    }
 
@@ -89,17 +87,15 @@ public class Main {
 
 		@SubscribeEvent 
 		public void preInit (final FMLCommonSetupEvent event) {
-				System.out.println(MODID + ": Registering Handlers");
-//				MinecraftForge.EVENT_BUS.register(new SpawnEventHandler()); // something wrong with this.
+				Utility.debugMsg(0, MODID + ": Registering Handlers");
 				MinecraftForge.EVENT_BUS.register(new WorldTickHandler());
 				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
 				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
 				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
 				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
-				//  https://www.youtube.com/watch?v=_uC28W_aasg for this alternative method.
-				lem = new LivingEventMovementHandler();
-				MinecraftForge.EVENT_BUS.register(lem);
+				MinecraftForge.EVENT_BUS.register(new PlayerTeleportHandler());
+				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
 				MinecraftForge.EVENT_BUS.register(new BlockEvents());
 				fixAttributeMax();
  		}  
@@ -147,6 +143,8 @@ public class Main {
 		    		ModItems.register(event.getForgeRegistry());
 		    	else if (key.equals(ForgeRegistries.Keys.SOUND_EVENTS))
 		    		ModSounds.register(event.getForgeRegistry());
+		    	else if (key.equals(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS))
+		    		event.getForgeRegistry().register("special", HFLootModifier.CODEC.get());
 		    }
 		    
 	    }	

@@ -15,7 +15,8 @@ public class ChunkEvent {
     {
     	
     	event.addCapability(new ResourceLocation(Main.MODID, "lastmobdeath_capability"), new LastMobDeathTimeProvider());
-
     }
+    
+    
 }
 
