@@ -8,11 +8,10 @@ import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
-
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -31,7 +30,7 @@ public class WorldTickHandler {
 		if (event.world instanceof ServerLevel level) {
 			GrimCitadelManager.checkCleanUpCitadels(level);
 			
-			long gametime = event.world.getGameTime();
+			long gametime = level.getGameTime();
 
 			List<ServerPlayer> allPlayers = level.getServer().getPlayerList().getPlayers();
 			Iterator<ServerPlayer> apI = allPlayers.iterator();

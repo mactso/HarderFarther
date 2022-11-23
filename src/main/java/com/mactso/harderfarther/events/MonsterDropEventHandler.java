@@ -47,6 +47,7 @@ public class MonsterDropEventHandler {
 		ChunkAccess ichunk = serverLevel.getChunk(pos);
 		IChunkLastMobDeathTime cap;
 		boolean cancel = false;
+
 		if (ichunk instanceof LevelChunk chunk) {
 			cap = chunk.getCapability(CapabilityChunkLastMobDeathTime.LASTMOBDEATHTIME).orElse(null);
 			lastMobDeathTime = 0;
@@ -131,6 +132,7 @@ public class MonsterDropEventHandler {
 
 		eventItems.add(myItemEntity);
 
+		
 		Utility.debugMsg(1, pos, le.getName().getString() + " died and dropped loot: "
 				+ itemStackToDrop.getItem().getRegistryName());
 		return true;

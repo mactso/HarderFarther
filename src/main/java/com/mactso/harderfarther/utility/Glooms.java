@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -74,7 +75,7 @@ public class Glooms {
 
 	public static void doGloomPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
 		if (MyConfig.isGrimEffectPigs()) {
-
+			
 			if (pigTimer < gameTime) {
 				pigTimer = gameTime + 1800;
 				float pitch = 0.8f;
@@ -237,6 +238,8 @@ public class Glooms {
 		}
 	}
 
+	
+	
 	public static boolean isStoneOrWall (BlockState bs) {
 		if (bs.getBlock() == Blocks.COBBLESTONE) return false;
 		if (bs.getBlock() == Blocks.COBBLESTONE_SLAB) return false;
@@ -246,6 +249,9 @@ public class Glooms {
 		if (bs.getBlock() instanceof WallBlock) return true;
 		return false;
 	}
+	
+	
+	
 	public static void doGloomMobCreepers(LivingEntity le, long gameTime, ServerLevel serverLevel) {
 		if (creeperTimer < gameTime) {
 			creeperTimer = gameTime + 240;

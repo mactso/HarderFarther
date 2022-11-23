@@ -200,17 +200,20 @@ public class GrimCitadelManager {
 		}
 	}
 
-	public static void buildAFloor(ServerLevel level, Random rand, MutableBlockPos floorPos, int fy, int height,
+	public static void buildAFloor(ServerLevel level, MutableBlockPos floorPos, int fy, int height,
 			boolean roof) {
 
 		int updateFlag = 131; // 3+128 = also update light.
+
 		int posX = floorPos.getX();
+		int posY = floorPos.getY();
 		int posZ = floorPos.getZ();
+		Random rand = level.getRandom();
 		for (int fx = -getGrimRadius(); fx <= getGrimRadius(); fx++) {
 			for (int fz = -getGrimRadius(); fz <= getGrimRadius(); fz++) {
 				floorPos.setX(posX + fx);
 				floorPos.setZ(posZ + fz);
-				int r = rand.nextInt(height);
+				int r = rand .nextInt(height);
 				if (r > (fy / 4)) {
 					level.setBlock(floorPos, floorBlocks.get(FLOOR_BLOCKS_TOP).defaultBlockState(), updateFlag);
 				} else if (r > (2 * fy / 4)) {
@@ -225,17 +228,78 @@ public class GrimCitadelManager {
 		int fz = getValidRandomFloorOffset(rand);
 
 		floorPos.setX(posX + fx);
+		floorPos.setY(posY);
 		floorPos.setZ(posZ + fz);
-		if (rand.nextInt(10) < 2) {
+		
+		if ((fy > 0) && (level.getRandom().nextInt(10) < 2)) {
 			level.setBlock(floorPos, CAVE_AIR, 3);
 		} else {
 			level.setBlock(floorPos, GRIM_GATE_FLOOR, 3);
 		}
 		level.setBlock(floorPos.above(), CAVE_AIR, 3);
+		rand = level.getRandom();
+		if ((getGrimRadius() > 5) && (fy > 0) && !roof) {
+			for (int i = 0; i < getGrimRadius() / 2; i++) {
+				int sx = getValidRandomFloorOffset(rand);
+				int sz = getValidRandomFloorOffset(rand);
+				if ((sx != fx) && (sz != fz)) {
+					if (sz == 0) sz++;  // don't smother mobs at spawnin point.
+					floorPos.setX(posX + sx);
+					floorPos.setZ(posZ + sz);
+					buildFloorFeature(level, floorPos, updateFlag, posY);
+				}
+			}
+		}
+
 		floorPos.setX(posX);
+		floorPos.setY(posY);
 		floorPos.setZ(posZ);
 
 		populateFloor(level, floorPos, fy);
+
+	}
+
+	private static void buildFloorFeature(ServerLevel level, MutableBlockPos floorPos,
+			int updateFlag, int posY) {
+		Random rand = level.getRandom();
+		int r = rand.nextInt(100);
+		r = rand.nextInt(100);
+		if (r < 30) {
+			floorPos.setY(posY + 1);
+			level.setBlock(floorPos, Blocks.NETHER_BRICKS.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 2);
+			level.setBlock(floorPos, Blocks.BLACK_STAINED_GLASS.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 3);
+			level.setBlock(floorPos, Blocks.NETHER_BRICKS.defaultBlockState(), updateFlag);
+		} else if (r < 50) {
+			floorPos.setY(posY + 1);
+			level.setBlock(floorPos, Blocks.NETHER_BRICK_WALL.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 2);
+			level.setBlock(floorPos, Blocks.NETHER_BRICK_FENCE.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 3);
+			level.setBlock(floorPos, Blocks.NETHER_BRICK_WALL.defaultBlockState(), updateFlag);
+		} else if (r < 70) {
+			floorPos.setY(posY + 1);
+			level.setBlock(floorPos, Blocks.NETHER_BRICKS.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 2);
+			level.setBlock(floorPos, Blocks.RED_STAINED_GLASS.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 3);
+			level.setBlock(floorPos, Blocks.NETHER_BRICKS.defaultBlockState(), updateFlag);
+		} else if (r < 90) {
+			floorPos.setY(posY + 1);
+			level.setBlock(floorPos, Blocks.NETHER_BRICKS.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 2);
+			level.setBlock(floorPos, Blocks.MAGMA_BLOCK.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 3);
+			level.setBlock(floorPos, Blocks.BLACK_STAINED_GLASS.defaultBlockState(), updateFlag);
+		} else {
+			floorPos.setY(posY + 1);
+			level.setBlock(floorPos, Blocks.NETHER_BRICK_WALL.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 2);
+			level.setBlock(floorPos, Blocks.SHROOMLIGHT.defaultBlockState(), updateFlag);
+			floorPos.setY(posY + 3);
+			level.setBlock(floorPos, Blocks.NETHER_BRICK_WALL.defaultBlockState(), updateFlag);
+		}
 
 	}
 
@@ -257,31 +321,32 @@ public class GrimCitadelManager {
 
 	}
 
-	private static void buildCitadelFloors(ServerLevel level, int bottom, int top, Random rand, BlockPos bottomPos) {
+	private static void buildCitadelFloors(ServerLevel level, int bottom, int top, 
+			BlockPos bottomPos) {
 		MutableBlockPos floorPos = new MutableBlockPos();
 		floorPos.set(bottomPos);
-
 		boolean roof = true;
 
 		// go from top to bottom.
 		for (int fy = (top + 2 - bottom); fy >= 0; fy--) {
-			if (fy < bottom + 11) {
+			if (fy < bottom + 23) {
 				floorPos.setY(bottomPos.getY() + fy);
-				clearAFloor(level, rand, floorPos, fy, top - bottom, roof);
+				clearAFloor(level, floorPos, fy, top - bottom, roof);
 			}
 			if (isGrimCitadelFloorHeight(fy)) {
 				floorPos.setX(bottomPos.getX());
-				floorPos.setY(bottomPos.getY() + fy + 1);
+				floorPos.setY(bottomPos.getY() + fy );
 				floorPos.setZ(bottomPos.getZ());
-				buildAFloor(level, rand, floorPos, fy, top - bottom, roof);
+				buildAFloor(level, floorPos, fy, top - bottom, roof);
 
 				if (roof)
 					roof = false;
 
-				if ((fy > 8) && (rand.nextInt(100) > 20)) {
-					buildFloorBalcony(level, bottomPos, fy, rand);
+				if ((fy > 8) && (level.getRandom().nextInt(100) > 20)) {
+					buildFloorBalcony(level, bottomPos, fy);
 				}
-			} 
+			}
+			
 			buildOutsideWall(level, bottomPos, fy, top - bottom);
 			buildCore(level, bottomPos, fy);
 
@@ -301,13 +366,19 @@ public class GrimCitadelManager {
 			mPos.setX(fx + posX);
 			for (int fz = -getGrimRadius() - 3; fz < getGrimRadius() + 3 + 1; fz++) {
 				mPos.setZ(fz + posZ);
-				int ground = sl.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, mPos.getX(), mPos.getZ());
-				int groundw = sl.getHeight(Heightmap.Types.OCEAN_FLOOR, mPos.getX(), mPos.getZ());
-				if (groundw < ground)
-					ground = groundw;
-				for (int fy = posY - 1; fy >= ground; fy--) {
+
+				int groundws = sl.getHeight(Heightmap.Types.WORLD_SURFACE, mPos.getX(), mPos.getZ());
+				int ground1 = sl.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, mPos.getX(), mPos.getZ());
+				if (groundws > ground1)
+					groundws = ground1;
+
+				int groundo = sl.getHeight(Heightmap.Types.OCEAN_FLOOR, mPos.getX(), mPos.getZ());
+				if (groundws > groundo)
+					groundws = groundo;
+
+				for (int fy = posY - 1; fy >= groundws; fy--) {
 					mPos.setY(fy);
-					if (rand.nextInt(1200) == 42) {
+					if (rand.nextInt(360) == 42) {
 						if ((Math.abs(fx) <= getGrimRadius()) && Math.abs(fz) <= getGrimRadius()) {
 							if (rand.nextBoolean()) {
 								sl.setBlock(mPos, Blocks.NETHER_GOLD_ORE.defaultBlockState(), 3);
@@ -346,9 +417,10 @@ public class GrimCitadelManager {
 
 	}
 
-	private static void buildFloorBalcony(ServerLevel level, BlockPos bottomPos, int fy, Random rand) {
+	private static void buildFloorBalcony(ServerLevel level, BlockPos bottomPos, int fy) {
 
 		BlockPos tempPos;
+		Random rand = level.getRandom();
 		int side = rand.nextInt(4);
 		int balconyRadius = getGrimRadius() + 2;
 		switch (side) {
@@ -573,14 +645,14 @@ public class GrimCitadelManager {
 		Glooms.doResetTimers();
 	}
 
-	public static void clearAFloor(ServerLevel level, Random rand, MutableBlockPos airPos, int fy, int height,
+	public static void clearAFloor(ServerLevel level, MutableBlockPos airPos, int fy, int height,
 			boolean first) {
 		int posX = airPos.getX();
 		int posZ = airPos.getZ();
-
+		int grimRadius = getGrimRadius();
 		// bigger to destroy obstacles around tower.
-		for (int fx = -getGrimRadius() - 1; fx <= getGrimRadius() + 1; fx++) {
-			for (int fz = -getGrimRadius() - 1; fz <= getGrimRadius() + 1; fz++) {
+		for (int fx = -grimRadius - 3; fx <= grimRadius + 3; fx++) {
+			for (int fz = -grimRadius - 3; fz <= grimRadius + 3; fz++) {
 				airPos.setX(posX + fx);
 				airPos.setZ(posZ + fz);
 				level.setBlock(airPos, Blocks.CAVE_AIR.defaultBlockState(), 0);
@@ -594,28 +666,26 @@ public class GrimCitadelManager {
 		level.setBlockAndUpdate(pos.below(), Blocks.GRAY_SHULKER_BOX.defaultBlockState());
 		RandomizableContainerBlockEntity.setLootTable(level, level.random, pos.below(),
 				BuiltInLootTables.NETHER_BRIDGE);
-
 		ShulkerBoxBlockEntity sBox = (ShulkerBoxBlockEntity) level.getBlockEntity(pos.below());
 
 		ItemStack itemStackToDrop;
-		itemStackToDrop = new ItemStack(ModItems.LIFE_HEART, (int) 1);
+
+		itemStackToDrop = new ItemStack(ModItems.LIFE_HEART);
 		Utility.setLore(itemStackToDrop,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.life_heart.lore")));
 		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
 
-		itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, (int) level.getRandom().nextInt(4)+2);
+		itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, level.getRandom().nextInt(4) + 2);
 		Utility.setLore(itemStackToDrop,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
-		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
-		
-		
+		sBox.setItem(getEmptyContainerSlot(level.getRandom(), sBox), itemStackToDrop);
+
 		double bootsSpeed = 0.04D + level.getRandom().nextDouble() * 0.06D;
 		AttributeModifier am = new AttributeModifier(ITEM_SPEED_UUID, "hfspeed", bootsSpeed,
 				AttributeModifier.Operation.ADDITION);
-		itemStackToDrop = new ItemStack(Items.DIAMOND_BOOTS, (int) 1);
+		itemStackToDrop = new ItemStack(Items.DIAMOND_BOOTS);
 		itemStackToDrop.addAttributeModifier(Attributes.MOVEMENT_SPEED, am, EquipmentSlot.FEET);
-		Utility.setName(itemStackToDrop,
-				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.grim_boots.name")));
+		itemStackToDrop.setHoverName(new TranslatableComponent("item.harderfarther.grim_boots.name"));
 		Utility.setLore(itemStackToDrop,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.grim_boots.lore")));
 		sBox.setItem(getEmptyContainerSlot(level.getRandom(),sBox), itemStackToDrop);
@@ -632,7 +702,7 @@ public class GrimCitadelManager {
 		}
 		return slot;
 	}
-	
+
 	private static void decorateCitadel(ServerLevel level, BlockPos bottomPos, int top, int bottom) {
 
 		doBuildDoor(level, bottom, top, level.getRandom(), bottomPos.above());
@@ -766,13 +836,13 @@ public class GrimCitadelManager {
 
 		float grimDifficulty = 0;
 
-		double closestGrimDistSq = Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(le.blockPosition()));
+		double closestGrimDistSq = Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(Utility.getBlockPosition(le)));
 		double bonusGrimDistSq = Math.sqrt(MyConfig.getGrimCitadelBonusDistanceSq());
 		if (closestGrimDistSq > bonusGrimDistSq)
 			return 0;
 
 		grimDifficulty = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
-		
+
 		if (grimDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
 			grimDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
 		}
@@ -796,7 +866,7 @@ public class GrimCitadelManager {
 	}
 
 	public static int getValidRandomFloorOffset(Random rand) {
-		int r = rand.nextInt(getGrimRadius() - 2) + 2;
+		int r = rand.nextInt(getGrimRadius() - 2) + 1;
 		if (rand.nextBoolean()) {
 			return r;
 		}
@@ -822,8 +892,9 @@ public class GrimCitadelManager {
 		if (getClosestGrimCitadelDistanceSq(eventPos) > grimBonusDistSqr)
 			return false;
 		BlockPos grimPos = getClosestGrimCitadelPos(eventPos);
-		int protectedDistance = GrimCitadelManager.getGrimRadius() + 21;
+
 		if (grimPos != null) {
+			int protectedDistance = GrimCitadelManager.getGrimRadius() + 21;
 			int xAbs = Math.abs(eventPos.getX() - grimPos.getX());
 			int zAbs = Math.abs(eventPos.getZ() - grimPos.getZ());
 			int yOffset = eventPos.getY() - grimPos.getY();
@@ -832,7 +903,7 @@ public class GrimCitadelManager {
 			}
 			// check grim tower protected airspace
 			if ((xAbs <= protectedDistance) && (zAbs <= protectedDistance) && (eventPos.getY() > grimPos.getY() + -8)) {
-				if ((xAbs > getGrimRadius() + 1) || (zAbs > getGrimRadius() + 1)) {
+				if ((xAbs > getGrimRadius() + 2) || (zAbs > getGrimRadius() + 2)) {
 					return true; // TODO retest protected space outside on walls.
 				}
 			}
@@ -841,6 +912,28 @@ public class GrimCitadelManager {
 		return false;
 	}
 
+	public static boolean isInsideGrimCitadelRadius(BlockPos pos) {
+		if (grimBonusDistSqr == 0)
+			grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
+
+		if (getClosestGrimCitadelDistanceSq(pos) > grimBonusDistSqr)
+			return false;
+		
+		BlockPos grimPos = getClosestGrimCitadelPos(pos);
+
+		if (grimPos != null) {
+			int protectedDistance = GrimCitadelManager.getGrimRadius() + 1 ;
+			int xAbs = Math.abs(pos.getX() - grimPos.getX());
+			int zAbs = Math.abs(pos.getZ() - grimPos.getZ());
+			if ((xAbs <= protectedDistance) && (zAbs <= protectedDistance)) {
+					return true; // TODO retest protected space outside on walls.
+			}
+		}
+
+		return false;
+	}
+	
+	
 	public static boolean isInRangeOfGC(BlockPos pos) {
 
 		double closestGrimDistSq = getClosestGrimCitadelDistanceSq(pos);
@@ -916,13 +1009,12 @@ public class GrimCitadelManager {
 	private static void makeGrimCitadel(ServerLevel level, int bottom, BlockPos pos) {
 		Utility.debugMsg(1, pos, "Creating a GrimCitadel at : " + pos);
 
-		Random rand = level.getRandom();
 		BlockPos bottomPos = new BlockPos(pos.getX(), bottom, pos.getZ());
 		int top = getCitadelTop(level, pos);
 
 		buildCitadelFoundation(level, bottomPos);
 
-		buildCitadelFloors(level, bottom, top, rand, bottomPos);
+		buildCitadelFloors(level, bottom, top, bottomPos);
 
 		decorateCitadel(level, bottomPos, top, bottom);
 	}
@@ -931,7 +1023,6 @@ public class GrimCitadelManager {
 	public static int makeOneHoleInGrimCitadelFloor(Level level, BlockPos pos, int i, Random rand) {
 		int x = rand.nextInt(getGrimRadius() * 4 + 1) - getGrimRadius() * 2;
 		int z = rand.nextInt(getGrimRadius() * 4 + 1) - getGrimRadius() * 2;
-		System.out.println(x + ", " + pos.getY() + ", " + z);
 		BlockPos fPos = new BlockPos(pos.getX() + x, pos.getY(), pos.getZ() + z);
 		Block b = level.getBlockState(fPos).getBlock();
 		if (GrimCitadelManager.getFloorBlocks().contains(level.getBlockState(fPos).getBlock())) {
@@ -963,7 +1054,7 @@ public class GrimCitadelManager {
 			}
 			ambientSoundTimer = gameTime + modifier + cp.level.getRandom().nextInt(1200);
 			int i = cp.level.getRandom().nextInt(gcAmbientSoundEvents.size());
-			cp.level.playSound(cp, cp.blockPosition(), gcAmbientSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
+			cp.level.playSound(cp, Utility.getBlockPosition(cp), gcAmbientSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
 		}
 	}
 
@@ -976,7 +1067,7 @@ public class GrimCitadelManager {
 			}
 			directionalSoundTimer = gameTime + modifier + cp.level.getRandom().nextInt(600);
 			int i = cp.level.getRandom().nextInt(gcDirectionalSoundEvents.size());
-			BlockPos cluePos = calcGCCluePosition(cp.blockPosition());
+			BlockPos cluePos = calcGCCluePosition(Utility.getBlockPosition(cp));
 			cp.level.playSound(cp, cluePos, gcDirectionalSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
 			Random rand = cp.level.getRandom();
 			for (int k = 1; k < 15; k++) {
@@ -1026,7 +1117,7 @@ public class GrimCitadelManager {
 		int fz = getValidRandomFloorOffset(level.random);
 		boolean livingfloor = false;
 
-		if (fy % 12 == 0) {
+		if ((fy % 12 == 0)&&(fy<60)) {
 			if (level.getBlockState(savePos.south(fx).east(fz).below()).getBlock() != ModBlocks.GRIM_GATE) {
 				level.setBlock(savePos.south(fx).east(fz), Blocks.CHEST.defaultBlockState(), 3);
 				RandomizableContainerBlockEntity.setLootTable(level, level.random, savePos.south(fx).east(fz),

@@ -2,27 +2,36 @@ package com.mactso.harderfarther.utility;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class Utility {
 	public final static int FOUR_SECONDS = 80;
@@ -91,6 +100,10 @@ public class Utility {
 
 	}
 
+	public static BlockPos getBlockPosition (Entity e) {
+		return e.blockPosition();
+	}
+	
 	public static void updateEffect(LivingEntity e, int amplifier, MobEffect mobEffect, int duration) {
 		MobEffectInstance ei = e.getEffect(mobEffect);
 		if (amplifier == 10) {
@@ -152,21 +165,45 @@ public class Utility {
 	}
 
 	
-	public static void setName(ItemStack stack, String inString)
-	{
-		CompoundTag tag = stack.getOrCreateTagElement("display");
-		ListTag list = new ListTag();
-		list.add(StringTag.valueOf(inString));
-		tag.put("Name", list);
-	}
-	
-	
 	public static void setLore(ItemStack stack, String inString)
 	{
 		CompoundTag tag = stack.getOrCreateTagElement("display");
 		ListTag list = new ListTag();
 		list.add(StringTag.valueOf(inString));
 		tag.put("Lore", list);
+	}
+	
+	
+	public static ItemResult parseItemKey(StringReader sr) throws CommandSyntaxException
+	{
+		CompoundTag nbt = null;
+		String rl = sr.readUnquotedString();
+		if (sr.canRead() && sr.peek() == ':')
+		{
+			sr.skip();
+			rl = rl + ":" + sr.readUnquotedString();
+		}
+		sr.skipWhitespace();
+		if (sr.canRead() && sr.peek() == '{')
+		{
+			nbt = new TagParser(sr).readStruct();
+			if (nbt.isEmpty())
+				nbt = null;
+		}
+		return new ItemResult(new ResourceLocation(rl), nbt);
+	}
+	
+	
+	public static class ItemResult
+	{
+		public final ResourceLocation res;
+		public final CompoundTag nbt;
+
+		public ItemResult(ResourceLocation res, @Nullable CompoundTag nbt)
+		{
+			this.res = res;
+			this.nbt = nbt;
+		}
 	}
 	
 	public static boolean isNotNearWebs(BlockPos pos, ServerLevel serverLevel) {
@@ -193,6 +230,26 @@ public class Utility {
 		return serverLevel.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, pos) == pos;
 	}
 
+	public static Item getItemFromString (String name)
+	{
+		Item ret = Items.AIR;
+		try {
+			ResourceLocation key = new ResourceLocation(name);
+			if (ForgeRegistries.ITEMS.containsKey(key))
+			{
+				ret = ForgeRegistries.ITEMS.getValue(key);
+			}
+			else {
+				LOGGER.warn("Unknown item: " + name);
+			}
+		}
+		catch (Exception e)
+		{
+			LOGGER.warn("Bad item: " + name);
+		}
+		return ret;
+	}
+	
 	public static void slowFlyingMotion(LivingEntity le) {
 
 		if ((le instanceof Player) && (le.isFallFlying())) {

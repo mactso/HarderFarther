@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -88,7 +89,7 @@ public class LootManager {
 		}
 		return lootList;
 	}
-	public static void initLootItems(String [] lootItems) {
+	public static void init(String [] lootItems) {
 
 		lootHashtable.clear();
 		rareDice = 0;
@@ -227,7 +228,7 @@ public class LootManager {
 		return itemStackToDrop;
 	}
 	
-	private static ItemStack makeLifeSavingPotion(float distanceFactor) {
+	public static ItemStack makeLifeSavingPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
 		int durationAbsorb = (int) (24000 * distanceFactor);
 		int effectAbsorb = (int) (2 + 4 * distanceFactor);
@@ -246,7 +247,7 @@ public class LootManager {
 		return itemStackToDrop;
 	}
 
-	private static ItemStack makeOgreStrengthPotion(float distanceFactor) {
+	public static ItemStack makeOgreStrengthPotion(float distanceFactor) {
 		ItemStack itemStackToDrop;
 		TextComponent potionName = new TextComponent("Ogre Power Potion");
 		ItemStack potion = new ItemStack(Items.POTION).setHoverName(potionName);

@@ -23,13 +23,15 @@ public class ModItems {
 	
 	public static void register(IForgeRegistry<Item> forgeRegistry)
 	{
+
+		forgeRegistry.register(DEAD_BRANCHES);
+		forgeRegistry.register(LIFE_HEART);
+		forgeRegistry.register(BURNISHING_STONE);
 		Utility.setLore(LIFE_HEART_STACK,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.life_heart.lore")));
 		Utility.setLore(BURNISHING_STONE_STACK,
 				Component.Serializer.toJson(new TranslatableComponent("item.harderfarther.burnishing_stone.lore")));
-		forgeRegistry.register(DEAD_BRANCHES);
-		forgeRegistry.register(LIFE_HEART);
-		forgeRegistry.register(BURNISHING_STONE);
+
 	}
 
 }

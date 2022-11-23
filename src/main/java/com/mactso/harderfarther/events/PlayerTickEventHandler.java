@@ -2,7 +2,6 @@ package com.mactso.harderfarther.events;
 
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.HarderTimeManager;
-
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
