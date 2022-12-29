@@ -244,25 +244,15 @@ public class HarderTimeManager {
 			return 0;
 
 		long startHarderTime = (long) (MyConfig.getMaxHarderTimeMinutes() *.66f);
-		Utility.debugMsg(2, "getChunk top start = " + startHarderTime);
-		if (level.isAreaLoaded(entity.blockPosition(), 3)) {
-			Utility.debugMsg(2, "Area is loaded " );
-			BlockPos b = entity.blockPosition();
-			long inhabitedMinutes = level.getChunk(b).getInhabitedTime() / 1200; // 60 sec * 20
-			Utility.debugMsg(2, "getChunk bottom minutes = " + inhabitedMinutes);
-			if (inhabitedMinutes < startHarderTime)
-				return 0;
-			long minutes = inhabitedMinutes - startHarderTime;
-			float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
-			timeDifficulty = (float) Math.max(0.33, timeDifficulty);
-			return timeDifficulty;
+		long inhabitedMinutes = level.getChunk(entity.blockPosition()).getInhabitedTime() / 1200; // 60 sec * 20
 
-		} else {
-			Utility.debugMsg(2, "Chunk NOT loaded " );
-		}
+		if (inhabitedMinutes < startHarderTime)
+			return 0;
 
-		return 0;
-
+		long minutes = inhabitedMinutes - startHarderTime;
+		float timeDifficulty = Math.min(1.0f, (float) minutes / startHarderTime);
+		timeDifficulty = (float) Math.max(0.33, timeDifficulty);
+		return timeDifficulty;
 	}
 	
 }
