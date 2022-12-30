@@ -1,17 +1,17 @@
-  
 {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/harder-spawners",
-    "promos": {
-        "1.16.1-latest": "1.108.0.4",
-        "1.16.2-latest": "1.36.0.6",
-        "1.16.3-latest": "1.36.0.6",
-        "1.16.4-latest": "1.36.0.6",
-        "1.16.5-latest": "1.36.0.6",
-        "1.17.1-latest": "17.37.0.6",
-        "1.18.1-latest": "1.18.1-20.39.0.28",
-        "1.18.2-latest": "1.18.1-20.39.0.28",
-        "1.19-latest": "41.1.26.0",
-        "1.19.1-latest": "41.1.28.0",
-        "1.19.2-latest": "41.1.28.0"
-        }
+	"homepage": "https://www.curseforge.com/minecraft/mc-mods/harder-spawners",
+	"promos": {
+		"1.16.1-latest": "1.108.0.4",
+		"1.16.2-latest": "1.36.0.6",
+		"1.16.3-latest": "1.36.0.6",
+		"1.16.4-latest": "1.36.0.6",
+		"1.16.5-latest": "1.36.0.6",
+		"1.17.1-latest": "17.37.0.6",
+		"1.18.1-latest": "1.18.1-20.39.0.28",
+		"1.18.2-latest": "1.18.1-20.39.0.28",
+		"1.19-latest": "41.1.26.0",
+		"1.19.1-latest": "41.1.29.0",
+		"1.19.2-latest": "41.1.29.0",
+		"1.19.3-latest": "44.41.29.0"
+	}
 }

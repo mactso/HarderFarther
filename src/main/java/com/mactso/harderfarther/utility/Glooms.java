@@ -264,8 +264,7 @@ public class Glooms {
 			phantomTimer = gameTime + 160;
 			Utility.updateEffect(le, 0, MobEffects.FIRE_RESISTANCE, 640);
 			if (serverLevel.getRandom().nextInt(6) == 1) {
-				PrimedTnt tnt = EntityType.TNT.spawn(serverLevel, null, null, null, pos, MobSpawnType.NATURAL, true,
-						true);
+				PrimedTnt tnt = EntityType.TNT.spawn(serverLevel, pos, MobSpawnType.NATURAL) ;
 				tnt.setFuse(80);
 			}
 		}

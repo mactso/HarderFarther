@@ -14,10 +14,10 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModItems {
 
-	public static final Item LIFE_HEART = new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC).fireResistant().rarity(Rarity.EPIC));
+	public static final Item LIFE_HEART = new Item(new Item.Properties().fireResistant().rarity(Rarity.EPIC));
 	public static ItemStack LIFE_HEART_STACK = null;
-	public static final Item DEAD_BRANCHES = new BlockItem(ModBlocks.DEAD_BRANCHES, (new Item.Properties()).tab(CreativeModeTab.TAB_DECORATIONS));
-	public static final Item BURNISHING_STONE = new BurnishingStone(new Item.Properties().tab(CreativeModeTab.TAB_MISC).fireResistant().rarity(Rarity.RARE));
+	public static final Item DEAD_BRANCHES = new BlockItem(ModBlocks.DEAD_BRANCHES, (new Item.Properties()));
+	public static final Item BURNISHING_STONE = new BurnishingStone(new Item.Properties().fireResistant().rarity(Rarity.RARE));
 	public static ItemStack BURNISHING_STONE_STACK = null;
 	
 	public static void register(IForgeRegistry<Item> forgeRegistry)

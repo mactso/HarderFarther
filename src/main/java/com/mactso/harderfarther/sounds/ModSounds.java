@@ -35,6 +35,7 @@ public class ModSounds {
 	public static int NUM_LAKE_DESTINY  = 3;
 	public static int NUM_SONGS = 3;
 	
+	
 //    private static RegistryObject<SoundEvent> registerSoundEvent(final String soundName) {
 //        return DEFERRED_REG.register(soundName, () -> new SoundEvent(new ResourceLocation(Main.MODID, soundName)));
 //    }
@@ -44,12 +45,13 @@ public class ModSounds {
 		forgeRegistry.register(DUSTY_MEMORIES.getLocation(),DUSTY_MEMORIES);
 		forgeRegistry.register(LABYRINTH_LOST_DREAMS.getLocation(),LABYRINTH_LOST_DREAMS);
 		forgeRegistry.register(LAKE_DESTINY.getLocation(),LAKE_DESTINY);
+		
 	}
 
 	private static SoundEvent create(String key)
 	{
 		ResourceLocation res = new ResourceLocation(Main.MODID, key);
-		SoundEvent ret = new SoundEvent(res);
+		SoundEvent ret = SoundEvent.createVariableRangeEvent(res);
 		return ret;
 	}
 	

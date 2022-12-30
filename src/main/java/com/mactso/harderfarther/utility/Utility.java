@@ -147,9 +147,9 @@ public class Utility {
 			return false;
 		for (int i = 0; i <= numZP; i++) {
 			if (et == EntityType.PHANTOM) {
-				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.SPAWNER, true, true);
+				e = (Mob) et.spawn(level, savePos.north(2).west(2), MobSpawnType.SPAWNER);
 			} else {
-				e = (Mob) et.spawn(level, null, null, null, savePos.north(2).west(2), MobSpawnType.NATURAL, true, true);
+				e = (Mob) et.spawn(level, savePos.north(2).west(2), MobSpawnType.NATURAL);
 			}
 			if (e == null) {
 				return false;

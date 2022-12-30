@@ -108,9 +108,10 @@ public class GrimCitadelManager {
 	static List<SoundEvent> gcDirectionalSoundEvents = Arrays.asList(SoundEvents.ZOMBIFIED_PIGLIN_ANGRY,
 			SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT, SoundEvents.LAVA_AMBIENT, SoundEvents.ZOMBIE_VILLAGER_STEP,
 			SoundEvents.HOGLIN_ANGRY, SoundEvents.BLAZE_AMBIENT, SoundEvents.HOGLIN_AMBIENT,
-			SoundEvents.AMBIENT_NETHER_WASTES_MOOD, SoundEvents.FIRE_AMBIENT, SoundEvents.WITHER_SKELETON_STEP);
-	static List<SoundEvent> gcAmbientSoundEvents = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT,
-			SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE, SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
+			SoundEvents.AMBIENT_NETHER_WASTES_MOOD.get(), SoundEvents.FIRE_AMBIENT, SoundEvents.WITHER_SKELETON_STEP);
+	
+	static List<SoundEvent> gcAmbientSoundEvents = Arrays.asList(SoundEvents.AMBIENT_CAVE.get(), SoundEvents.WITCH_AMBIENT,
+			SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE.get(), SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD.get());
 
 	// TODO: This is becoming obsolete replaced by difficulty.
 	public static int gcDist100 = MyConfig.getGrimCitadelBonusDistanceSq(); // 100%
@@ -124,6 +125,7 @@ public class GrimCitadelManager {
 	public static int gcDist05 = gcDist100 / 256;
 
 	private static void addAntiClimbingRing(ServerLevel level, BlockPos pos, int top) {
+
 		RandomSource rand = level.getRandom();
 		MutableBlockPos mutPos = new MutableBlockPos();
 		mutPos.setY(pos.getY() + top);

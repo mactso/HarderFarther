@@ -37,9 +37,9 @@ public class HarderTimeManager {
 
 	static float pitch = 0.67f; // slower and longer
 
-	static List<SoundEvent> spookySounds = Arrays.asList(SoundEvents.AMBIENT_CAVE, SoundEvents.WITCH_AMBIENT,
+	static List<SoundEvent> spookySounds = Arrays.asList(SoundEvents.AMBIENT_CAVE.get(), SoundEvents.WITCH_AMBIENT,
 			SoundEvents.SOUL_ESCAPE, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SOUL_SAND_STEP,
-			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD);
+			SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD.get());
 
 	private static void doClientParticles(Player cp, RandomSource rand,
 			SimpleParticleType p1,
@@ -229,7 +229,7 @@ public class HarderTimeManager {
 			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.GOAT_SCREAMING_PREPARE_RAM, SoundSource.AMBIENT, 0.12f, pitch);
 		}
 		if (rand.nextInt(100) < 5) 
-			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMBIENT_CAVE, SoundSource.AMBIENT, 0.23f, 0.66f);
+			cp.level.playSound(cp, cp.blockPosition(), SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 0.23f, 0.66f);
 		doClientParticles(cp, rand,
 				ParticleTypes.LARGE_SMOKE,
 				ParticleTypes.SMALL_FLAME,

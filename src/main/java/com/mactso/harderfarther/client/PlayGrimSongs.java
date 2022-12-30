@@ -1,13 +1,18 @@
 package com.mactso.harderfarther.client;
 
+import java.util.Optional;
 import java.util.Random;
+
+import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.MusicManager;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class PlayGrimSongs {
 	boolean blockmusic = false;
@@ -28,14 +33,18 @@ public class PlayGrimSongs {
 
 		doInit();
 
+		Holder<SoundEvent> songHolder = ForgeRegistries.SOUND_EVENTS.getHolder(song).get();
+		
 		clientPsuedoTicks = Util.getMillis() / 50;
 		if (grimSongDelayTicks < clientPsuedoTicks) {
 			grimSongDelayTicks = clientPsuedoTicks + (1200); // ignore calls within 60 seconds.  
-			// TODO: need forcestart=true/false parm
+			// TODO: need force start=true/false parm
 		}
 		musicTicker.stopPlaying();
+
+		// TODO make replaceCurrentMusic part of the network packet.
 		boolean replaceCurrentMusic = true;
-		Music m = new Music(song, minDelay, maxDelay, replaceCurrentMusic);
+		Music m = new Music(songHolder, minDelay, maxDelay, replaceCurrentMusic);
 		musicTicker.startPlaying(m);
 	}
 

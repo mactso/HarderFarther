@@ -86,7 +86,7 @@ public class LivingEventMovementHandler {
 							duration = Utility.FOUR_SECONDS + Utility.FOUR_SECONDS;
 
 						}
-						serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME,
+						serverLevel.playSound(null, sp.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME.get(),
 								SoundSource.PLAYERS, volume, 0.86f);
 					}
 					Utility.updateEffect((LivingEntity) sp, healingpower, MobEffects.REGENERATION,
