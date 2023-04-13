@@ -196,7 +196,7 @@ public class GrimCitadelManager {
 			}
 			int dist = (int) Math.sqrt(distSq);
 			dist = dist + MyConfig.getGrimCitadelBonusDistance();
-			BlockPos newHeartPos = new BlockPos(ssPos.getX() + (dist * xVec), -1, ssPos.getZ() + (dist * zVec));
+			BlockPos newHeartPos = BlockPos.containing(ssPos.getX() + (dist * xVec), -1, ssPos.getZ() + (dist * zVec));
 			realGCList.add(newHeartPos);
 			Utility.debugMsg(1, pos, "realGCList size:" + realGCList.size() + "Adding new HeartPos:" + newHeartPos);
 		}
@@ -205,7 +205,7 @@ public class GrimCitadelManager {
 	public static void buildAFloor(ServerLevel level, MutableBlockPos floorPos, int fy, int height,
 			boolean roof) {
 
-		int updateFlag = 131; // 3+128 = also update light.
+		int updateFlag = 131; // 3 + 128 = also update light.
 
 		int posX = floorPos.getX();
 		int posY = floorPos.getY();
@@ -531,7 +531,7 @@ public class GrimCitadelManager {
 		Vec3 v = calcGCDirection(pos);
 		if (v != null) {
 			v = v.scale(12);
-			return new BlockPos(pos.getX() + v.x, pos.getY() + v.y, pos.getZ() + v.z);
+			return BlockPos.containing(pos.getX() + v.x, pos.getY() + v.y, pos.getZ() + v.z);
 		}
 
 		return pos;
@@ -622,7 +622,7 @@ public class GrimCitadelManager {
 				Utility.debugMsg(1, pos, "Creating New Grim Citadel.");
 				int bottom = getCitadelBottom(level, pos);
 				makeGrimCitadel(level, bottom, pos);
-				BlockPos heartPos = new BlockPos(pos.getX(), bottom + 31, pos.getZ());
+				BlockPos heartPos = new BlockPos(pos.getX(), bottom + 30, pos.getZ());
 				level.setBlock(heartPos, ModBlocks.GRIM_HEART.defaultBlockState(), 3);
 				realGCList.set(currentCitadelIndex, heartPos);
 				save();

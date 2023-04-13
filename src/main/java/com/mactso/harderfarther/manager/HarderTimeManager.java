@@ -53,7 +53,7 @@ public class HarderTimeManager {
 			lookv = lookv.reverse();
 		}
 		lookv.scale(7.0);
-		BlockPos pPos = new BlockPos(pos.getX()+lookv.x,pos.getY()+lookv.y,pos.getZ()+lookv.z);
+		BlockPos pPos = BlockPos.containing(pos.getX()+lookv.x,pos.getY()+lookv.y,pos.getZ()+lookv.z);
 		for (int k = 0; k < 5; ++k) {
 			
 			int xv = (rand.nextInt(7) - 4) * 2;
@@ -130,7 +130,7 @@ public class HarderTimeManager {
 		if (rand.nextInt(20) == 1) {
 			lookv = lookv.reverse();
 		}
-		BlockPos pPos = new BlockPos(1+pos.getX()+(lookv.x*7),3+ pos.getY()+(lookv.y*3),1+pos.getZ()+(lookv.z*7));
+		BlockPos pPos = BlockPos.containing(1+pos.getX()+(lookv.x*7),3+ pos.getY()+(lookv.y*3),1+pos.getZ()+(lookv.z*7));
 		sl.sendParticles(sp, ParticleTypes.SOUL, false, pPos.getX(), pPos.getY(), pPos.getZ(), 1, 0, 0.08d, 0, 1);
 
 		for (int k = 0; k < 3; ++k) {

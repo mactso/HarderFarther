@@ -15,7 +15,7 @@ public class PlayerTeleportHandler {
 			if (p.isCreative()) {
 				return;
 			}
-			if (GrimCitadelManager.isInsideGrimCitadelRadius(new BlockPos(event.getTarget()))) {
+			if (GrimCitadelManager.isInsideGrimCitadelRadius(BlockPos.containing(event.getTarget()))) {
 				event.setCanceled(true);
 			}
 			

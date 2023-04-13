@@ -85,7 +85,7 @@ public class MonsterDropEventHandler {
 		ServerLevel serverLevel = (ServerLevel) le.level;
 
 		RandomSource rand = serverLevel.getRandom();
-		BlockPos pos = new BlockPos(le.getX(), le.getY(), le.getZ());
+		BlockPos pos = BlockPos.containing(le.getX(), le.getY(), le.getZ());
 
 		// in this section prevent ALL drops if players are killing mobs too quickly.
 

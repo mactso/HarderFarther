@@ -237,7 +237,7 @@ public class BlockEvents {
 		List<BlockPos> list = event.getAffectedBlocks();
 		Vec3 vPos = event.getExplosion().getPosition();
 		if (GrimCitadelManager
-				.getClosestGrimCitadelDistanceSq(new BlockPos(vPos.x, vPos.y, vPos.z)) <= PROTECTED_DISTANCE) {
+				.getClosestGrimCitadelDistanceSq(BlockPos.containing(vPos.x, vPos.y, vPos.z)) <= PROTECTED_DISTANCE) {
 			for (ListIterator<BlockPos> iter = list.listIterator(list.size()); iter.hasPrevious();) {
 				BlockPos pos = iter.previous();
 				if (GrimCitadelManager.getProtectedBlocks().contains(level.getBlockState(pos).getBlock())) {
