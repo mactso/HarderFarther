@@ -11,12 +11,9 @@ import com.mactso.harderfarther.events.ChunkEvent;
 import com.mactso.harderfarther.events.ExperienceDropEventHandler;
 import com.mactso.harderfarther.events.MonsterDropEventHandler;
 import com.mactso.harderfarther.events.SpawnEventHandler;
-import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 
-import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -52,16 +49,16 @@ public class Main {
 				//				MinecraftForge.EVENT_BUS.register(new MyEntityPlaceEvent());
 		}   
 		
-		@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
-	    public static class ModEvents
-	    {
-
-		    @SubscribeEvent
-		    public static void onItemsRegistry(final RegistryEvent.Register<Item> event)
-		    {
-		        ModItems.register(event.getRegistry());
-		    }
-
-	    }		
+//		@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
+//	    public static class ModEvents
+//	    {
+//
+//		    @SubscribeEvent
+//		    public static void onItemsRegistry(final RegistryEvent.Register<Item> event)
+//		    {
+//		        ModItems.register(event.getRegistry());
+//		    }
+//
+//	    }		
 
 }

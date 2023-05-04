@@ -31,7 +31,7 @@ public class CapabilityChunkLastMobDeathTime {
 	            {
 	                if (!(instance instanceof ChunkLastMobDeathTime))
 	                    throw new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation");
-	                ((ChunkLastMobDeathTime)instance).setLastKillTime(((IntNBT)nbt).getInt());
+	                ((ChunkLastMobDeathTime)instance).setLastKillTime(((IntNBT)nbt).getAsLong());
 	            }
 	        },
 	        () -> new ChunkLastMobDeathTime(null));
