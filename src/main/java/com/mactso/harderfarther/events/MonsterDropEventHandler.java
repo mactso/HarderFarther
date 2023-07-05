@@ -82,7 +82,7 @@ public class MonsterDropEventHandler {
 		if (!isDropsSpecialLoot(event, le, dS))
 			return false;
 
-		ServerLevel serverLevel = (ServerLevel) le.level;
+		ServerLevel serverLevel = (ServerLevel) le.level();
 
 		RandomSource rand = serverLevel.getRandom();
 		BlockPos pos = BlockPos.containing(le.getX(), le.getY(), le.getZ());
@@ -119,7 +119,7 @@ public class MonsterDropEventHandler {
 			return false;
 		}
 
-		d1000 = (int) (Math.ceil(le.level.getRandom().nextDouble() * 1000));
+		d1000 = (int) (Math.ceil(le.level().getRandom().nextDouble() * 1000));
 		if (d1000 < 640) {
 			d1000 += odds / 10;
 		}
@@ -127,7 +127,7 @@ public class MonsterDropEventHandler {
 		Mob me = (Mob) event.getEntity();
 		ItemStack itemStackToDrop = LootManager.doGetLootStack(le, me, boostDifficulty, d1000);
 
-		ItemEntity myItemEntity = new ItemEntity(le.level, le.getX(), le.getY(),
+		ItemEntity myItemEntity = new ItemEntity(le.level(), le.getX(), le.getY(),
 				le.getZ(), itemStackToDrop);
 
 		eventItems.add(myItemEntity);
@@ -155,7 +155,7 @@ public class MonsterDropEventHandler {
 			return false;
 		}
 
-		if (!(eventEntity.level instanceof ServerLevel)) {
+		if (!(eventEntity.level() instanceof ServerLevel)) {
 			return false;
 		}
 

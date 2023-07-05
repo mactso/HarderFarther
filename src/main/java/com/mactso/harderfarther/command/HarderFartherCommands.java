@@ -113,7 +113,7 @@ public class HarderFartherCommands {
 	
 	private static void printInfo(ServerPlayer p) {
 
-		String dimensionName = p.level.dimension().location().toString();
+		String dimensionName = p.level().dimension().location().toString();
 
 		String chatMessage = "\nDimension: " + dimensionName + "\n Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
@@ -173,8 +173,8 @@ public class HarderFartherCommands {
 						})))
 				.then(Commands.literal("chunkReport").executes(ctx -> {
 					ServerPlayer p = ctx.getSource().getPlayerOrException();
-					p.level.gatherChunkSourceStats();
-					Utility.sendChat(p, "\nChunk\n" + p.level.gatherChunkSourceStats(), ChatFormatting.GREEN);
+					p.level().gatherChunkSourceStats();
+					Utility.sendChat(p, "\nChunk\n" + p.level().gatherChunkSourceStats(), ChatFormatting.GREEN);
 					return 1;
 				}))
 				.then(Commands.literal("grimReport").executes(ctx -> {
@@ -259,8 +259,8 @@ public class HarderFartherCommands {
 	}
 
 	private static void printTimeInfo(ServerPlayer p) {
-		long time = p.level.getChunk(p.blockPosition()).getInhabitedTime() / 1200;
-		float timeDifficulty = 100* HarderTimeManager.getTimeDifficulty(p.getLevel(), (LivingEntity) p);
+		long time = p.level().getChunk(p.blockPosition()).getInhabitedTime() / 1200;
+		float timeDifficulty = 100* HarderTimeManager.getTimeDifficulty((ServerLevel)p.level(), (LivingEntity) p);
 		Utility.sendBoldChat(p,"\nTime Info ", ChatFormatting.AQUA);
 		Utility.sendChat(p, "  Make Harder Over Time .........: " + MyConfig.isMakeHarderOverTime() +".", ChatFormatting.AQUA);
 		Utility.sendChat(p, "  Maximum Difficulty .......................: " + MyConfig.getMaxHarderTimeMinutes() +" minutes.", ChatFormatting.AQUA);
@@ -299,7 +299,7 @@ public class HarderFartherCommands {
 		MyConfig.setGrimFogRedPercent(r);
 		MyConfig.setGrimFogGreenPercent(g);
 		MyConfig.setGrimFogBluePercent(b);
-		updateGCFogToAllClients ((ServerLevel)p.level, (double)r/100, (double)g/100, (double)b/100);
+		updateGCFogToAllClients ((ServerLevel)p.level(), (double)r/100, (double)g/100, (double)b/100);
 		printColorInfo(p);
 		return 1;
 	}

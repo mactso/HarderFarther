@@ -38,9 +38,9 @@ public class LivingEventMovementHandler {
 	public void onLivingUpdate(LivingTickEvent event) {
 
 		LivingEntity le = event.getEntity();
-		RandomSource rand = le.getLevel().getRandom();
+		RandomSource rand = le.level().getRandom();
 
-		if (le.level.isClientSide()) {
+		if (le.level().isClientSide()) {
 			if (le instanceof Player cp) {
 				GrimCitadelManager.playGCOptionalSoundCues(cp);
 			}
@@ -52,7 +52,7 @@ public class LivingEventMovementHandler {
 			return;
 		}
 
-		ServerLevel serverLevel = (ServerLevel) le.getLevel();
+		ServerLevel serverLevel = (ServerLevel) le.level();
 
 		if (le instanceof ServerPlayer sp) {
 			Utility.debugMsg(2, "LivingEventMovementHandler");

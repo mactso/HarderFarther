@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -52,10 +51,10 @@ public class GrimHeartBlock extends BaseEntityBlock {
 		return new GrimHeartBlockEntity(pos, state);
 	}
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState p_60584_) {
-		return PushReaction.DESTROY;
-	}
+//	@Override
+//	public PushReaction getPistonPushReaction(BlockState p_60584_) {
+//		return PushReaction.DESTROY;
+//	} 
 
 	@Override
 	public int getExpDrop(BlockState state, LevelReader world, RandomSource rand, BlockPos pos, int fortune, int silktouch) {

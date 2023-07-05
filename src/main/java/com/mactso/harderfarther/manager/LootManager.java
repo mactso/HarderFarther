@@ -184,7 +184,7 @@ public class LootManager {
 			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
 			ItemStack itemStackToDrop;
 			itemStackToDrop = new ItemStack(Items.EXPERIENCE_BOTTLE, (int) 1);
-			ItemEntity myItemEntity = new ItemEntity(eventEntity.level, eventEntity.getX(), eventEntity.getY(),
+			ItemEntity myItemEntity = new ItemEntity(eventEntity.level(), eventEntity.getX(), eventEntity.getY(),
 					eventEntity.getZ(), itemStackToDrop);
 			eventItems.add(myItemEntity);
 		}
@@ -200,27 +200,27 @@ public class LootManager {
 		} else {
 			float itemPowerModifier = difficulty;
 			if (lootRoll < 690) {
-				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level.getRandom());
+				itemStackToDrop = LootManager.getLootItem("c", eventEntity.level().getRandom());
 			} else if (lootRoll < 750) {
 				itemStackToDrop = makeLifeSavingPotion(itemPowerModifier);
 			} else if (lootRoll < 830) {
 				itemStackToDrop = makeOgreStrengthPotion(itemPowerModifier);
 			} else if (lootRoll < 975) {
 				if (me instanceof Pillager) {
-					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level.getRandom().nextInt(2) + 1);
+					itemStackToDrop = new ItemStack(ModItems.BURNISHING_STONE, eventEntity.level().getRandom().nextInt(2) + 1);
 					Utility.setLore(itemStackToDrop,
 							Component.Serializer.toJson(Component.translatable("item.harderfarther.burnishing_stone.lore")));
 				} else
 				if (me instanceof CaveSpider) {
 					itemStackToDrop = new ItemStack(Items.COAL, (int) 1);
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level().getRandom());
 				}
 			} else {
 				if (difficulty > 0.95) {
-					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("r", eventEntity.level().getRandom());
 				} else {
-					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level.getRandom());
+					itemStackToDrop = LootManager.getLootItem("u", eventEntity.level().getRandom());
 				}
 			}
 		}

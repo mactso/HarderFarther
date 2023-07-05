@@ -11,10 +11,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class PlayerLoginEventHandler {
-    @SubscribeEvent
+    @SuppressWarnings("resource")
+	@SubscribeEvent
     public void onLogin(PlayerLoggedInEvent event)
     {
-    	if (event.getEntity().level.isClientSide) return;
+    	if (event.getEntity().level().isClientSide) return;
     	Player sp = event.getEntity();
     	if ( sp == null ) return;
     	if (!(sp instanceof ServerPlayer)) return;

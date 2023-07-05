@@ -947,12 +947,12 @@ public class GrimCitadelManager {
 	}
 
 	private static boolean isPlayAmbientSound(Player cp) {
-		if (ambientSoundTimer > cp.level.getGameTime())
+		if (ambientSoundTimer > cp.level().getGameTime())
 			return false;
 		int reqRoll = 13;
-		if (cp.level.isNight())
+		if (cp.level().isNight())
 			reqRoll += 17;
-		if (cp.level.getRandom().nextInt(1200) <= reqRoll)
+		if (cp.level().getRandom().nextInt(1200) <= reqRoll)
 			return true;
 
 		return false;
@@ -960,7 +960,7 @@ public class GrimCitadelManager {
 	}
 
 	private static boolean isPlayDirectionalSound(Player cp, float difficulty) {
-		if (directionalSoundTimer > cp.level.getGameTime()) {
+		if (directionalSoundTimer > cp.level().getGameTime()) {
 			return false;
 		}
 		if (isGCNear(difficulty)) // close to tower
@@ -969,9 +969,9 @@ public class GrimCitadelManager {
 			return false;
 		int reqRoll;
 		reqRoll = 31;
-		if (cp.level.isNight())
+		if (cp.level().isNight())
 			reqRoll += 23;
-		if (cp.level.getRandom().nextInt(1200) <= reqRoll)
+		if (cp.level().getRandom().nextInt(1200) <= reqRoll)
 			return true;
 
 		return false;
@@ -1052,12 +1052,12 @@ public class GrimCitadelManager {
 	private static void playGCAmbientSound(Player cp, float pitch, float volume, long gameTime) {
 		if (ambientSoundTimer < gameTime) {
 			int modifier = 300;
-			if (cp.level.isDay()) {
+			if (cp.level().isDay()) {
 				modifier = 600;
 			}
-			ambientSoundTimer = gameTime + modifier + cp.level.getRandom().nextInt(1200);
-			int i = cp.level.getRandom().nextInt(gcAmbientSoundEvents.size());
-			cp.level.playSound(cp, Utility.getBlockPosition(cp), gcAmbientSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
+			ambientSoundTimer = gameTime + modifier + cp.level().getRandom().nextInt(1200);
+			int i = cp.level().getRandom().nextInt(gcAmbientSoundEvents.size());
+			cp.level().playSound(cp, Utility.getBlockPosition(cp), gcAmbientSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
 		}
 	}
 
@@ -1065,14 +1065,14 @@ public class GrimCitadelManager {
 		if (directionalSoundTimer < gameTime) {
 
 			int modifier = 200;
-			if (cp.level.isDay()) {
+			if (cp.level().isDay()) {
 				modifier = 400;
 			}
-			directionalSoundTimer = gameTime + modifier + cp.level.getRandom().nextInt(600);
-			int i = cp.level.getRandom().nextInt(gcDirectionalSoundEvents.size());
+			directionalSoundTimer = gameTime + modifier + cp.level().getRandom().nextInt(600);
+			int i = cp.level().getRandom().nextInt(gcDirectionalSoundEvents.size());
 			BlockPos cluePos = calcGCCluePosition(Utility.getBlockPosition(cp));
-			cp.level.playSound(cp, cluePos, gcDirectionalSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
-			RandomSource rand = cp.level.getRandom();
+			cp.level().playSound(cp, cluePos, gcDirectionalSoundEvents.get(i), SoundSource.AMBIENT, volume, pitch);
+			RandomSource rand = cp.level().getRandom();
 			for (int k = 1; k < 15; k++) {
 				BlockPos temp = cluePos.east((rand.nextInt(3) - 1)).above((k / 2 + rand.nextInt(3) - 1))
 						.north((rand.nextInt(3) - 1));
@@ -1080,9 +1080,9 @@ public class GrimCitadelManager {
 				double y = (double) temp.getY() + rand.nextDouble() - 0.33d;
 				double z = (double) temp.getZ() + rand.nextDouble() - 0.33d;
 				if (rand.nextInt(2) == 0) {
-					cp.level.addParticle(ParticleTypes.DRIPPING_OBSIDIAN_TEAR, x, y, z, 0.0d, 0.5d, 0.0d);
+					cp.level().addParticle(ParticleTypes.DRIPPING_OBSIDIAN_TEAR, x, y, z, 0.0d, 0.5d, 0.0d);
 				} else {
-					cp.level.addParticle(ParticleTypes.DRIPPING_LAVA, x, y, z, 0.0d, 0.5d, 0.0d);
+					cp.level().addParticle(ParticleTypes.DRIPPING_LAVA, x, y, z, 0.0d, 0.5d, 0.0d);
 				}
 			}
 		}
@@ -1104,7 +1104,7 @@ public class GrimCitadelManager {
 			return;
 		float pitch = 0.67f;
 		float volume = calcGCDistanceVolume(difficulty);
-		long gameTime = cp.level.getGameTime();
+		long gameTime = cp.level().getGameTime();
 
 		if (playAmbientsound) {
 			playGCAmbientSound(cp, pitch, volume, gameTime);

@@ -16,7 +16,7 @@ public class PlayerInteractionEventHandler {
 		Player player = event.getEntity();
 //		if (player.isCreative())
 //			return;
-		Level level = player.level;
+		Level level = player.level();
 		if (level.isClientSide)
 			return;
 

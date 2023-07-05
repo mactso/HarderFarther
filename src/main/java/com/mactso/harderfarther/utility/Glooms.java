@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,7 +45,6 @@ import net.minecraft.world.level.block.TallGrassBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 
 public class Glooms {
@@ -175,10 +174,10 @@ public class Glooms {
 	private static boolean isDeepWaterUnderSky(WaterAnimal we) {
 		BlockPos pos = we.blockPosition();
 
-		if (!we.getLevel().canSeeSkyFromBelowWater(pos))
+		if (!we.level().canSeeSkyFromBelowWater(pos))
 			return false;
-		Block bAbove = we.level.getBlockState(pos.above(12)).getBlock();
-		Block bBelow = we.level.getBlockState(pos.below(12)).getBlock();
+		Block bAbove = we.level().getBlockState(pos.above(12)).getBlock();
+		Block bBelow = we.level().getBlockState(pos.below(12)).getBlock();
 		if ((bAbove == Blocks.WATER) || (bBelow == Blocks.WATER)) {
 			return true;
 		}
@@ -245,7 +244,8 @@ public class Glooms {
 		if (bs.getBlock() == Blocks.COBBLESTONE_SLAB) return false;
 		if (bs.getBlock() == Blocks.COBBLESTONE_WALL) return false;
 		if (bs.getBlock() == Blocks.COBBLESTONE_STAIRS) return false;
-		if (bs.getMaterial() == Material.STONE) return true;
+		if (bs.is(BlockTags.BASE_STONE_OVERWORLD)) return true;
+		if (bs.is(BlockTags.BASE_STONE_NETHER)) return true;
 		if (bs.getBlock() instanceof WallBlock) return true;
 		return false;
 	}
@@ -298,7 +298,7 @@ public class Glooms {
 		if (spiderWebTimer < gameTime) {
 			spiderWebTimer = gameTime + 1200; // 1 per two minutes.
 			if (Utility.isNotNearWebs(pos, serverLevel)) {
-				le.level.setBlock(pos, Blocks.COBWEB.defaultBlockState(), 3);
+				le.level().setBlock(pos, Blocks.COBWEB.defaultBlockState(), 3);
 			}
 		}
 	}
@@ -330,7 +330,7 @@ public class Glooms {
 				zombifiedPiglinTimer = gameTime + 600;
 				doGloomGrassTransform(pos, serverLevel);
 				doGloomGroundTransform(le, serverLevel);
-				if (serverLevel.getLevel().getRandom().nextInt(10000) == 42) {
+				if (serverLevel.getRandom().nextInt(10000) == 42) {
 					ZombifiedPiglin ze = (ZombifiedPiglin) le;
 					ze.setAggressive(true);
 				}
@@ -420,7 +420,7 @@ public class Glooms {
 
 	public static void doGloomPlayerCurse(float difficulty, int gloomType, int amplitude, ServerPlayer sp) {
 
-		RandomSource rand = sp.getLevel().getRandom();
+		RandomSource rand = sp.level().getRandom();
 		boolean hasLifeHeart = sp.getInventory().contains(new ItemStack(ModItems.LIFE_HEART));
 
 		if (hasLifeHeart) {

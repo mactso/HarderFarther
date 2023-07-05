@@ -27,7 +27,7 @@ public class ExperienceDropEventHandler {
 			return;
 		}
 		
-		if (le.getLevel().isClientSide()) {
+		if (le.level().isClientSide()) {
 			return;
 		}
 		
@@ -39,7 +39,7 @@ public class ExperienceDropEventHandler {
 			return;
 		}
 		
-		ServerLevel serverLevel = (ServerLevel) le.level;
+		ServerLevel serverLevel = (ServerLevel) le.level();
 		
 		if (closeToWorldSpawn(serverLevel, le))
 			return;

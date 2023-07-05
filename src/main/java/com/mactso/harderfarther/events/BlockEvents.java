@@ -67,7 +67,7 @@ public class BlockEvents {
 
 		Player p = event.getEntity();
 		Vec3 rfv = p.getForward().reverse().scale(0.6);
-		Level level = p.level;
+		Level level = p.level();
 		long gameTime = level.getGameTime();
 		RandomSource rand = level.getRandom();
 		BlockPos ePos = event.getPosition().get();
@@ -104,7 +104,7 @@ public class BlockEvents {
 
 		// server side only event.
 		ServerPlayer sp = (ServerPlayer) event.getPlayer();
-		ServerLevel serverLevel = (ServerLevel) sp.level;
+		ServerLevel serverLevel = (ServerLevel) sp.level();
 		BlockPos pos = event.getPos();
 		BlockState bs = serverLevel.getBlockState(pos);
 		Block b = bs.getBlock();
@@ -172,7 +172,7 @@ public class BlockEvents {
 
 		if (target.getType() == HitResult.Type.BLOCK) {
 			Player player = event.getEntity();
-			Level world = player.level;
+			Level level = player.level();
 			BlockHitResult blockray = (BlockHitResult) target;
 			BlockPos blockpos = blockray.getBlockPos();
 
@@ -184,18 +184,18 @@ public class BlockEvents {
 				fluid = bucket.getFluid();
 			} else {
 				// not a bucket (not sure this will happen), so guess
-				FluidState state = world.getFluidState(blockpos);
+				FluidState state = level.getFluidState(blockpos);
 				if (state.getType() != Fluids.EMPTY)
 					fluid = Fluids.EMPTY;
 			}
 			if (fluid != Fluids.EMPTY) {
 				boolean next = true;
 				if (fluid != null) {
-					BlockState state = world.getBlockState(blockpos);
+					BlockState state = level.getBlockState(blockpos);
 					Block block = state.getBlock();
 					if (block instanceof LiquidBlockContainer) {
 						LiquidBlockContainer lc = (LiquidBlockContainer) block;
-						if (lc.canPlaceLiquid(world, blockpos, state, fluid))
+						if (lc.canPlaceLiquid(level, blockpos, state, fluid))
 							next = false;
 					}
 				}
