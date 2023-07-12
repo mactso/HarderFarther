@@ -49,7 +49,7 @@ public class Boosts {
 	private static void boostAtkDmg(LivingEntity le, String eDsc, float difficulty) {
 		if (MyConfig.isAtkDmgBoosted()) {
 			if (le.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
-				float baseAttackDamage = (float) le.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+				float baseAttackDamage = (float) le.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
 				float damageBoost = (MyConfig.getAtkPercent() * difficulty);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
 				le.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
