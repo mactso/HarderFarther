@@ -3,9 +3,9 @@ package com.mactso.harderfarther.events;
 import java.util.Collection;
 import net.minecraft.util.RandomSource;
 
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.LootManager;
 import com.mactso.harderfarther.timer.CapabilityChunkLastMobDeathTime;
 import com.mactso.harderfarther.timer.IChunkLastMobDeathTime;
@@ -53,7 +53,7 @@ public class MonsterDropEventHandler {
 			lastMobDeathTime = 0;
 			if (cap != null) {
 				lastMobDeathTime = cap.getLastKillTime();
-				long nextLootTime = lastMobDeathTime + MyConfig.getMobFarmingLimitingTimer();
+				long nextLootTime = lastMobDeathTime + PrimaryConfig.getMobFarmingLimitingTimer();
 				if (worldTime < nextLootTime) {
 					Utility.debugMsg(2, pos,
 							"Mobs Dying Too Quickly at: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
@@ -101,12 +101,12 @@ public class MonsterDropEventHandler {
 
 		LootManager.doXPBottleDrop(le, eventItems, rand);
 
-		float boostDifficulty = HarderFartherManager.getDifficultyHere(serverLevel,le);
+		float boostDifficulty = DifficultyCalculator.getDifficultyHere(serverLevel,le);
 		if (boostDifficulty == 0)
 			return false;
-		if (boostDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+		if (boostDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {
 			if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(le)) {
-				boostDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
+				boostDifficulty = PrimaryConfig.getGrimCitadelMaxBoostPercent();
 			}
 		}		
 		
@@ -145,10 +145,10 @@ public class MonsterDropEventHandler {
 	
 	private boolean isDropsSpecialLoot(LivingDropsEvent event, LivingEntity eventEntity, DamageSource dS) {
 
-		if (!(MyConfig.isMakeMonstersHarderFarther()))
+		if (!(PrimaryConfig.isMakeMonstersHarderFarther()))
 			return false;
 
-		if (!(MyConfig.isUseLootDrops()))
+		if (!(PrimaryConfig.isUseLootDrops()))
 			return false;
 
 		if (event.getEntity() == null) {

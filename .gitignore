@@ -1,13 +1,29 @@
-/.gradle/
-/build/
-/.classpath
-/.settings/
-/bin/
-/run/
-/build/
-/.project
+# Other
 /runClient.launch
 /runData.launch
 /runServer.launch
-/.metadata/
 /runGameTestServer.launch
+
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+!.idea/scopes
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run

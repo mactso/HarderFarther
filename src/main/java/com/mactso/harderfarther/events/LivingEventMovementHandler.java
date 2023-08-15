@@ -2,10 +2,10 @@ package com.mactso.harderfarther.events;
 
 import net.minecraft.util.RandomSource;
 import com.mactso.harderfarther.client.GrimSongManager;
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.network.Network;
@@ -60,7 +60,7 @@ public class LivingEventMovementHandler {
 			boolean hasLifeHeart = sp.getInventory().contains(ModItems.LIFE_HEART_STACK);
 
 			if ((sp.getHealth() < sp.getMaxHealth()) && (hasLifeHeart)) {
-				int dice = MyConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
+				int dice = PrimaryConfig.getGrimLifeheartPulseSeconds() * Utility.TICKS_PER_SECOND;
 				int roll = rand.nextInt(dice);
 				int duration = Utility.FOUR_SECONDS;
 				if (roll == 42) { // once per 2 minutes
@@ -96,7 +96,7 @@ public class LivingEventMovementHandler {
 
 			long gameTime = serverLevel.getGameTime();
 
-			float difficulty = HarderFartherManager.getDifficultyHere(serverLevel, le);
+			float difficulty = DifficultyCalculator.getDifficultyHere(serverLevel, le);
 
 			if (difficulty > 0) {
 				if (GrimCitadelManager.isGCNear(difficulty)) {

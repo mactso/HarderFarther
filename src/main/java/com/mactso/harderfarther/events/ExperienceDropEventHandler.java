@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.events;
 
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ public class ExperienceDropEventHandler {
 		BlockPos pos = le.blockPosition();
 		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
 		
-		if (eventVec.distanceTo(spawnVec) < MyConfig.getSafeDistance()*8)
+		if (eventVec.distanceTo(spawnVec) < PrimaryConfig.getSafeDistance()*8)
 			return true;
 
 		return false;

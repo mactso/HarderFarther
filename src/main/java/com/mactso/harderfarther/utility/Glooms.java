@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.util.RandomSource;
 
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 
@@ -73,7 +73,7 @@ public class Glooms {
 	static long creeperTimer = 0;
 
 	public static void doGloomPigs(Pig pig, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (MyConfig.isGrimEffectPigs()) {
+		if (PrimaryConfig.isGrimEffectPigs()) {
 			
 			if (pigTimer < gameTime) {
 				pigTimer = gameTime + 1800;
@@ -101,7 +101,7 @@ public class Glooms {
 
 	public static void doGloomDeadBranches(LivingEntity le, BlockPos pos, Level level) {
 		Utility.debugMsg(2, pos, "doSpreadDeadBranches");
-		if (MyConfig.isGrimEffectTrees()) {
+		if (PrimaryConfig.isGrimEffectTrees()) {
 			if (level.getBrightness(LightLayer.SKY, pos) > 10) {
 				BlockPos deadBranchPos = level.getHeightmapPos(Types.MOTION_BLOCKING, pos);
 				Block b = level.getBlockState(deadBranchPos.below()).getBlock();
@@ -215,7 +215,7 @@ public class Glooms {
 
 	public static void doGloomAnimals(Animal ae, BlockPos pos, long gameTime, ServerLevel level) {
 
-		if (!(MyConfig.isGrimEffectAnimals()))
+		if (!(PrimaryConfig.isGrimEffectAnimals()))
 			return;
 
 		if (level.getRandom().nextInt(400) < 9) {
@@ -381,7 +381,7 @@ public class Glooms {
 	}
 
 	public static void doGloomVillagers(Villager ve, BlockPos pos, long gameTime, ServerLevel serverLevel) {
-		if (MyConfig.isGrimEffectVillagers()) {
+		if (PrimaryConfig.isGrimEffectVillagers()) {
 			if (villagerTimer < gameTime) {
 				villagerTimer = gameTime + 2400;
 				Utility.populateEntityType(EntityType.WITCH, serverLevel, pos, 1, 0);
