@@ -2,7 +2,7 @@
   "required": true,
   "package": "com.mactso.harderfarther.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "harderfarther.refmap.json",
+  "refmap": "mixin.harderfarther.refmap.json",
   "mixins": [
     "BiomeGenMixin",
     "BiomeSourceMixin",
