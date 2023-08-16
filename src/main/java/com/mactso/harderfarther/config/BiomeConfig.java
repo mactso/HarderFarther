@@ -35,10 +35,11 @@ public class BiomeConfig {
                 Main.LOGGER.warn("[HarderFarther] Could not read property file '" + configFile.getAbsolutePath() + "'", e);
             }
         }
-        size = properties.size();
 
         difficultySectionsAsString.add(properties.computeIfAbsent("Section_1", (a) -> ">0:\"\"").toString());
         difficultySectionBiomeReplacementsAsString.add(properties.computeIfAbsent("Section_1_replacements", (a) -> "\"\"").toString());
+
+        size = properties.size();
 
         if(size > 2){
             for(int x = 1; x < size/2; x++){
