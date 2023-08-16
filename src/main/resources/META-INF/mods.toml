@@ -23,3 +23,10 @@ description='Harder Farther Mod.'
     versionRange="[1.20,1.21)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.harderfarther]]
+    modId="terrablender"
+    mandatory=true
+    versionRange="[1.20.1-3.0.0.164,)"
+    ordering="NONE"
+    side="BOTH"
