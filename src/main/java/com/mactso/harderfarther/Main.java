@@ -150,11 +150,6 @@ public class Main {
 		@Mod.EventBusSubscriber(bus = Bus.FORGE)
 		public static class ForgeEvents
 		{
-			@SubscribeEvent
-			public static void onServerAbout(ServerAboutToStartEvent event)
-			{
-				GrimCitadelManager.load(event.getServer());
-			}
 
 			@SubscribeEvent
 			public static void onServerStopping(ServerStoppingEvent event)
