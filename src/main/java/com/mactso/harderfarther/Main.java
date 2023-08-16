@@ -29,7 +29,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.coremod.api.ASMAPI;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -57,7 +56,7 @@ public class Main {
 
 			Utility.debugMsg(0,MODID + ": Registering Mod.");
 			FMLJavaModLoadingContext.get().getModEventBus().register(this);
-			ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, PrimaryConfig.COMMON_SPEC );
+			ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC );
 			BiomeConfig.initConfig();
 			OreConfig.initConfig();
 			StructureConfig.initConfig();

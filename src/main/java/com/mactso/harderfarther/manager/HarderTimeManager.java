@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.utility.Utility;
 
@@ -241,10 +241,10 @@ public class HarderTimeManager {
 
 	// must be server side.  chunk inhabited time is 0 on client side.
 	public static float getTimeDifficulty(ServerLevel level, LivingEntity entity) {
-		if (!PrimaryConfig.isMakeHarderOverTime())
+		if (!MyConfig.isMakeHarderOverTime())
 			return 0;
 
-		long startHarderTime = (long) (PrimaryConfig.getMaxHarderTimeMinutes() *.66f);
+		long startHarderTime = (long) (MyConfig.getMaxHarderTimeMinutes() *.66f);
 		Utility.debugMsg(2, "getChunk top start = " + startHarderTime);
 		if (level.isAreaLoaded(entity.blockPosition(), 3)) {
 			Utility.debugMsg(2, "Area is loaded " );

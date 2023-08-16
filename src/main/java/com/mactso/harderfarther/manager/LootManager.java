@@ -3,13 +3,14 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+
+import com.mactso.harderfarther.config.MyConfig;
 import net.minecraft.util.RandomSource;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.utility.Utility;
 
@@ -180,7 +181,7 @@ public class LootManager {
 	
 	public static void doXPBottleDrop(Entity eventEntity, Collection<ItemEntity> eventItems, RandomSource rand) {
 		int d100 = (int) (Math.ceil(rand.nextDouble() * 100));
-		if (d100 < PrimaryConfig.getOddsDropExperienceBottle()) {
+		if (d100 < MyConfig.getOddsDropExperienceBottle()) {
 			Utility.debugMsg(1, "XP Bottle dropped with roll " + d100);
 			ItemStack itemStackToDrop;
 			itemStackToDrop = new ItemStack(Items.EXPERIENCE_BOTTLE, (int) 1);

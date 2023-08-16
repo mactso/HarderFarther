@@ -27,7 +27,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 @Mod.EventBusSubscriber(modid = Main.MODID, bus=Mod.EventBusSubscriber.Bus.MOD)
-public class PrimaryConfig {
+public class MyConfig {
 
 
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -75,7 +75,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setUseLootDrops(boolean newValue) {
-		PrimaryConfig.useLootDrops = newValue;
+		MyConfig.useLootDrops = newValue;
 		COMMON.useLootDrops.set(newValue);
 	}
 
@@ -87,7 +87,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setBonusLootEnchantmentLevelModifier(int bonusLootEnchantmentLevelModifier) {
-		PrimaryConfig.bonusLootEnchantmentLevelModifier = bonusLootEnchantmentLevelModifier;
+		MyConfig.bonusLootEnchantmentLevelModifier = bonusLootEnchantmentLevelModifier;
 	}
 
 	public static boolean isDimensionOmitted(String dimensionName) {
@@ -99,7 +99,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setBoostMaxDistance(int modifierMaxDistance) {
-		PrimaryConfig.boostMaxDistance = modifierMaxDistance;
+		MyConfig.boostMaxDistance = modifierMaxDistance;
 	}
 
 	public static int getBoostMinDistance() {
@@ -110,7 +110,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setBoostMinDistance(int boostMinDistance) {
-		PrimaryConfig.boostMinDistance = boostMinDistance;
+		MyConfig.boostMinDistance = boostMinDistance;
 	}
 
 	public static int getSafeDistance() {
@@ -118,7 +118,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setSafeDistance(int safeDistance) {
-		PrimaryConfig.safeDistance = safeDistance;
+		MyConfig.safeDistance = safeDistance;
 	}
 
 	public static boolean isHpMaxBoosted() {
@@ -182,7 +182,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setMakeHarderOverTime(boolean newValue) {
-		PrimaryConfig.makeHarderOverTime = newValue;
+		MyConfig.makeHarderOverTime = newValue;
 		COMMON.makeHarderOverTime.set(newValue);
 	}
 
@@ -191,7 +191,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setMaxHarderTimeMinutes(int newValue) {
-		PrimaryConfig.maxHarderTimeMinutes = newValue;
+		MyConfig.maxHarderTimeMinutes = newValue;
 		COMMON.maxHarderTimeMinutes.set(newValue);	
 	}
 
@@ -224,7 +224,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setGrimCitadelsRadius(int grimCitadelsRadius) {
-		PrimaryConfig.grimCitadelsRadius = grimCitadelsRadius;
+		MyConfig.grimCitadelsRadius = grimCitadelsRadius;
 		COMMON.grimCitadelsRadius.set(grimCitadelsRadius);
 	}
 
@@ -237,7 +237,7 @@ public class PrimaryConfig {
 	}
 	
 	public static void setGrimCitadelMaxBoostPercent(int newValue) {
-		PrimaryConfig.grimCitadelMaxBoostPercent = newValue;
+		MyConfig.grimCitadelMaxBoostPercent = newValue;
 		COMMON.grimCitadelMaxBoostPercent.set(newValue);
 	}
 	
@@ -266,7 +266,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setGrimCitadelsBlockPosList(List<BlockPos> grimCitadelsBlockPosList) {
-		PrimaryConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
+		MyConfig.grimCitadelsBlockPosList = grimCitadelsBlockPosList;
 	}
 	
 	public static boolean isGrimEffectTrees() {
@@ -274,7 +274,7 @@ public class PrimaryConfig {
 	}
 
 	public static void setGrimEffectTrees(boolean grimEffectTrees) {
-		PrimaryConfig.grimEffectTrees = grimEffectTrees;
+		MyConfig.grimEffectTrees = grimEffectTrees;
 	}
 
 	public static boolean isGrimEffectAnimals() {
@@ -306,16 +306,16 @@ public class PrimaryConfig {
 	}
 	
 	public static void setGrimFogRedPercent(double grimFogRedPercent) {
-		PrimaryConfig.grimFogRedPercent = grimFogRedPercent/100;
+		MyConfig.grimFogRedPercent = grimFogRedPercent/100;
 		COMMON.grimFogRedPercent.set(grimFogRedPercent/100);
 	}
 	public static void setGrimFogGreenPercent(double grimFogGreenPercent) {
-		PrimaryConfig.grimFogGreenPercent = grimFogGreenPercent/100;
+		MyConfig.grimFogGreenPercent = grimFogGreenPercent/100;
 		COMMON.grimFogGreenPercent.set(grimFogGreenPercent/100);
 	}
 
 	public static void setGrimFogBluePercent(double grimFogBluePercent) {
-		PrimaryConfig.grimFogBluePercent = grimFogBluePercent/100;
+		MyConfig.grimFogBluePercent = grimFogBluePercent/100;
 		COMMON.grimFogBluePercent.set(grimFogBluePercent/100);
 	}
 
@@ -383,7 +383,7 @@ public class PrimaryConfig {
 	public static <ModConfig> void onModConfigEvent(final ModConfigEvent configEvent)
 	{
 
-		if (configEvent.getConfig().getSpec() == PrimaryConfig.COMMON_SPEC)
+		if (configEvent.getConfig().getSpec() == MyConfig.COMMON_SPEC)
 		{
 			bakeConfig();
 		}

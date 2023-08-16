@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.mactso.harderfarther.api.DifficultyCalculator;
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.network.chat.Component;
@@ -90,7 +90,7 @@ public class ChestLootManager {
 		if (roll < 1)
 			roll = 1;
 		
-		int enchantmentLevel = 4 + PrimaryConfig.getBonusLootEnchantmentLevelModifier();
+		int enchantmentLevel = 4 + MyConfig.getBonusLootEnchantmentLevelModifier();
 
 		int chestLootRoll = Math.min(rand.nextInt(roll) + modifier, chestLootTable.size()-1);
 		ChestLootItem ci = chestLootTable.get(chestLootRoll);

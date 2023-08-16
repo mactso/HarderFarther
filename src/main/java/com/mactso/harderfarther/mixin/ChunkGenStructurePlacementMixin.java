@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.config.StructureConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
@@ -254,7 +254,7 @@ public abstract class ChunkGenStructurePlacementMixin {
             }
 
             if (!difficultySectionStructure.get(choosenAreaIndex[0]).contains(structure)) {
-                if(PrimaryConfig.getDebugLevel() > 0){
+                if(MyConfig.getDebugLevel() > 0){
                     Utility.debugMsg(1, "Canceled structure: " + structure + " located near x:" + x + ", z:" + z + " at difficulty: " + difficulty);
                 }
                 cir.setReturnValue(false);

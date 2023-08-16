@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.config.OreConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.utility.Utility;
@@ -81,7 +81,7 @@ public class ChunkGenOrePlacementMixin {
             }
 
             if(!difficultySectionOres.get(choosenAreaIndex[0]).contains(block)){
-                if(PrimaryConfig.getDebugLevel() > 0){
+                if(MyConfig.getDebugLevel() > 0){
                     Utility.debugMsg(1, "Harder Farther cancled ore: " + block);
                 }
                 cir.setReturnValue(false);

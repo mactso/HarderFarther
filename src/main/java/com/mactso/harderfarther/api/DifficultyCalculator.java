@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.api;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.Network;
@@ -23,16 +23,16 @@ public class DifficultyCalculator {
 
 	public static float calcDistanceModifier(Vec3 eventVec, Vec3 nearestOutpostVec) {
 		double distance = eventVec.distanceTo(nearestOutpostVec);
-		distance = Math.max(0, distance - PrimaryConfig.getBoostMinDistance());
-		Float f = (float) Math.min(1.0f, distance / PrimaryConfig.getBoostMaxDistance());
+		distance = Math.max(0, distance - MyConfig.getBoostMinDistance());
+		Float f = (float) Math.min(1.0f, distance / MyConfig.getBoostMaxDistance());
 		return f;
 	}
 
 	public static float doApplyHeightFactor(float difficulty, int y) {
 
-		if (y < PrimaryConfig.getMinimumSafeAltitude()) {
+		if (y < MyConfig.getMinimumSafeAltitude()) {
 			difficulty *= 1.06f;
-		} else if (y > PrimaryConfig.getMaximumSafeAltitude()) {
+		} else if (y > MyConfig.getMaximumSafeAltitude()) {
 			difficulty *= 1.09f;
 		}
 
@@ -52,8 +52,8 @@ public class DifficultyCalculator {
 
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3[] outposts = PrimaryConfig.getOutpostPositions();
-		if(PrimaryConfig.isSpawnAnOutpost()){
+		Vec3[] outposts = MyConfig.getOutpostPositions();
+		if(MyConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
 
@@ -79,8 +79,8 @@ public class DifficultyCalculator {
 		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
 
 		//Add spawn to outpost list if enabled & get nearest outpost
-		Vec3[] outposts = PrimaryConfig.getOutpostPositions();
-		if(PrimaryConfig.isSpawnAnOutpost()){
+		Vec3[] outposts = MyConfig.getOutpostPositions();
+		if(MyConfig.isSpawnAnOutpost()){
 			outposts[0] = spawnVec;
 		}
 
@@ -110,7 +110,7 @@ public class DifficultyCalculator {
 		}
 
 		//Allow other mods to modify final difficulty. I personally will be using this to force the nether to always have a constant difficulty in a helper mod for my modpack.
-		difficultyOverride(highDifficulty, serverLevel, outposts, PrimaryConfig.getBoostMinDistance(), PrimaryConfig.getBoostMaxDistance());
+		difficultyOverride(highDifficulty, serverLevel, outposts, MyConfig.getBoostMinDistance(), MyConfig.getBoostMaxDistance());
 
 		Utility.debugMsg(2, "getdifficulty returning " + highDifficulty);
 		return highDifficulty[0];
@@ -122,7 +122,7 @@ public class DifficultyCalculator {
 	public static Vec3 getNearestOutpost(Vec3[] outposts, Vec3 eventVec){
 
 		int iterator=0;
-		if(!PrimaryConfig.isSpawnAnOutpost()){
+		if(!MyConfig.isSpawnAnOutpost()){
 			iterator++;
 		}
 

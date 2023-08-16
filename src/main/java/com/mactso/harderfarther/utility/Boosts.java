@@ -3,10 +3,10 @@ package com.mactso.harderfarther.utility;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 
 import net.minecraft.server.level.ServerLevel;
@@ -47,10 +47,10 @@ public class Boosts {
 	UUID MAX_KNOCKBACK = UUID.fromString("834d99ba-f10c-4cdf-ab86-580a08b8ac55");
 
 	private static void boostAtkDmg(LivingEntity le, String eDsc, float difficulty) {
-		if (PrimaryConfig.isAtkDmgBoosted()) {
+		if (MyConfig.isAtkDmgBoosted()) {
 			if (le.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
 				float baseAttackDamage = (float) le.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
-				float damageBoost = (PrimaryConfig.getAtkPercent() * difficulty);
+				float damageBoost = (MyConfig.getAtkPercent() * difficulty);
 				float newAttackDamage = baseAttackDamage + baseAttackDamage * damageBoost;
 				le.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(newAttackDamage);
 				Utility.debugMsg(2, le,
@@ -63,11 +63,11 @@ public class Boosts {
 
 	private static void boostHealth(LivingEntity le, String eDsc, float difficulty) {
 
-		if (PrimaryConfig.isHpMaxBoosted()) {
+		if (MyConfig.isHpMaxBoosted()) {
 			if (le.getAttribute(Attributes.MAX_HEALTH) != null) {
 
 				float startHealth = le.getHealth();
-				float healthBoost = (PrimaryConfig.getHpMaxPercent() * difficulty);
+				float healthBoost = (MyConfig.getHpMaxPercent() * difficulty);
 				healthBoost = limitHealthBoostByMob(healthBoost, le);
 				le.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(HF_HEALTH_BOOST,
 						"hf_health_boost", healthBoost, Operation.MULTIPLY_TOTAL));
@@ -89,13 +89,13 @@ public class Boosts {
 
 	// note KnockBack Resistance ranges from 0 to 100% (0.0f to 1.0f)
 	private static void boostKnockbackResistance(LivingEntity le, String eDsc, float difficulty) {
-		if (PrimaryConfig.isKnockBackBoosted()) {
+		if (MyConfig.isKnockBackBoosted()) {
 			if (le.getAttribute(Attributes.KNOCKBACK_RESISTANCE) != null) {
 				float baseKnockBackResistance = (float) le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue();
 				if (baseKnockBackResistance == 0) {
 					baseKnockBackResistance = getKBRBoostByMob(le);
 				}
-				float kbrBoost = (PrimaryConfig.getKnockBackPercent() * difficulty);
+				float kbrBoost = (MyConfig.getKnockBackPercent() * difficulty);
 				float newKnockBackResistance = baseKnockBackResistance + baseKnockBackResistance * kbrBoost;
 				le.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(newKnockBackResistance);
 
@@ -111,10 +111,10 @@ public class Boosts {
 
 	private static void boostSpeed(LivingEntity le, String eDsc, float difficulty) {
 
-		if (PrimaryConfig.isSpeedBoosted()) {
+		if (MyConfig.isSpeedBoosted()) {
 			if (le.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
 				float baseSpeed = (float) le.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
-				float speedModifier = (PrimaryConfig.getSpeedPercent() * difficulty);
+				float speedModifier = (MyConfig.getSpeedPercent() * difficulty);
 				if (le instanceof Zombie) {
 					Zombie z = (Zombie) le;
 					if (z.isBaby()) {

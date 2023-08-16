@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.mactso.harderfarther.Main;
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncFogToClientsPacket;
@@ -37,9 +37,9 @@ public class WorldTickHandler {
 			Iterator<ServerPlayer> apI = allPlayers.iterator();
 			
 			SyncFogToClientsPacket msg = new SyncFogToClientsPacket(
-					PrimaryConfig.getGrimFogRedPercent(),
-					PrimaryConfig.getGrimFogGreenPercent(),
-					PrimaryConfig.getGrimFogBluePercent());
+					MyConfig.getGrimFogRedPercent(),
+					MyConfig.getGrimFogGreenPercent(),
+					MyConfig.getGrimFogBluePercent());
 			while (apI.hasNext()) { // sends to all players online.
 				ServerPlayer sp = apI.next();
 				if (gametime % 100 == sp.getId() % 100) {

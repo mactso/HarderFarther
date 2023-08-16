@@ -3,7 +3,7 @@ package com.mactso.harderfarther.events;
 import java.util.Collection;
 import net.minecraft.util.RandomSource;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.manager.LootManager;
@@ -53,7 +53,7 @@ public class MonsterDropEventHandler {
 			lastMobDeathTime = 0;
 			if (cap != null) {
 				lastMobDeathTime = cap.getLastKillTime();
-				long nextLootTime = lastMobDeathTime + PrimaryConfig.getMobFarmingLimitingTimer();
+				long nextLootTime = lastMobDeathTime + MyConfig.getMobFarmingLimitingTimer();
 				if (worldTime < nextLootTime) {
 					Utility.debugMsg(2, pos,
 							"Mobs Dying Too Quickly at: " + (int) eventEntity.getX() + ", " + (int) eventEntity.getY()
@@ -104,9 +104,9 @@ public class MonsterDropEventHandler {
 		float boostDifficulty = DifficultyCalculator.getDifficultyHere(serverLevel,le);
 		if (boostDifficulty == 0)
 			return false;
-		if (boostDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {
+		if (boostDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
 			if (boostDifficulty == GrimCitadelManager.getGrimDifficulty(le)) {
-				boostDifficulty = PrimaryConfig.getGrimCitadelMaxBoostPercent();
+				boostDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
 			}
 		}		
 		
@@ -145,10 +145,10 @@ public class MonsterDropEventHandler {
 	
 	private boolean isDropsSpecialLoot(LivingDropsEvent event, LivingEntity eventEntity, DamageSource dS) {
 
-		if (!(PrimaryConfig.isMakeMonstersHarderFarther()))
+		if (!(MyConfig.isMakeMonstersHarderFarther()))
 			return false;
 
-		if (!(PrimaryConfig.isUseLootDrops()))
+		if (!(MyConfig.isUseLootDrops()))
 			return false;
 
 		if (event.getEntity() == null) {

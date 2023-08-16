@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import com.mactso.harderfarther.config.MyConfig;
 import net.minecraft.util.RandomSource;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -20,7 +22,6 @@ import javax.annotation.Nullable;
 import com.mactso.harderfarther.block.GrimGateBlock;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.block.properties.GrimGateType;
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
@@ -114,7 +115,7 @@ public class GrimCitadelManager {
 			SoundEvents.WOLF_HOWL, SoundEvents.AMBIENT_CAVE.get(), SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD.get());
 
 	// TODO: This is becoming obsolete replaced by difficulty.
-	public static int gcDist100 = PrimaryConfig.getGrimCitadelBonusDistanceSq(); // 100%
+	public static int gcDist100 = MyConfig.getGrimCitadelBonusDistanceSq(); // 100%
 	public static int gcDist70 = gcDist100 / 2; // 70% .. and so on.
 	public static int gcDist50 = gcDist100 / 4;
 	public static int gcDist30 = gcDist100 / 8;
@@ -180,7 +181,7 @@ public class GrimCitadelManager {
 
 	private static void addOptionalNewHearts(ServerLevel level, @Nullable BlockPos pos) {
 
-		while (realGCList.size() < PrimaryConfig.getGrimCitadelsCount()) {
+		while (realGCList.size() < MyConfig.getGrimCitadelsCount()) {
 			double randomRadian = level.getRandom().nextFloat() * (Math.PI * 2F);
 			double xVec = Math.cos(randomRadian);
 			double zVec = Math.sin(randomRadian);
@@ -191,11 +192,11 @@ public class GrimCitadelManager {
 				if (pos != null) {
 					distSq = (int) ssPos.distSqr(pos);
 				} else {
-					distSq = PrimaryConfig.getGrimCitadelBonusDistanceSq() * 2;
+					distSq = MyConfig.getGrimCitadelBonusDistanceSq() * 2;
 				}
 			}
 			int dist = (int) Math.sqrt(distSq);
-			dist = dist + PrimaryConfig.getGrimCitadelBonusDistance();
+			dist = dist + MyConfig.getGrimCitadelBonusDistance();
 			BlockPos newHeartPos = BlockPos.containing(ssPos.getX() + (dist * xVec), -1, ssPos.getZ() + (dist * zVec));
 			realGCList.add(newHeartPos);
 			Utility.debugMsg(1, pos, "realGCList size:" + realGCList.size() + "Adding new HeartPos:" + newHeartPos);
@@ -566,7 +567,7 @@ public class GrimCitadelManager {
 		if (level.isClientSide)
 			return;
 
-		if (!PrimaryConfig.isUseGrimCitadels())
+		if (!MyConfig.isUseGrimCitadels())
 			return;
 
 		long gameTime = level.getGameTime();
@@ -834,20 +835,20 @@ public class GrimCitadelManager {
 
 	public static float getGrimDifficulty(LivingEntity le) {
 
-		if (!PrimaryConfig.isUseGrimCitadels())
+		if (!MyConfig.isUseGrimCitadels())
 			return 0;
 
 		float grimDifficulty = 0;
 
 		double closestGrimDistSq = Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(Utility.getBlockPosition(le)));
-		double bonusGrimDistSq = Math.sqrt(PrimaryConfig.getGrimCitadelBonusDistanceSq());
+		double bonusGrimDistSq = Math.sqrt(MyConfig.getGrimCitadelBonusDistanceSq());
 		if (closestGrimDistSq > bonusGrimDistSq)
 			return 0;
 
 		grimDifficulty = (float) (1.0 - ((float) closestGrimDistSq / bonusGrimDistSq));
 
-		if (grimDifficulty > PrimaryConfig.getGrimCitadelMaxBoostPercent()) {
-			grimDifficulty = PrimaryConfig.getGrimCitadelMaxBoostPercent();
+		if (grimDifficulty > MyConfig.getGrimCitadelMaxBoostPercent()) {
+			grimDifficulty = MyConfig.getGrimCitadelMaxBoostPercent();
 		}
 
 		return grimDifficulty;
@@ -855,7 +856,7 @@ public class GrimCitadelManager {
 	}
 
 	public static int getGrimRadius() {
-		return PrimaryConfig.getGrimCitadelsRadius();
+		return MyConfig.getGrimCitadelsRadius();
 	}
 
 	public static List<Block> getProtectedBlocks() {
@@ -890,7 +891,7 @@ public class GrimCitadelManager {
 
 	public static boolean isInGrimProtectedArea(BlockPos eventPos) {
 		if (grimBonusDistSqr == 0)
-			grimBonusDistSqr = PrimaryConfig.getGrimCitadelBonusDistanceSq();
+			grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
 
 		if (getClosestGrimCitadelDistanceSq(eventPos) > grimBonusDistSqr)
 			return false;
@@ -917,7 +918,7 @@ public class GrimCitadelManager {
 
 	public static boolean isInsideGrimCitadelRadius(BlockPos pos) {
 		if (grimBonusDistSqr == 0)
-			grimBonusDistSqr = PrimaryConfig.getGrimCitadelBonusDistanceSq();
+			grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
 
 		if (getClosestGrimCitadelDistanceSq(pos) > grimBonusDistSqr)
 			return false;
@@ -1001,7 +1002,7 @@ public class GrimCitadelManager {
 				e.printStackTrace();
 			}
 		} else {
-			Iterator<BlockPos> iter = PrimaryConfig.getGrimCitadelsBlockPosList().iterator();
+			Iterator<BlockPos> iter = MyConfig.getGrimCitadelsBlockPosList().iterator();
 			while (iter.hasNext()) {
 				BlockPos pos = iter.next();
 				realGCList.add(pos);
@@ -1091,7 +1092,7 @@ public class GrimCitadelManager {
 	// ClientSide
 	public static void playGCOptionalSoundCues(Player cp) {
 
-		if (!PrimaryConfig.isUseGrimCitadels())
+		if (!MyConfig.isUseGrimCitadels())
 			return;
 
 		float difficulty = FogColorsEventHandler.getServerGrimDifficulty();
@@ -1179,7 +1180,7 @@ public class GrimCitadelManager {
 				} catch (Exception e) {
 					if (!(line.isEmpty())) {
 						Utility.debugMsg(0, "grimcitadels.data line " + linecount + " is malformed.");
-					} else if (PrimaryConfig.getDebugLevel() > 0) {
+					} else if (MyConfig.getDebugLevel() > 0) {
 						Utility.debugMsg(0,
 								"Harder Farther: Warning blank line at " + linecount + "th line of grimcitadels.dat");
 					}

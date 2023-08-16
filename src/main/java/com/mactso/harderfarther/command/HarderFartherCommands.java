@@ -3,7 +3,7 @@ package com.mactso.harderfarther.command;
 import java.util.Iterator;
 import java.util.List;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.manager.LootManager;
@@ -29,8 +29,8 @@ public class HarderFartherCommands {
 
 		String chatMessage = "\nFog Color Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
-		chatMessage = "R (" + PrimaryConfig.getGrimFogRedPercent() + ")" + " G (" + PrimaryConfig.getGrimFogGreenPercent() + ")"
-				+ " B (" + PrimaryConfig.getGrimFogBluePercent() + ")";
+		chatMessage = "R (" + MyConfig.getGrimFogRedPercent() + ")" + " G (" + MyConfig.getGrimFogGreenPercent() + ")"
+				+ " B (" + MyConfig.getGrimFogBluePercent() + ")";
 		Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 
 	}
@@ -38,12 +38,12 @@ public class HarderFartherCommands {
 	private static void printGrimEffectsInfo(ServerPlayer p) {
 
 		Utility.sendBoldChat(p, "\nGrim Effects Info", ChatFormatting.DARK_GREEN);
-		if (PrimaryConfig.isUseGrimCitadels()) {
+		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = (
-					"\n  Effect Villagers ..............................: " + PrimaryConfig.isGrimEffectVillagers()
-					+ "\n  Effect Trees .....................................: " + PrimaryConfig.isGrimEffectTrees()
-					+ "\n  Effect Animals ...................................: " + PrimaryConfig.isGrimEffectAnimals()
-					+ "\n  Effect Pigs ..........................................: " + PrimaryConfig.isGrimEffectPigs()
+					"\n  Effect Villagers ..............................: " + MyConfig.isGrimEffectVillagers()
+					+ "\n  Effect Trees .....................................: " + MyConfig.isGrimEffectTrees()
+					+ "\n  Effect Animals ...................................: " + MyConfig.isGrimEffectAnimals()
+					+ "\n  Effect Pigs ..........................................: " + MyConfig.isGrimEffectPigs()
 				);
 
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
@@ -55,25 +55,25 @@ public class HarderFartherCommands {
 
 	private static void printGrimInfo(ServerPlayer p) {
 		BlockPos pPos = p.blockPosition();
-		float grimDifficulty = Math.min(PrimaryConfig.getGrimCitadelMaxBoostValue(),
+		float grimDifficulty = Math.min(MyConfig.getGrimCitadelMaxBoostValue(),
 				100*GrimCitadelManager.getGrimDifficulty((LivingEntity) p));
 
 		Utility.sendBoldChat(p, "\nGrim Citadel Information", ChatFormatting.DARK_GREEN);
-		if (PrimaryConfig.isUseGrimCitadels()) {
+		if (MyConfig.isUseGrimCitadels()) {
 			String chatMessage = ("   Grim Citadels are Enabled" 
 					+ "\n   Nearest Grim Citadel ................................: "
 					+ (int) Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pPos)) + " meters at "
 					+ "\n    " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
 					+ "\n   Aura Range ......................................................: "
-					+ PrimaryConfig.getGrimCitadelBonusDistance() + " blocks."
+					+ MyConfig.getGrimCitadelBonusDistance() + " blocks."
 					+ "\n   Player Curse Range ................................: "
-					+ PrimaryConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
+					+ MyConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
 					+ "\n   Maximum Difficulty .......................................: "
-					+ PrimaryConfig.getGrimCitadelMaxBoostValue() + "%"
+					+ MyConfig.getGrimCitadelMaxBoostValue() + "%"
 					+ "\n   Current Difficulty ......................................: "
 					+ grimDifficulty + "%"
 					+ "\n   Minimum Number of Grim Citadels.......: "
-					+ PrimaryConfig.getGrimCitadelsCount()
+					+ MyConfig.getGrimCitadelsCount()
 					+ "\n   Citadel Radius  ..............................................: "
 					+ GrimCitadelManager.getGrimRadius());
 			Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
@@ -118,12 +118,12 @@ public class HarderFartherCommands {
 		String chatMessage = "\nDimension: " + dimensionName + "\n Current Values";
 		Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
 
-		chatMessage = "  Harder Max Distance From Spawn....: " + PrimaryConfig.getBoostMaxDistance() + " blocks."
-				+ "\n  Spawn Safe Distance ..................................: " + PrimaryConfig.getSafeDistance()
+		chatMessage = "  Harder Max Distance From Spawn....: " + MyConfig.getBoostMaxDistance() + " blocks."
+				+ "\n  Spawn Safe Distance ..................................: " + MyConfig.getSafeDistance()
 				+ " blocks." + "\n  Debug Level .......................................................: "
-				+ PrimaryConfig.getDebugLevel() + "\n  Only In Overworld .........................................: "
-				+ PrimaryConfig.isOnlyOverworld() + "\n  Grim Citadels Active .....................................: "
-				+ PrimaryConfig.isUseGrimCitadels();
+				+ MyConfig.getDebugLevel() + "\n  Only In Overworld .........................................: "
+				+ MyConfig.isOnlyOverworld() + "\n  Grim Citadels Active .....................................: "
+				+ MyConfig.isUseGrimCitadels();
 		Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 
 	}
@@ -217,11 +217,11 @@ public class HarderFartherCommands {
 					String chatMessage = "\nHarder Farther Maximum Monster Boosts";
 					Utility.sendBoldChat(p, chatMessage, ChatFormatting.DARK_GREEN);
 
-					chatMessage = "  Monster Health ..........................: " + PrimaryConfig.getHpMaxBoost() + " %."
-							+ "\n  Damage ..............................................: " + PrimaryConfig.getAtkDmgBoost()
+					chatMessage = "  Monster Health ..........................: " + MyConfig.getHpMaxBoost() + " %."
+							+ "\n  Damage ..............................................: " + MyConfig.getAtkDmgBoost()
 							+ " %." + "\n  Movement .........................................: "
-							+ PrimaryConfig.getSpeedBoost() + " %." + "\n  KnockBack Resistance .........: "
-							+ PrimaryConfig.getKnockBackMod() + " %.";
+							+ MyConfig.getSpeedBoost() + " %." + "\n  KnockBack Resistance .........: "
+							+ MyConfig.getKnockBackMod() + " %.";
 					Utility.sendChat(p, chatMessage, ChatFormatting.GREEN);
 					return 1;
 				}))
@@ -246,14 +246,14 @@ public class HarderFartherCommands {
 
 	
 	private static int setMakeHarderOverTime(ServerPlayer p, boolean b) {
-		PrimaryConfig.setMakeHarderOverTime(b);
+		MyConfig.setMakeHarderOverTime(b);
 		printTimeInfo(p);
 		return 1;
 	}
 
 	
 	private static int setMaxHarderTimeMinutes(ServerPlayer p, int newValue) {
-		PrimaryConfig.setMaxHarderTimeMinutes(newValue);
+		MyConfig.setMaxHarderTimeMinutes(newValue);
 		printTimeInfo(p);
 		return 1;
 	}
@@ -262,8 +262,8 @@ public class HarderFartherCommands {
 		long time = p.level().getChunk(p.blockPosition()).getInhabitedTime() / 1200;
 		float timeDifficulty = 100* HarderTimeManager.getTimeDifficulty((ServerLevel)p.level(), (LivingEntity) p);
 		Utility.sendBoldChat(p,"\nTime Info ", ChatFormatting.AQUA);
-		Utility.sendChat(p, "  Make Harder Over Time .........: " + PrimaryConfig.isMakeHarderOverTime() +".", ChatFormatting.AQUA);
-		Utility.sendChat(p, "  Maximum Difficulty .......................: " + PrimaryConfig.getMaxHarderTimeMinutes() +" minutes.", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Make Harder Over Time .........: " + MyConfig.isMakeHarderOverTime() +".", ChatFormatting.AQUA);
+		Utility.sendChat(p, "  Maximum Difficulty .......................: " + MyConfig.getMaxHarderTimeMinutes() +" minutes.", ChatFormatting.AQUA);
 		Utility.sendChat(p, "  Current Difficulty ......................: " + timeDifficulty +" %.", ChatFormatting.AQUA);
 			Utility.sendChat(p, "  Current Chunk Age ...................: " + time+" minutes.", ChatFormatting.AQUA);
 
@@ -271,53 +271,53 @@ public class HarderFartherCommands {
 
 	
 	private static void reportUseLootDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  Use Loot Drops ...................: " + PrimaryConfig.isUseLootDrops() +".", ChatFormatting.YELLOW);
+		Utility.sendChat(p, "  Use Loot Drops ...................: " + MyConfig.isUseLootDrops() +".", ChatFormatting.YELLOW);
 	}
 	
 	private static void reportOddsXpBottleDrop(ServerPlayer p) {
-		Utility.sendChat(p, "  OddsXpBottleDrop ..............: " + PrimaryConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.YELLOW);
+		Utility.sendChat(p, "  OddsXpBottleDrop ..............: " + MyConfig.getOddsDropExperienceBottle() +"%", ChatFormatting.YELLOW);
 	}
 
 	private static void reportGrimLifeHeartPulseSeconds(ServerPlayer p) {
-		Utility.sendChat(p, "  Life Heart Pulse Rate......: " + "roughly " + PrimaryConfig.getGrimLifeheartPulseSeconds() +" seconds +/- 50%.", ChatFormatting.YELLOW);
+		Utility.sendChat(p, "  Life Heart Pulse Rate......: " + "roughly " + MyConfig.getGrimLifeheartPulseSeconds() +" seconds +/- 50%.", ChatFormatting.YELLOW);
 	}
 	
 	public static int setBonusRange(ServerPlayer p, int newRange) {
-		PrimaryConfig.setBonusRange(newRange);
+		MyConfig.setBonusRange(newRange);
 		printGrimInfo(p);
 		return 1;
 	}
 
 	public static int setDebugLevel(ServerPlayer p, int newDebugLevel) {
-		PrimaryConfig.setDebugLevel(newDebugLevel);
+		MyConfig.setDebugLevel(newDebugLevel);
 		printInfo(p);
 		return 1;
 	}
 
 
 	private static int setFogColors(ServerPlayer p, int r, int g, int b) {
-		PrimaryConfig.setGrimFogRedPercent(r);
-		PrimaryConfig.setGrimFogGreenPercent(g);
-		PrimaryConfig.setGrimFogBluePercent(b);
+		MyConfig.setGrimFogRedPercent(r);
+		MyConfig.setGrimFogGreenPercent(g);
+		MyConfig.setGrimFogBluePercent(b);
 		updateGCFogToAllClients ((ServerLevel)p.level(), (double)r/100, (double)g/100, (double)b/100);
 		printColorInfo(p);
 		return 1;
 	}
 	
 	public static int setUseGrimCitadels(ServerPlayer p, boolean newValue) {
-		PrimaryConfig.setUseGrimCitadels(newValue);
+		MyConfig.setUseGrimCitadels(newValue);
 		printGrimInfo(p);
 		return 1;
 	}
 
 	private static int setGrimCitadelsRadius(ServerPlayer p, int radius) {
-		PrimaryConfig.setGrimCitadelsRadius(radius);
+		MyConfig.setGrimCitadelsRadius(radius);
 		printGrimInfo(p);
 		return 0;
 	}
 	
 	public static int setOddsDropExperienceBottle(ServerPlayer p, int newOdds) {
-		PrimaryConfig.setOddsDropExperienceBottle(newOdds);
+		MyConfig.setOddsDropExperienceBottle(newOdds);
 		reportOddsXpBottleDrop(p);
 		return 1;
 	}

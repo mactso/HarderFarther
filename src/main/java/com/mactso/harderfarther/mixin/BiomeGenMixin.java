@@ -1,7 +1,7 @@
 package com.mactso.harderfarther.mixin;
 
 import com.mactso.harderfarther.config.BiomeConfig;
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedSearchTree;
@@ -63,14 +63,14 @@ public class BiomeGenMixin extends BiomeSource{
             synchronized (this) {
                 if (!areListInitialized) {
 
-                    if (PrimaryConfig.getDebugLevel() > 0) {
+                    if (MyConfig.getDebugLevel() > 0) {
                         Utility.debugMsg(1, "New Biome Source");
                     }
 
                     //Return default value if terrablender biomesource is not initialized
                     if (!((IExtendedParameterList<Holder<Biome>>) this.parameters()).isInitialized()) {
 
-                        if (PrimaryConfig.getDebugLevel() > 1) {
+                        if (MyConfig.getDebugLevel() > 1) {
                             Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
                         }
                         areListInitialized = true;
@@ -116,7 +116,7 @@ public class BiomeGenMixin extends BiomeSource{
                                     //replaces an original biome point with another specified biome and adds it to the list
                                     ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, new ResourceLocation(replacementBiome.split(":")[0], replacementBiome.split(":")[1]));
                                     modifiedBiomePoints.add(new Pair<>(noiseHypercubeHolderPair.getFirst(), BiomeConfig.getDynamicBiomeRegistry().getHolderOrThrow(key)));
-                                    if(PrimaryConfig.getDebugLevel() > 0) {
+                                    if(MyConfig.getDebugLevel() > 0) {
                                         Utility.debugMsg(1, ("replaced " + biome + " > " + replacementBiome));
                                     }
                                 }
@@ -175,7 +175,7 @@ public class BiomeGenMixin extends BiomeSource{
         // Fallback on findValue if we are uninitialized (may be the case for non-TerraBlender dimensions) - Also nether is bugged & not initialized in 1.19.2 fabric terrablender
         if(!((IExtendedParameterList<Holder<Biome>>) this.parameters()).isInitialized()) {
 
-            if (PrimaryConfig.getDebugLevel() > 1) {
+            if (MyConfig.getDebugLevel() > 1) {
                 Utility.debugMsg(2, "BiomeSource not initiliazed for terrablender");
             }
             cir.setReturnValue(this.parameters().findValue(multiNoiseSampler.sample(i,j,k)));
@@ -231,7 +231,7 @@ public class BiomeGenMixin extends BiomeSource{
 
             //This is only true if the biomesource isn't the overworld, since that's the only one initialized at this point.
             if (((IExtendedBiomeSourceHF) this).getWorld() == null) {
-                if(PrimaryConfig.getDebugLevel() > 0) {
+                if(MyConfig.getDebugLevel() > 0) {
                     Utility.debugMsg(1, "Structure Feature thing during spawn generation that isn't in the overworld???");  //I really don't know why this happens sometimes(rarely and only once) before spawn generates nor do I know what it does.
                 }
             } else {

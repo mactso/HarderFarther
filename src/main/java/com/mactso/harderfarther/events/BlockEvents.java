@@ -5,7 +5,7 @@ import java.util.ListIterator;
 
 import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.GrimClientSongPacket;
 import com.mactso.harderfarther.network.Network;
@@ -46,7 +46,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 @Mod.EventBusSubscriber(bus = Bus.FORGE, modid = Main.MODID)
 public class BlockEvents {
 
-	static int grimBonusDistSqr = PrimaryConfig.getGrimCitadelBonusDistanceSq();
+	static int grimBonusDistSqr = MyConfig.getGrimCitadelBonusDistanceSq();
 	static int PROTECTED_DISTANCE = 999; // (about 33 blocks in all directions from heart)
 	static int MIN_CANCEL_BLOCKPLACE_DISTANCE = 1200; // (about 33 blocks in all directions from heart)
 	static int MAX_CANCEL_BLOCKPLACE_DISTANCE = 1500; // (about 33 blocks in all directions from heart)

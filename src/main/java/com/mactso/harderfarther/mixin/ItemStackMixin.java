@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -35,11 +35,11 @@ public abstract class ItemStackMixin {
     private void harderfarther$SetItemMaxDamage(int amount, RandomSource random, ServerPlayer player, CallbackInfoReturnable<Boolean> cir){
 
         if(this.getItem() instanceof ArmorItem) {
-            if(PrimaryConfig.getDebugLevel() > 0) {
+            if(MyConfig.getDebugLevel() > 0) {
                 Utility.debugMsg(1, "Armor piece " + this.getItem().getDescriptionId() + " took " + amount + " damage(before possible reduction)!");
             }
-            if(amount >= PrimaryConfig.getMaximumArmorDamage()) {
-                int i = this.getDamageValue() - amount + PrimaryConfig.getMaximumArmorDamage();
+            if(amount >= MyConfig.getMaximumArmorDamage()) {
+                int i = this.getDamageValue() - amount + MyConfig.getMaximumArmorDamage();
                 this.setDamageValue(i);
                 cir.setReturnValue(i >= this.getMaxDamage());
                 //For reference, an iron chest-plate has 240 durability, so 6 damage would allow 40 hits before it breaks.

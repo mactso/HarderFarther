@@ -1,6 +1,6 @@
 package com.mactso.harderfarther.mixin;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
+import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedBiomeSourceHF;
 import com.mactso.harderfarther.utility.Utility;
 import net.minecraft.server.MinecraftServer;
@@ -21,7 +21,7 @@ public class ServerCreateWorldMixin {
         for(ServerLevel serverWorld : this.getAllLevels()) {
             ((IExtendedBiomeSourceHF)serverWorld.getChunkSource().getGenerator().getBiomeSource()).setWorld(serverWorld);
             ((IExtendedBiomeSourceHF)serverWorld.getChunkSource().getGenerator().getBiomeSource()).setInit(true);
-            if(PrimaryConfig.getDebugLevel() > 0) {
+            if(MyConfig.getDebugLevel() > 0) {
                 Utility.debugMsg(1, "World " + serverWorld.dimension().location() + " initialized");
             }
         }

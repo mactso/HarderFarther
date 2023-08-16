@@ -1,10 +1,10 @@
 package com.mactso.harderfarther.utility;
 
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import com.mactso.harderfarther.config.PrimaryConfig;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -60,7 +60,7 @@ public class Utility {
 
 	public static void debugMsg(int level, String dMsg) {
 
-		if (PrimaryConfig.getDebugLevel() > level - 1) {
+		if (MyConfig.getDebugLevel() > level - 1) {
 			LOGGER.info("L" + level + ":" + dMsg);
 		}
 
@@ -68,7 +68,7 @@ public class Utility {
 
 	public static void debugMsg(int level, BlockPos pos, String dMsg) {
 
-		if (PrimaryConfig.getDebugLevel() > level - 1) {
+		if (MyConfig.getDebugLevel() > level - 1) {
 			LOGGER.info("L" + level + " (" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "): " + dMsg);
 		}
 
@@ -76,7 +76,7 @@ public class Utility {
 
 	public static void debugMsg(int level, LivingEntity le, String dMsg) {
 
-		if (PrimaryConfig.getDebugLevel() > level - 1) {
+		if (MyConfig.getDebugLevel() > level - 1) {
 			LOGGER.info("L" + level + " (" 
 					+ le.blockPosition().getX() + "," 
 					+ le.blockPosition().getY() + ","
