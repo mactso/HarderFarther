@@ -3,6 +3,8 @@ package com.mactso.harderfarther;
 
 import java.lang.reflect.Field;
 
+import com.mactso.harderfarther.config.*;
+import com.mactso.harderfarther.events.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -11,17 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.blockentities.ModBlockEntities;
 import com.mactso.harderfarther.command.HarderFartherCommands;
-import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.events.BlockEvents;
-import com.mactso.harderfarther.events.ChunkEvent;
-import com.mactso.harderfarther.events.ExperienceDropEventHandler;
-import com.mactso.harderfarther.events.FogColorsEventHandler;
-import com.mactso.harderfarther.events.LivingEventMovementHandler;
-import com.mactso.harderfarther.events.MonsterDropEventHandler;
-import com.mactso.harderfarther.events.PlayerLoginEventHandler;
-import com.mactso.harderfarther.events.PlayerTickEventHandler;
-import com.mactso.harderfarther.events.PlayerTeleportHandler;
-import com.mactso.harderfarther.events.WorldTickHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 import com.mactso.harderfarther.network.Register;
@@ -38,7 +29,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.coremod.api.ASMAPI;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -57,16 +47,21 @@ import net.minecraftforge.registries.RegisterEvent;
 public class Main {
 
 	    public static final String MODID = "harderfarther"; 
-		private static final Logger LOGGER = LogManager.getLogger();
+		public static final Logger LOGGER = LogManager.getLogger();
 		private static final int MAX_USABLE_VALUE = 16000000;  // you can subtract 1 from this number.
 
 	    
 	    public Main()
 	    {
 
-	    	Utility.debugMsg(0,MODID + ": Registering Mod.");
-	  		FMLJavaModLoadingContext.get().getModEventBus().register(this);
- 	        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON,MyConfig.COMMON_SPEC );
+			Utility.debugMsg(0,MODID + ": Registering Mod.");
+			FMLJavaModLoadingContext.get().getModEventBus().register(this);
+			ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MyConfig.COMMON_SPEC );
+			BiomeConfig.initConfig();
+			OreConfig.initConfig();
+			StructureConfig.initConfig();
+			MobConfig.initConfig();
+			DimensionDifficultyOverridesConfig.initConfig();
 
 	    }
 
@@ -88,15 +83,18 @@ public class Main {
 		@SubscribeEvent 
 		public void preInit (final FMLCommonSetupEvent event) {
 				Utility.debugMsg(0, MODID + ": Registering Handlers");
-				MinecraftForge.EVENT_BUS.register(new WorldTickHandler());
-				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
-				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
-				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
-				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
-				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
-				MinecraftForge.EVENT_BUS.register(new PlayerTeleportHandler());
-				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
-				MinecraftForge.EVENT_BUS.register(new BlockEvents());
+				MinecraftForge.EVENT_BUS.register(WorldTickHandler.class);
+				MinecraftForge.EVENT_BUS.register(MonsterDropEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(ExperienceDropEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(ChunkEvent.class);
+				MinecraftForge.EVENT_BUS.register(PlayerLoginEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(PlayerTickEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(PlayerTeleportHandler.class);
+				MinecraftForge.EVENT_BUS.register(LivingEventMovementHandler.class);
+				MinecraftForge.EVENT_BUS.register(BlockEvents.class);
+				MinecraftForge.EVENT_BUS.register(LivingEntitySpawnHandler.class);
+				MinecraftForge.EVENT_BUS.register(ServerInitializationHandler.class);
+				DifficultyOverrideHandler.registerEvent();
 				fixAttributeMax();
  		}  
 		
@@ -152,11 +150,6 @@ public class Main {
 		@Mod.EventBusSubscriber(bus = Bus.FORGE)
 		public static class ForgeEvents
 		{
-			@SubscribeEvent
-			public static void onServerAbout(ServerAboutToStartEvent event)
-			{
-				GrimCitadelManager.load(event.getServer());
-			}
 
 			@SubscribeEvent
 			public static void onServerStopping(ServerStoppingEvent event)

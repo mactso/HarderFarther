@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import com.mactso.harderfarther.config.MyConfig;
 import net.minecraft.util.RandomSource;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -20,7 +22,6 @@ import javax.annotation.Nullable;
 import com.mactso.harderfarther.block.GrimGateBlock;
 import com.mactso.harderfarther.block.ModBlocks;
 import com.mactso.harderfarther.block.properties.GrimGateType;
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.network.GrimClientSongPacket;

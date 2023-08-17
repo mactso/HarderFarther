@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "com.mactso.harderfarther.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mixin.harderfarther.refmap.json",
+  "mixins": [
+    "BiomeGenMixin",
+    "BiomeSourceMixin",
+    "ChunkGenOrePlacementMixin",
+    "ChunkGenStructurePlacementMixin",
+    "ItemStackMixin",
+    "SearchTreeMixin",
+    "ServerCreateWorldMixin",
+    "ServerWorldMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8.4"
+}

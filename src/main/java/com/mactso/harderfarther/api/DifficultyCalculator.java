@@ -1,6 +1,8 @@
-package com.mactso.harderfarther.manager;
+package com.mactso.harderfarther.api;
 
 import com.mactso.harderfarther.config.MyConfig;
+import com.mactso.harderfarther.manager.GrimCitadelManager;
+import com.mactso.harderfarther.manager.HarderTimeManager;
 import com.mactso.harderfarther.network.Network;
 import com.mactso.harderfarther.network.SyncDifficultyToClientsPacket;
 import com.mactso.harderfarther.utility.Utility;
@@ -12,15 +14,20 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 
-public class HarderFartherManager {
+import java.util.ArrayList;
+import java.util.List;
 
-	public static float calcDistanceModifier(Vec3 eventVec, Vec3 spawnVec) {
-		double distance = eventVec.distanceTo(spawnVec);
+public class DifficultyCalculator {
+
+	private static List<DifficultyOverrideListener> listeners = new ArrayList<DifficultyOverrideListener>();
+
+	public static float calcDistanceModifier(Vec3 eventVec, Vec3 nearestOutpostVec) {
+		double distance = eventVec.distanceTo(nearestOutpostVec);
 		distance = Math.max(0, distance - MyConfig.getBoostMinDistance());
 		Float f = (float) Math.min(1.0f, distance / MyConfig.getBoostMaxDistance());
 		return f;
 	}
-	
+
 	public static float doApplyHeightFactor(float difficulty, int y) {
 
 		if (y < MyConfig.getMinimumSafeAltitude()) {
@@ -32,9 +39,9 @@ public class HarderFartherManager {
 		return difficulty;
 
 	}
-	
-	
-	
+
+
+
 	public static float getDistanceDifficultyHere (ServerLevel serverLevel, Vec3 eventVec) {
 		double xzf = serverLevel.dimensionType().coordinateScale();
 		if (xzf == 0.0) {
@@ -42,14 +49,24 @@ public class HarderFartherManager {
 		}
 		LevelData winfo = serverLevel.getLevelData();
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
-		float difficulty = HarderFartherManager.calcDistanceModifier(eventVec, spawnVec);
+
+
+		//Add spawn to outpost list if enabled & get nearest outpost
+		Vec3[] outposts = MyConfig.getOutpostPositions();
+		if(MyConfig.isSpawnAnOutpost()){
+			outposts[0] = spawnVec;
+		}
+
+		Vec3 nearestOutpost = getNearestOutpost(outposts, eventVec);
+
+		float difficulty = DifficultyCalculator.calcDistanceModifier(eventVec, nearestOutpost);
 		return difficulty;
 	}
-	
-	
-	
+
+
+
 	public static float getDifficultyHere(ServerLevel serverLevel, LivingEntity le) {
-		
+
 		Utility.debugMsg(2, "getdifficulty here top");
 		BlockPos pos = le.blockPosition();
 
@@ -61,6 +78,14 @@ public class HarderFartherManager {
 		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
 		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
 
+		//Add spawn to outpost list if enabled & get nearest outpost
+		Vec3[] outposts = MyConfig.getOutpostPositions();
+		if(MyConfig.isSpawnAnOutpost()){
+			outposts[0] = spawnVec;
+		}
+
+		Vec3 nearestOutpost = getNearestOutpost(outposts, eventVec);
+
 		Utility.debugMsg(2, "getTimedifficulty here top");
 		float timeDifficulty = 0;
 		timeDifficulty = HarderTimeManager.getTimeDifficulty(serverLevel, le);
@@ -70,10 +95,10 @@ public class HarderFartherManager {
 		gcDifficultyPct = GrimCitadelManager.getGrimDifficulty(le);
 
 		Utility.debugMsg(2, "getCalcDistanceModifier top");
-		float hfDifficulty = HarderFartherManager.calcDistanceModifier(eventVec, spawnVec);
-		
-		float highDifficulty = Math.max(timeDifficulty, hfDifficulty);
-		highDifficulty = Math.max(gcDifficultyPct, highDifficulty);
+		float hfDifficulty = DifficultyCalculator.calcDistanceModifier(eventVec, nearestOutpost);
+
+		float highDifficulty[] = new float[]{Math.max(timeDifficulty, hfDifficulty)};
+		highDifficulty[0] = Math.max(gcDifficultyPct, highDifficulty[0]);
 
 		if (le instanceof ServerPlayer sp) {
 //			System.out.println("HFM sending hf:"+hfDifficulty + " gc:" + gcDifficultyPct + " tm:" + timeDifficulty);
@@ -82,10 +107,52 @@ public class HarderFartherManager {
 			SyncDifficultyToClientsPacket msg = new SyncDifficultyToClientsPacket(hfDifficulty,gcDifficultyPct,timeDifficulty);
 			Network.sendToClient(msg, sp);
 
-		}	
+		}
+
+		//Allow other mods to modify final difficulty. I personally will be using this to force the nether to always have a constant difficulty in a helper mod for my modpack.
+		difficultyOverride(highDifficulty, serverLevel, outposts, MyConfig.getBoostMinDistance(), MyConfig.getBoostMaxDistance());
 
 		Utility.debugMsg(2, "getdifficulty returning " + highDifficulty);
-		return highDifficulty;
+		return highDifficulty[0];
 	}
-	
+
+
+
+
+	public static Vec3 getNearestOutpost(Vec3[] outposts, Vec3 eventVec){
+
+		int iterator=0;
+		if(!MyConfig.isSpawnAnOutpost()){
+			iterator++;
+		}
+
+		int nearestOutpostDistance = Integer.MAX_VALUE;
+		Vec3 nearestOutpost = outposts[iterator];
+		iterator ++;
+		for(;iterator<outposts.length; iterator++){
+			if(outposts[iterator].distanceTo(eventVec)<nearestOutpostDistance){
+				nearestOutpost = outposts[iterator];
+			}
+		}
+
+		return nearestOutpost;
+	}
+
+	public static void registerOverrideEvent(DifficultyOverrideListener listener){
+
+		listeners.add(listener);
+
+	}
+
+	private static void difficultyOverride(float currentDifficulty[], ServerLevel world, Vec3[] outposts, int minBoostDistance, int maxBoostDistance){
+
+		for( DifficultyOverrideListener listener : listeners) {
+
+			listener.interact(currentDifficulty, world, outposts, minBoostDistance, maxBoostDistance);
+
+		}
+
+	}
+
+
 }

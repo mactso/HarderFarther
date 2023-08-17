@@ -3,11 +3,11 @@ package com.mactso.harderfarther.utility;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.MyConfig;
-import com.mactso.harderfarther.manager.HarderFartherManager;
+import com.mactso.harderfarther.api.DifficultyCalculator;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -199,7 +199,7 @@ public class Boosts {
 		if (!isBoostable(le))  
 			return;
 
-		float difficulty = HarderFartherManager.getDifficultyHere((ServerLevel)le.level(), le);
+		float difficulty = DifficultyCalculator.getDifficultyHere((ServerLevel)le.level(), le);
 		
 		if (fieldXpReward == null) { // should not fail except when developing a new version or if someone removed
 			// this field.

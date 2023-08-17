@@ -65,7 +65,7 @@ public class HarderFartherCommands {
 					+ (int) Math.sqrt(GrimCitadelManager.getClosestGrimCitadelDistanceSq(pPos)) + " meters at "
 					+ "\n    " + GrimCitadelManager.getClosestGrimCitadelPos(pPos)
 					+ "\n   Aura Range ......................................................: "
-					+ MyConfig.getGrimCitadelBonusDistance() + " blocks." 
+					+ MyConfig.getGrimCitadelBonusDistance() + " blocks."
 					+ "\n   Player Curse Range ................................: "
 					+ MyConfig.getGrimCitadelPlayerCurseDistance() + " blocks."
 					+ "\n   Maximum Difficulty .......................................: "

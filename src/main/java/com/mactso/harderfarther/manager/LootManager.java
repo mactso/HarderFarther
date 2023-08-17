@@ -3,13 +3,14 @@ package com.mactso.harderfarther.manager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+
+import com.mactso.harderfarther.config.MyConfig;
 import net.minecraft.util.RandomSource;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.utility.Utility;
 

@@ -6,6 +6,7 @@ import java.util.List;
 
 //16.2 - 1.0.0.0 HarderFarther
 
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,22 @@ public class MyConfig {
 
 	public static boolean isOnlyOverworld() {
 		return onlyOverworld;
-	}	
+	}
+
+
+	//outposts stuff
+	public static boolean isSpawnAnOutpost(){
+		return useSpawnAsOutpost;
+	}
+	public static Vec3[] getOutpostPositions(){
+		return outpostVecPositions;
+	}
+
+	//Max armor damage getter
+	public static int getMaximumArmorDamage(){
+		return maxArmorDamage;
+	}
+
 	
 	public static boolean isUseLootDrops() {
 		return useLootDrops;
@@ -309,8 +325,15 @@ public class MyConfig {
 	private static boolean  makeMonstersHarderFarther;
 	private static boolean  useLootDrops;
 	private static List<? extends String> dimensionOmitList;
+
+	//Outpost values
+	private static boolean useSpawnAsOutpost;
+	private static List<? extends String> outpostList;
+	private static Vec3[] outpostVecPositions;
+
 	private static int 	    boostMaxDistance;
 	private static int 	    boostMinDistance;
+	private static int 		maxArmorDamage;
 	private static List<? extends String> lootItemsList;
 	private static List<? extends String> bonusChestLootList;
 	private static List<? extends String> bonusLootTableList;
@@ -319,6 +342,7 @@ public class MyConfig {
 	private static int      safeDistance;
 	private static int      oddsDropExperienceBottle;
 
+	//Boost config values
 	private static int hpMaxBoost;
 	private static int speedBoost;
 	private static int atkDmgBoost;
@@ -366,6 +390,7 @@ public class MyConfig {
 	}	
 
 
+	//Is this being used for anything or reserved?
 	public static void pushValues() {
 		COMMON.debugLevel.set(debugLevel);
 
@@ -377,6 +402,10 @@ public class MyConfig {
 		COMMON.useLootDrops.set(useLootDrops);
 		COMMON.boostMaxDistance.set(boostMaxDistance);
 		COMMON.boostMinDistance.set(boostMinDistance);
+		COMMON.maxArmorDamage.set(maxArmorDamage);
+
+		COMMON.useSpawnAsOutpost.set(useSpawnAsOutpost);
+		COMMON.outpostList.set(outpostList);
 
 		COMMON.safeDistance.set(safeDistance);
 		COMMON.minimumSafeAltitude.set(minimumSafeAltitude);
@@ -447,8 +476,14 @@ public class MyConfig {
 		
 		onlyOverworld = COMMON.onlyOverworld.get();
 
+		//outposts config
+		useSpawnAsOutpost = COMMON.useSpawnAsOutpost.get();
+		outpostVecPositions = getOutpostVecArray(COMMON.outpostList.get());
+		outpostList = COMMON.outpostList.get();
+
 		dimensionOmitList = COMMON.dimensionOmitList.get();
 		makeMonstersHarderFarther = COMMON.makeMonstersHarderFarther.get();
+		maxArmorDamage = COMMON.maxArmorDamage.get();
 		boostMaxDistance = COMMON.boostMaxDistance.get();
 		boostMinDistance = COMMON.boostMinDistance.get();
 		if (boostMinDistance >= boostMaxDistance) {
@@ -471,7 +506,8 @@ public class MyConfig {
 		
 		useLootDrops = COMMON.useLootDrops.get();
 		oddsDropExperienceBottle = COMMON.oddsDropExperienceBottle.get();
-		
+
+		//boosts config
 		hpMaxBoost=COMMON.hpMaxBoost.get();
 		speedBoost=COMMON.speedBoost.get();
 		atkDmgBoost=COMMON.atkDmgBoost.get();
@@ -480,7 +516,7 @@ public class MyConfig {
 		makeHarderOverTime = COMMON.makeHarderOverTime.get() ;
 		maxHarderTimeMinutes = COMMON.maxHarderTimeMinutes.get() ;
 
-		
+		//Grim citadel config
 		useGrimCitadels = COMMON.useGrimCitadels.get();
 		grimCitadelsBlockPosList = getBlockPositions(COMMON.grimCitadelsList.get());
 		grimCitadelsList = COMMON.grimCitadelsList.get();
@@ -495,7 +531,8 @@ public class MyConfig {
 		grimEffectPigs = COMMON.grimEffectPigs.get();
 		grimEffectVillagers = COMMON.grimEffectVillagers.get();
 		grimLifeheartPulseSeconds = COMMON.grimLifeheartPulseSeconds.get();
-		
+
+		//fog config
 		grimFogRedPercent = COMMON.grimFogRedPercent.get();
 		grimFogBluePercent = COMMON.grimFogBluePercent.get();
 		grimFogGreenPercent = COMMON.grimFogGreenPercent.get();
@@ -520,6 +557,24 @@ public class MyConfig {
 		return returnList;
 	}
 
+	//For outposts
+	private static Vec3[] getOutpostVecArray(List<? extends String> list){
+
+		Vec3[] positions = new Vec3[COMMON.outpostList.get().size() + 1];
+
+		int index = 1;
+		for (String pos : list) {
+			if(!pos.equals("")) {
+				String[] posParts = pos.split(",");
+				int x = Integer.valueOf(posParts[0]);
+				int y = -1;
+				int z = Integer.valueOf(posParts[1]);
+				positions[index] = new Vec3(x, y, z);
+			}else return new Vec3[1];
+		}
+		return positions;
+	}
+
 	private static String[] extract(List<? extends String> value)
 	{
 		return value.toArray(new String[value.size()]);
@@ -532,8 +587,10 @@ public class MyConfig {
 		public final BooleanValue onlyOverworld;
 		public final ConfigValue<List<? extends String>> dimensionOmitList;	
 		public final BooleanValue makeMonstersHarderFarther;
+		public final BooleanValue useSpawnAsOutpost;
 		public final IntValue boostMaxDistance;
 		public final IntValue boostMinDistance;
+		public final IntValue maxArmorDamage;
 
 		public final IntValue oddsDropExperienceBottle;
 		public final IntValue safeDistance;
@@ -572,7 +629,8 @@ public class MyConfig {
 		public final DoubleValue grimFogBluePercent;
 		public final DoubleValue grimFogGreenPercent;
 
-		public final ConfigValue<List<? extends String>> grimCitadelsList;		
+		public final ConfigValue<List<? extends String>> grimCitadelsList;
+		public final ConfigValue<List<? extends String>> outpostList;
 		
 		public Common(ForgeConfigSpec.Builder builder) {
 			List<String> defLootItemsList = Arrays.asList(
@@ -752,6 +810,11 @@ public class MyConfig {
 					.comment("Make Monsters Harder Farther From Spawn (true) ")
 					.translation(Main.MODID + ".config." + "makeMonstersHarderFarther")
 					.define ("makeMonstersHarderFarther", () -> true);
+
+			maxArmorDamage = builder
+					.comment("Max damage mobs can do to armor")
+					.translation(Main.MODID + ".config." + "maxArmorDamage")
+					.defineInRange("maxArmorDamage",() -> 6, 0, 100);
 			
 			boostMaxDistance = builder
 					.comment("boostMaxDistance: Distance til Maximum Boost Values Applied")
@@ -777,6 +840,20 @@ public class MyConfig {
 					.comment("maximumSafeAltitude: Mobs are 9% tougher above this altitude.")
 					.translation(Main.MODID + ".config." + "maximumSafeAltitude")
 					.defineInRange("maximumSafeAltitude", () -> 99, 65, 256);			
+			builder.pop();
+
+			builder.push("Outposts Settings");
+
+			useSpawnAsOutpost = builder
+					.comment("Should spawn be considered an outposts?")
+					.translation(Main.MODID + ".config" + "useSpawnAsOutpost")
+					.define("useSpawnAsOutpost", () -> true);
+
+			outpostList = builder
+					.comment("Outposts List")
+					.translation(Main.MODID + ".config" + "outpostList")
+					.defineList("outpostList", Arrays.asList(""), Common::isString);
+
 			builder.pop();
 			
 			builder.push("Loot Settings");

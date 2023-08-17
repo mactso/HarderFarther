@@ -2,10 +2,11 @@ package com.mactso.harderfarther.utility;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.mactso.harderfarther.config.MyConfig;
 import net.minecraft.util.RandomSource;
 
 import com.mactso.harderfarther.block.ModBlocks;
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.item.ModItems;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 

@@ -1,10 +1,10 @@
 package com.mactso.harderfarther.utility;
 
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.mactso.harderfarther.api.DifficultyCalculator;
+import com.mactso.harderfarther.config.MyConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 
 import net.minecraft.network.chat.Component;
@@ -75,7 +76,7 @@ public class ChestLootManager {
 	public static ItemStack doGetLootStack(ServerLevel level, Vec3 origin) {
 
 		RandomSource rand = level.getRandom();
-		float difficulty = HarderFartherManager.getDistanceDifficultyHere(level, origin);
+		float difficulty = DifficultyCalculator.getDistanceDifficultyHere(level, origin);
 
 		int rawroll = (int) (100 * difficulty);
 		int roll = rawroll;
