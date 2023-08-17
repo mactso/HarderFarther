@@ -1,6 +1,8 @@
 package com.mactso.harderfarther.events;
 
 import java.util.Collection;
+
+import com.mactso.harderfarther.Main;
 import net.minecraft.util.RandomSource;
 
 import com.mactso.harderfarther.config.MyConfig;
@@ -29,7 +31,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class MonsterDropEventHandler {
 
 	public static long lastMobDeathTime = 0;
@@ -42,7 +46,7 @@ public class MonsterDropEventHandler {
 
 	
 	
-	private boolean doLimitDropSpeed(ServerLevel serverLevel, Entity eventEntity, BlockPos pos) {
+	private static boolean doLimitDropSpeed(ServerLevel serverLevel, Entity eventEntity, BlockPos pos) {
 		long worldTime = serverLevel.getGameTime();
 		ChunkAccess ichunk = serverLevel.getChunk(pos);
 		IChunkLastMobDeathTime cap;
@@ -74,7 +78,7 @@ public class MonsterDropEventHandler {
 
 	
 	@SubscribeEvent  // serverside only.
-	public boolean onMonsterDropsEvent(LivingDropsEvent event) {
+	public static boolean onMonsterDropsEvent(LivingDropsEvent event) {
 
 		LivingEntity le = event.getEntity();
 		DamageSource dS = event.getSource();
@@ -143,7 +147,7 @@ public class MonsterDropEventHandler {
 
 	
 	
-	private boolean isDropsSpecialLoot(LivingDropsEvent event, LivingEntity eventEntity, DamageSource dS) {
+	private static boolean isDropsSpecialLoot(LivingDropsEvent event, LivingEntity eventEntity, DamageSource dS) {
 
 		if (!(MyConfig.isMakeMonstersHarderFarther()))
 			return false;

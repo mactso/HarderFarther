@@ -83,17 +83,17 @@ public class Main {
 		@SubscribeEvent 
 		public void preInit (final FMLCommonSetupEvent event) {
 				Utility.debugMsg(0, MODID + ": Registering Handlers");
-				MinecraftForge.EVENT_BUS.register(new WorldTickHandler());
-				MinecraftForge.EVENT_BUS.register(new MonsterDropEventHandler());
-				MinecraftForge.EVENT_BUS.register(new ExperienceDropEventHandler());
-				MinecraftForge.EVENT_BUS.register(new ChunkEvent());
-				MinecraftForge.EVENT_BUS.register(new PlayerLoginEventHandler());
-				MinecraftForge.EVENT_BUS.register(new PlayerTickEventHandler());
-				MinecraftForge.EVENT_BUS.register(new PlayerTeleportHandler());
-				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
-				MinecraftForge.EVENT_BUS.register(new BlockEvents());
-				MinecraftForge.EVENT_BUS.register(new LivingEntitySpawnHandler());
-				MinecraftForge.EVENT_BUS.register(new ServerInitializationHandler());
+				MinecraftForge.EVENT_BUS.register(WorldTickHandler.class);
+				MinecraftForge.EVENT_BUS.register(MonsterDropEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(ExperienceDropEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(ChunkEvent.class);
+				MinecraftForge.EVENT_BUS.register(PlayerLoginEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(PlayerTickEventHandler.class);
+				MinecraftForge.EVENT_BUS.register(PlayerTeleportHandler.class);
+				MinecraftForge.EVENT_BUS.register(LivingEventMovementHandler.class);
+				MinecraftForge.EVENT_BUS.register(BlockEvents.class);
+				MinecraftForge.EVENT_BUS.register(LivingEntitySpawnHandler.class);
+				MinecraftForge.EVENT_BUS.register(ServerInitializationHandler.class);
 				DifficultyOverrideHandler.registerEvent();
 				fixAttributeMax();
  		}  

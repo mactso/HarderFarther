@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.Main;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
@@ -8,7 +9,9 @@ import net.minecraft.client.renderer.FogRenderer.FogMode;
 import net.minecraftforge.client.event.ViewportEvent.ComputeFogColor;
 import net.minecraftforge.client.event.ViewportEvent.RenderFog;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class FogColorsEventHandler {
 	
 	private static float sliderColorPercent = 1.0f;
@@ -67,13 +70,13 @@ public class FogColorsEventHandler {
 
 	}
 
-	private long colorTick = 0;
+	private static long colorTick = 0;
 
-	private long fogTick = 0;
+	private static long fogTick = 0;
 
-	private int antiSpam = 0;
+	private static int antiSpam = 0;
 
-	private void adjustFogColor(ComputeFogColor event, float slider) {
+	private static void adjustFogColor(ComputeFogColor event, float slider) {
 
 		double redSlider = Math.max(RedFromServer, slider);
 		double greenSlider = Math.max(GreenFromserver, slider);
@@ -87,7 +90,7 @@ public class FogColorsEventHandler {
 		}
 	}
 
-	private void adjustFogDistance(RenderFog event, float closeFogPercent, float farFogPercent) {
+	private static void adjustFogDistance(RenderFog event, float closeFogPercent, float farFogPercent) {
 
 		if ((closeFogPercent < 1) || (farFogPercent < 1)) {
 //			if (antiSpam%100 == 0)
@@ -106,7 +109,7 @@ public class FogColorsEventHandler {
 
 	}
 
-	private float doSlideToPercent(float slider, float target) {
+	private static float doSlideToPercent(float slider, float target) {
 		final double slideAmount = 0.005f;
 		if (slider > target+0.005f) {
 			slider -= slideAmount;
@@ -120,7 +123,7 @@ public class FogColorsEventHandler {
 
 	// clientside gui event
 	@SubscribeEvent
-	public void onFogColorCheck(ComputeFogColor event) {
+	public static void onFogColorCheck(ComputeFogColor event) {
 
 		Minecraft m = Minecraft.getInstance();
 		LocalPlayer cp = m.player;
@@ -141,7 +144,7 @@ public class FogColorsEventHandler {
 
 	// Density of Fog- not Color
 	@SubscribeEvent
-	public void onFogRender(RenderFog event) {
+	public static void onFogRender(RenderFog event) {
 //		FogMode sky = FogMode.FOG_SKY;
 		if (event.getMode() == FogMode.FOG_TERRAIN) {
 			Minecraft m = Minecraft.getInstance();

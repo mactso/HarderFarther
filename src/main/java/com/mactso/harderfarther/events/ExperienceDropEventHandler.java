@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.config.MyConfig;
 import com.mactso.harderfarther.utility.Utility;
 
@@ -11,16 +12,18 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 
 // this method only *limits* xp drops that happen to past.  it is part of the farm limiter.
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class ExperienceDropEventHandler {
 
 	public static long tickTimer = 0;
 
 	@SubscribeEvent
-	public void onMonsterDrops(LivingExperienceDropEvent event) {
+	public static void onMonsterDrops(LivingExperienceDropEvent event) {
 		
 		LivingEntity le = event.getEntity();
 		if (le == null)   {
@@ -52,7 +55,7 @@ public class ExperienceDropEventHandler {
 
 	}
 
-	private boolean closeToWorldSpawn(ServerLevel serverLevel, LivingEntity le) {
+	private static boolean closeToWorldSpawn(ServerLevel serverLevel, LivingEntity le) {
 
 		Vec3 spawnVec = new Vec3(serverLevel.getLevelData().getXSpawn(), serverLevel.getLevelData().getYSpawn(),
 				serverLevel.getLevelData().getZSpawn());

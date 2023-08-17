@@ -1,5 +1,6 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.Main;
 import net.minecraft.util.RandomSource;
 import com.mactso.harderfarther.client.GrimSongManager;
 import com.mactso.harderfarther.config.MyConfig;
@@ -28,14 +29,14 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;;
 
-@Mod.EventBusSubscriber()
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class LivingEventMovementHandler {
 	
 	/**
 	 * @param event
 	 */
 	@SubscribeEvent
-	public void onLivingUpdate(LivingTickEvent event) {
+	public static void onLivingUpdate(LivingTickEvent event) {
 
 		LivingEntity le = event.getEntity();
 		RandomSource rand = le.level().getRandom();

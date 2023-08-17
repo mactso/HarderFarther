@@ -1,6 +1,7 @@
 package com.mactso.harderfarther.events;
 
 
+import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.MobConfig;
 import com.mactso.harderfarther.mixinInterfaces.IExtendedServerWorld;
@@ -11,13 +12,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class LivingEntitySpawnHandler {
 
 
     //Should always run on server Side
     @SubscribeEvent
-    public void onLivingEntitySpawn(MobSpawnEvent.SpawnPlacementCheck spawnEvent){
+    public static void onLivingEntitySpawn(MobSpawnEvent.SpawnPlacementCheck spawnEvent){
 
 
         String string = spawnEvent.getEntityType().toString();

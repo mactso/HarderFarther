@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class ServerInitializationHandler
 {
 
@@ -38,7 +38,7 @@ public class ServerInitializationHandler
 
     // Use the lowest priority to account for nonsense from e.g. MCreator.
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onServerAboutToStart(ServerAboutToStartEvent event)
+    public static void onServerAboutToStart(ServerAboutToStartEvent event)
     {
 
         GrimCitadelManager.load(event.getServer());

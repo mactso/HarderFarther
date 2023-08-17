@@ -1,9 +1,12 @@
 package com.mactso.harderfarther.events;
 
+import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.api.DifficultyCalculator;
 import com.mactso.harderfarther.config.DimensionDifficultyOverridesConfig;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Main.MODID)
 public class DifficultyOverrideHandler {
 
     public static void registerEvent() {
