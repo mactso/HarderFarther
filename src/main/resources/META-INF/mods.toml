@@ -8,7 +8,7 @@ displayName="Harder Farther Mod"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/harderfarther"
 updateJSONURL="https://github.com/mactso/harderfarther/raw/main/update.json"
 logoFile="Logo.png"
-authors="MacTso, Lupicus"
+authors="MacTso, Lupicus, Arazadaz"
 description='Harder Farther Mod.'
 [[dependencies.harderfarther]]
     modId="forge"
