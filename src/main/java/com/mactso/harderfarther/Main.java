@@ -93,6 +93,7 @@ public class Main {
 				MinecraftForge.EVENT_BUS.register(new LivingEventMovementHandler());
 				MinecraftForge.EVENT_BUS.register(new BlockEvents());
 				MinecraftForge.EVENT_BUS.register(new LivingEntitySpawnHandler());
+				MinecraftForge.EVENT_BUS.register(new ServerInitializationHandler());
 				DifficultyOverrideHandler.registerEvent();
 				fixAttributeMax();
  		}  

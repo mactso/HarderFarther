@@ -21,7 +21,7 @@ public class WorldTickHandler {
 
 	// assumes this event only raised for server worlds. TODO verify.
 	@SubscribeEvent
-	public static void onWorldTickEvent(LevelTickEvent event) {
+	public void onWorldTickEvent(LevelTickEvent event) {
 
 		if (event.phase == Phase.START)
 			return;

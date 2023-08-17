@@ -29,9 +29,10 @@ public class StructureConfig {
                 Main.LOGGER.warn("[HarderFarther] Could not read property file '" + configFile.getAbsolutePath() + "'", e);
             }
         }
-        size = properties.size();
 
         difficultySectionAsString.add(properties.computeIfAbsent("Section_1", (a) -> ">0:\"\"").toString());
+
+        size = properties.size();
 
         if(size > 1){
             for(int x = 1; x < size; x++){

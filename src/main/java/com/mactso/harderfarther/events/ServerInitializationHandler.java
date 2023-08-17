@@ -27,7 +27,7 @@ import java.util.Properties;
 
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class InitializationHandler
+public class ServerInitializationHandler
 {
 
     private static ArrayList<String> structureList = new ArrayList<>();
@@ -38,7 +38,7 @@ public class InitializationHandler
 
     // Use the lowest priority to account for nonsense from e.g. MCreator.
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onServerAboutToStart(ServerAboutToStartEvent event)
+    public void onServerAboutToStart(ServerAboutToStartEvent event)
     {
 
         GrimCitadelManager.load(event.getServer());
@@ -73,7 +73,6 @@ public class InitializationHandler
             if(ores.get(placedFeatureKey).feature().value().feature() instanceof OreFeature){
                 Block block = ((OreConfiguration)ores.get(placedFeatureKey).feature().value().config()).targetStates.get(0).state.getBlock();
                 String blockId = blocks.getKey(block).toString();
-                System.out.println(blockId);
                 if(!oreList.contains(blockId)) {
                     oreList.add(blockId);
                 }

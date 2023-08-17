@@ -55,7 +55,7 @@ public class BlockEvents {
 	static long cGameTime = 0;
 
 	@SubscribeEvent
-	public static void onBreakingSpeed(BreakSpeed event) {
+	public void onBreakingSpeed(BreakSpeed event) {
 		// note: This is both server and clientside. client uses to display properly.
 		if (event.getEntity() == null) {
 			return;
@@ -100,7 +100,7 @@ public class BlockEvents {
 	}
 
 	@SubscribeEvent
-	public static void onBreakBlock(BreakEvent event) {
+	public void onBreakBlock(BreakEvent event) {
 
 		// server side only event.
 		ServerPlayer sp = (ServerPlayer) event.getPlayer();
@@ -126,7 +126,7 @@ public class BlockEvents {
 	}
 
 	@SubscribeEvent
-	public static void onBlockPlacement(EntityPlaceEvent event) {
+	public void onBlockPlacement(EntityPlaceEvent event) {
 
 		if (!(event.getEntity() instanceof Player))
 			return;
@@ -142,7 +142,7 @@ public class BlockEvents {
 	 * fix client side view of the hotbar for non creative This makes it so items
 	 * don't look like they poofed.
 	 */
-	public static void updateHands(ServerPlayer player) {
+	public void updateHands(ServerPlayer player) {
 		if (player.connection == null)
 			return;
 		ItemStack itemstack = player.getInventory().getSelected();
@@ -153,14 +153,14 @@ public class BlockEvents {
 			slotChanged(player, 45, itemstack);
 	}
 
-	public static void slotChanged(ServerPlayer player, int index, ItemStack itemstack) {
+	public void slotChanged(ServerPlayer player, int index, ItemStack itemstack) {
 		InventoryMenu menu = player.inventoryMenu;
 		player.connection.send(
 				new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), index, itemstack));
 	}
 
 	@SubscribeEvent
-	public static void onBucket(FillBucketEvent event) {
+	public void onBucket(FillBucketEvent event) {
 
 		HitResult target = event.getTarget();
 
@@ -232,7 +232,7 @@ public class BlockEvents {
 //	}
 
 	@SubscribeEvent
-	public static void onExplosionDetonate(Detonate event) {
+	public void onExplosionDetonate(Detonate event) {
 		Level level = event.getLevel();
 		List<BlockPos> list = event.getAffectedBlocks();
 		Vec3 vPos = event.getExplosion().getPosition();
