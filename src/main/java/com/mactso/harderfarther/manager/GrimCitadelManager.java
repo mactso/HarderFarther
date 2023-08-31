@@ -1096,6 +1096,8 @@ public class GrimCitadelManager {
 			return;
 
 		float difficulty = FogColorsEventHandler.getServerGrimDifficulty();
+//		float difficulty = 0.2f;
+		
 		if (difficulty == 0)
 			return;
 

@@ -4,6 +4,8 @@ import com.mactso.harderfarther.Main;
 import com.mactso.harderfarther.config.BiomeConfig;
 import com.mactso.harderfarther.config.Platform;
 import com.mactso.harderfarther.manager.GrimCitadelManager;
+import com.mactso.harderfarther.utility.Utility;
+
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -41,6 +43,9 @@ public class ServerInitializationHandler
     public static void onServerAboutToStart(ServerAboutToStartEvent event)
     {
 
+        Class<?> currentClass = new Object() {}.getClass().getEnclosingClass();
+        Utility.debugMsg(1,"I am in the class: " + currentClass.getSimpleName());
+        
         GrimCitadelManager.load(event.getServer());
 
 
@@ -52,7 +57,7 @@ public class ServerInitializationHandler
         RegistryAccess registryAccess = event.getServer().registryAccess();
 
         Registry<Structure> structures = registryAccess.registryOrThrow(Registries.STRUCTURE);
-        Registry<EntityType> entitieTypes = registryAccess.registryOrThrow(Registries.ENTITY_TYPE);
+        Registry<EntityType<?>> entitieTypes = registryAccess.registryOrThrow(Registries.ENTITY_TYPE);
         Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
         Registry<PlacedFeature> ores = registryAccess.registryOrThrow(Registries.PLACED_FEATURE);
         Registry<Block> blocks = registryAccess.registryOrThrow(Registries.BLOCK);

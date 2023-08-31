@@ -218,7 +218,7 @@ public class BiomeGenMixin extends BiomeSource{
             if(this.dimension.equals("minecraft:overworld")) {
                 cir.setReturnValue((Holder<Biome>) newSearchTree[choosenAreaIndex[0]][uniqueness].search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
             }else {
-                cir.setReturnValue((Holder<Biome>) ((Climate.RTree) (Object) defaultSearchTrees[0]).search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
+                cir.setReturnValue(((Climate.RTree<Holder<Biome>>) (Object) defaultSearchTrees[0]).search(multiNoiseSampler.sample(i, j, k), Climate.RTree.Node::distance));
             }
 
         }

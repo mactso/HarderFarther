@@ -77,13 +77,15 @@ public class HarderTimeManager {
 		}
 	}
 
+	//client side only
 	private static void doNiceAtmosphere(Player cp) {
 
 		RandomSource rand = cp.level().getRandom();
 
 		
+//		float timeDifficulty = 0.2F;
 		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
-
+		
 		if (timeDifficulty > 0) {
 			return;
 		}
@@ -214,7 +216,8 @@ public class HarderTimeManager {
 
 		RandomSource rand = cp.level().getRandom();
 
-		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
+		float timeDifficulty = 0.2f;
+//		float timeDifficulty = FogColorsEventHandler.getServerTimeDifficulty();
 		if (timeDifficulty == 0)
 			return;
 

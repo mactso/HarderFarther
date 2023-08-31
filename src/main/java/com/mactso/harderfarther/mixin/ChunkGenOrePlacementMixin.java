@@ -35,7 +35,8 @@ public class ChunkGenOrePlacementMixin {
         //return true if generation is allowed
         //context contains ore to be placed among other things like world & blockpos & config
         //config is the block
-
+        Class<?> currentClass = new Object() {}.getClass().getEnclosingClass();
+        Utility.debugMsg(1,"I am in the class: " + currentClass.getSimpleName());
 
         if(!areListInitialized) {
             synchronized (this) {
@@ -77,16 +78,19 @@ public class ChunkGenOrePlacementMixin {
 
             //default to alllow all ores if list is empty. - .isEmpty doesn't work as it seems initialized with empty strings.
             if(difficultySectionOres.get(choosenAreaIndex[0]).get(0).equals("")){
+
+                Utility.debugMsg(1,"I am out early the class: " + currentClass.getSimpleName());
                 return;
             }
 
             if(!difficultySectionOres.get(choosenAreaIndex[0]).contains(block)){
                 if(MyConfig.getDebugLevel() > 0){
-                    Utility.debugMsg(1, "Harder Farther cancled ore: " + block);
+                    Utility.debugMsg(1, "Harder Farther canceled ore: " + block);
                 }
                 cir.setReturnValue(false);
             }
-
+            
+            Utility.debugMsg(1,"I am out the class: " + currentClass.getSimpleName());
 
         }
 

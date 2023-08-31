@@ -69,7 +69,7 @@ public class Main {
 	    @SubscribeEvent
 	    public void setupClient(final FMLClientSetupEvent event) {
 	    	
-			MinecraftForge.EVENT_BUS.register(new FogColorsEventHandler());
+//			MinecraftForge.EVENT_BUS.register(new FogColorsEventHandler());
 			ModBlocks.setRenderLayer();
 			
 	    }
