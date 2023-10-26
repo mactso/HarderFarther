@@ -70,7 +70,7 @@ public class BiomeConfig {
             List<String> biomes = List.of(difficultySectionsAsString.get(x).split(":", 2)[1].replace("\"", "").split(","));
             difficultySections.add(new Tuple<>(section, biomes));
 
-            Map map = new HashMap<>();
+            Map<String,String> map = new HashMap<>();
             String[] replacements = difficultySectionBiomeReplacementsAsString.get(x).replace("\"", "").split(",");
             for (String replacement:replacements) {
                 //Make sure entry isn't empty
@@ -120,7 +120,7 @@ public class BiomeConfig {
         return difficultySectionBiomeReplacements;
     }
 
-    public static void setDynamicBiomeRegistry(Registry biomes){
+    public static void setDynamicBiomeRegistry(Registry<Biome> biomes){
         biomeRegistry = biomes;
     }
 

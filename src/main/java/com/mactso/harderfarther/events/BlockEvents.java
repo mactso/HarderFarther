@@ -195,7 +195,7 @@ public class BlockEvents {
 					Block block = state.getBlock();
 					if (block instanceof LiquidBlockContainer) {
 						LiquidBlockContainer lc = (LiquidBlockContainer) block;
-						if (lc.canPlaceLiquid(level, blockpos, state, fluid))
+						if (lc.canPlaceLiquid(player,level, blockpos, state, fluid))
 							next = false;
 					}
 				}

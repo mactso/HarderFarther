@@ -2,13 +2,12 @@ package com.mactso.harderfarther.network;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.mactso.harderfarther.manager.GrimCitadelManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent.Context;
 
 public class SyncAllGCWithClientPacket {
 	
@@ -19,14 +18,14 @@ public class SyncAllGCWithClientPacket {
 		this.GCLocations = gl;
 	}
 	
-	public static void processPacket(SyncAllGCWithClientPacket message, Supplier<NetworkEvent.Context> ctx)
+	public static void processPacket(SyncAllGCWithClientPacket message, Context ctx)
 	{
-		ctx.get().enqueueWork( () -> 
+		ctx.enqueueWork( () -> 
 			{
 				GrimCitadelManager.realGCList = message.GCLocations;
 			}
 		);
-		ctx.get().setPacketHandled(true);
+		ctx.setPacketHandled(true);
 	}
 
 	public static SyncAllGCWithClientPacket readPacketData(FriendlyByteBuf buf)

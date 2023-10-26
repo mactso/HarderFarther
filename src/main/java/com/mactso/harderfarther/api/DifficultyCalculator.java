@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,8 +22,8 @@ public class DifficultyCalculator {
 
 	private static List<DifficultyOverrideListener> listeners = new ArrayList<DifficultyOverrideListener>();
 
-	public static float calcDistanceModifier(Vec3 eventVec, Vec3 nearestOutpostVec) {
-		double distance = eventVec.distanceTo(nearestOutpostVec);
+	public static float calcDistanceModifier(Vec3 vector1, Vec3 vector2) {
+		double distance = vector1.distanceTo(vector2);
 		distance = Math.max(0, distance - MyConfig.getBoostMinDistance());
 		Float f = (float) Math.min(1.0f, distance / MyConfig.getBoostMaxDistance());
 		return f;
@@ -39,6 +40,7 @@ public class DifficultyCalculator {
 		return difficulty;
 
 	}
+
 
 
 
@@ -86,16 +88,15 @@ public class DifficultyCalculator {
 
 		Vec3 nearestOutpost = getNearestOutpost(outposts, eventVec);
 
-		Utility.debugMsg(2, "getTimedifficulty here top");
 		float timeDifficulty = 0;
 		timeDifficulty = HarderTimeManager.getTimeDifficulty(serverLevel, le);
-
-		Utility.debugMsg(2, "getGrimdifficulty here top");
+		Utility.debugMsg(2, "getTimedifficulty here top: " + timeDifficulty);
 		float gcDifficultyPct = 0;
 		gcDifficultyPct = GrimCitadelManager.getGrimDifficulty(le);
+		Utility.debugMsg(2, "getGrimdifficulty here top: " + gcDifficultyPct);
 
-		Utility.debugMsg(2, "getCalcDistanceModifier top");
 		float hfDifficulty = DifficultyCalculator.calcDistanceModifier(eventVec, nearestOutpost);
+		Utility.debugMsg(2, "getCalcDistanceModifier top: " + hfDifficulty);
 
 		float highDifficulty[] = new float[]{Math.max(timeDifficulty, hfDifficulty)};
 		highDifficulty[0] = Math.max(gcDifficultyPct, highDifficulty[0]);
@@ -116,6 +117,20 @@ public class DifficultyCalculator {
 		return highDifficulty[0];
 	}
 
+	public static float getRawDifficultyHere(ServerLevel serverLevel, Player p) {
+		double xzf = serverLevel.dimensionType().coordinateScale();
+		if (xzf == 0.0) {
+			xzf = 1.0d;
+		}
+		BlockPos pos = p.blockPosition();
+		LevelData winfo = serverLevel.getLevelData();
+		Vec3 spawnVec = new Vec3(winfo.getXSpawn() / xzf, winfo.getYSpawn(), winfo.getZSpawn() / xzf);
+		Vec3 eventVec = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+		
+		float hfDifficulty = DifficultyCalculator.calcDistanceModifier(eventVec, spawnVec);
+		Utility.debugMsg(2, "getCalcDistanceModifier top: " + hfDifficulty);
+		return hfDifficulty;
+	}
 
 
 

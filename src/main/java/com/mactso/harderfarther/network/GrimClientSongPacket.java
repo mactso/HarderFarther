@@ -1,11 +1,9 @@
 package com.mactso.harderfarther.network;
 
-import java.util.function.Supplier;
-
 import com.mactso.harderfarther.client.GrimSongManager;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent.Context;
 
 public class GrimClientSongPacket {
 	private int song;
@@ -15,14 +13,14 @@ public class GrimClientSongPacket {
 		this.song = song;
 	}
 	
-	public static void processPacket(GrimClientSongPacket message, Supplier<NetworkEvent.Context> ctx)
+	public static void processPacket(GrimClientSongPacket message, Context ctx)
 	{
-		ctx.get().enqueueWork( () -> 
+		ctx.enqueueWork( () -> 
 			{
 				GrimSongManager.startSong(message.song);
 			}
 		);
-		ctx.get().setPacketHandled(true);
+		ctx.setPacketHandled(true);
 	}
 	
 	public static GrimClientSongPacket readPacketData(FriendlyByteBuf buf)

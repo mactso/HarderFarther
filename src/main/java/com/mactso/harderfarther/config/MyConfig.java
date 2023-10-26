@@ -570,6 +570,7 @@ public class MyConfig {
 				int y = -1;
 				int z = Integer.valueOf(posParts[1]);
 				positions[index] = new Vec3(x, y, z);
+				index++;
 			}else return new Vec3[1];
 		}
 		return positions;

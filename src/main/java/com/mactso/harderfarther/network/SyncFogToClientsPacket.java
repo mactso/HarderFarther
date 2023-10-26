@@ -1,11 +1,9 @@
 package com.mactso.harderfarther.network;
 
-import java.util.function.Supplier;
-
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent.Context;
 
 public class SyncFogToClientsPacket  {
 		private double red;
@@ -19,14 +17,14 @@ public class SyncFogToClientsPacket  {
 			this.blue = b;
 		}
 
-		public static void processPacket(SyncFogToClientsPacket message, Supplier<NetworkEvent.Context> ctx)
+		public static void processPacket(SyncFogToClientsPacket message, Context ctx)
 		{
-			ctx.get().enqueueWork( () -> 
+			ctx.enqueueWork( () -> 
 				{
 					FogColorsEventHandler.setFogRGB(message.red, message.green, message.blue);
 				}
 			);
-			ctx.get().setPacketHandled(true);
+			ctx.setPacketHandled(true);
 		}
 		
 		public static SyncFogToClientsPacket readPacketData(FriendlyByteBuf buf) {

@@ -1,11 +1,9 @@
 package com.mactso.harderfarther.network;
 
-import java.util.function.Supplier;
-
 import com.mactso.harderfarther.events.FogColorsEventHandler;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent.Context;
 
 public class SyncDifficultyToClientsPacket  {
 		private float hardDifficulty;
@@ -19,14 +17,14 @@ public class SyncDifficultyToClientsPacket  {
 			this.timeDifficulty = time;
 		}
 
-		public static void processPacket(SyncDifficultyToClientsPacket message, Supplier<NetworkEvent.Context> ctx)
+		public static void processPacket(SyncDifficultyToClientsPacket message, Context ctx)
 		{
-			ctx.get().enqueueWork( () -> 
+			ctx.enqueueWork( () -> 
 				{
 					FogColorsEventHandler.setLocalDifficulty(message.hardDifficulty, message.grimDifficulty, message.timeDifficulty);
 				}
 			);
-			ctx.get().setPacketHandled(true);
+			ctx.setPacketHandled(true);
 		}
 		
 		public static SyncDifficultyToClientsPacket readPacketData(FriendlyByteBuf buf) {

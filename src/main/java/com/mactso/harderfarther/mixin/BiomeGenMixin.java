@@ -68,6 +68,8 @@ public class BiomeGenMixin extends BiomeSource{
                     }
 
                     //Return default value if terrablender biomesource is not initialized
+                    // Unchecked cast okay here because it is in a mixin and unsafe code required here.
+                    // It doesn't know the object type and if it's not the right kind it will crash at runtime.
                     if (!((IExtendedParameterList<Holder<Biome>>) this.parameters()).isInitialized()) {
 
                         if (MyConfig.getDebugLevel() > 1) {
