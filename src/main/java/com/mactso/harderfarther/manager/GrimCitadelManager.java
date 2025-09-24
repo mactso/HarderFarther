@@ -64,6 +64,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 
 public class GrimCitadelManager {
+	private static boolean initCitadelCheckDone = false;
 	private static long checkTimer = 0;
 	private static long ambientSoundTimer = 0;
 	private static long directionalSoundTimer = 0;
@@ -559,6 +560,8 @@ public class GrimCitadelManager {
 
 	public static void checkCleanUpCitadels(ServerLevel level) {
 
+
+		
 		if (level.dimension() != Level.OVERWORLD) {
 			return;
 		}
@@ -569,6 +572,8 @@ public class GrimCitadelManager {
 		if (!MyConfig.isUseGrimCitadels())
 			return;
 
+		
+		
 		long gameTime = level.getGameTime();
 		if (checkTimer == 0) { // delay creating grim citadels for 1 minute when game started.
 			checkTimer = gameTime + 900;
@@ -586,6 +591,21 @@ public class GrimCitadelManager {
 		}
 
 		addOptionalNewHearts(level, null);
+		
+		boolean citadelShouldBeGenerated = false;
+		
+		for (BlockPos pos : realGCList) {
+			if (pos.getY()==-1) {
+				citadelShouldBeGenerated = true;
+				break;
+			}
+		}
+
+		
+		if ((initCitadelCheckDone) && (!citadelShouldBeGenerated)) {
+			System.out.println("No work to do.");
+			return;
+		}
 
 		// Iterator<BlockPos> i = realGCList.iterator();
 
@@ -597,6 +617,7 @@ public class GrimCitadelManager {
 
 		currentCitadelIndex++;
 		if (currentCitadelIndex >= realGCList.size()) {
+			initCitadelCheckDone = true;
 			currentCitadelIndex = 0;
 		}
 
@@ -613,7 +634,7 @@ public class GrimCitadelManager {
 				if (level.getBlockState(ePos).getBlock() == ModBlocks.GRIM_HEART) {
 					foundHeart = true;
 					Utility.debugMsg(1, pos, "Aye, Grim Citadel #" + currentCitadelIndex + " still exists.");
-					break;
+					return;
 				}
 			}
 		}
